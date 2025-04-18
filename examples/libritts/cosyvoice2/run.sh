@@ -2,11 +2,12 @@
 # Copyright 2024 Alibaba Inc. All Rights Reserved.
 . ./path.sh || exit 1;
 
-stage=-1
-stop_stage=3
+stage=5
+stop_stage=5
 
 data_url=www.openslr.org/resources/60
-data_dir=/mnt/lyuxiang.lx/data/tts/openslr/libritts
+#data_dir=/mnt/lyuxiang.lx/data/tts/openslr/libritts
+data_dir=/home/longtou.2024/projects/CosyVoice/examples/libritts/cosyvoice2/data/
 pretrained_model_dir=../../../pretrained_models/CosyVoice2-0.5B
 
 if [ ${stage} -le -1 ] && [ ${stop_stage} -ge -1 ]; then
@@ -71,7 +72,8 @@ if [ ${stage} -le 4 ] && [ ${stop_stage} -ge 4 ]; then
 fi
 
 # train llm
-export CUDA_VISIBLE_DEVICES="0,1,2,3"
+#export CUDA_VISIBLE_DEVICES="0,1,2,3"
+export CUDA_VISIBLE_DEVICES="0"
 num_gpus=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 job_id=1986
 dist_backend="nccl"
@@ -86,7 +88,8 @@ if [ ${stage} -le 5 ] && [ ${stop_stage} -ge 5 ]; then
   cat data/{train-clean-100,train-clean-360,train-other-500}/parquet/data.list > data/train.data.list
   cat data/{dev-clean,dev-other}/parquet/data.list > data/dev.data.list
   # NOTE will update llm/hift training later
-  for model in llm flow; do
+  #for model in llm flow; do
+  for model in llm; do
     torchrun --nnodes=1 --nproc_per_node=$num_gpus \
         --rdzv_id=$job_id --rdzv_backend="c10d" --rdzv_endpoint="localhost:1234" \
       cosyvoice/bin/train.py \

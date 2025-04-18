@@ -91,6 +91,77 @@ class CosyVoice:
                 yield model_output
                 start_time = time.time()
 
+    def inference_zero_shot_prosody_transfer(self, tts_text, prosody_prompt_text, prosody_prompt_speech_16k, prompt_text, prompt_speech_16k, stream=False, speed=1.0, text_frontend=True):
+        prosody_prompt_text = self.frontend.text_normalize(prosody_prompt_text, split=False, text_frontend=text_frontend)
+        prompt_text = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)
+        for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
+            if (not isinstance(i, Generator)) and len(i) < 0.5 * len(prompt_text):
+                logging.warning('synthesis text {} too short than prompt text {}, this may lead to bad performance'.format(i, prompt_text))
+
+            #def tts(self, text, flow_embedding, llm_embedding=torch.zeros(0, 192),
+            #        prompt_text=torch.zeros(1, 0, dtype=torch.int32),
+            #        llm_prompt_speech_token=torch.zeros(1, 0, dtype=torch.int32),
+            #        flow_prompt_speech_token=torch.zeros(1, 0, dtype=torch.int32),
+            #        prompt_speech_feat=torch.zeros(1, 0, 80), stream=False, speed=1.0, **kwargs):
+
+            import uuid
+            import threading
+
+            # frontend_zero_shot with prosody prompt
+            #print(f"[DEBUG1]: {i}")
+            model_input = self.frontend.frontend_zero_shot(i, prosody_prompt_text, prosody_prompt_speech_16k, self.sample_rate)
+            text = model_input["text"]
+            _prompt_text = model_input["prompt_text"]
+            llm_prompt_speech_token = model_input["llm_prompt_speech_token"]
+            llm_embedding = model_input["llm_embedding"]
+            #flow_prompt_speech_token = model_input["flow_prompt_speech_token"]
+
+            # frontend_zero_shot with target prompt
+            #print(f"[DEBUG2]: {i}")
+            model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_speech_16k, self.sample_rate)
+            flow_embedding = model_input["flow_embedding"]
+            prompt_speech_feat = model_input["prompt_speech_feat"]
+            flow_prompt_speech_token = model_input["flow_prompt_speech_token"]
+
+            # LM inference with prosody prompt
+            # this_uuid is used to track variables related to this inference thread
+            this_uuid = str(uuid.uuid1())
+            with self.model.lock:
+                self.model.tts_speech_token_dict[this_uuid], self.model.llm_end_dict[this_uuid] = [], False
+                self.model.hift_cache_dict[this_uuid] = None
+                self.model.flow_cache_dict[this_uuid] = self.model.init_flow_cache()
+            p = threading.Thread(target=self.model.llm_job, args=(text, _prompt_text, llm_prompt_speech_token, llm_embedding, this_uuid))
+            p.start()
+            p.join()
+
+            def flow_infer():
+                # deal with all tokens
+                assert self.model.use_flow_cache is False, "set use_flow_cache=False for nonstream inference"
+                this_tts_speech_token = torch.tensor(self.model.tts_speech_token_dict[this_uuid]).unsqueeze(dim=0)
+                this_tts_speech = self.model.token2wav(token=this_tts_speech_token,
+                                                 prompt_token=flow_prompt_speech_token,
+                                                 prompt_feat=prompt_speech_feat,
+                                                 embedding=flow_embedding,
+                                                 uuid=this_uuid,
+                                                 finalize=True,
+                                                 speed=speed)
+                yield {'tts_speech': this_tts_speech.cpu()}
+                with self.model.lock:
+                    self.model.tts_speech_token_dict.pop(this_uuid)
+                    self.model.llm_end_dict.pop(this_uuid)
+                    self.model.hift_cache_dict.pop(this_uuid)
+                    self.model.flow_cache_dict.pop(this_uuid)
+                torch.cuda.empty_cache()
+
+            start_time = time.time()
+            logging.info('synthesis text {}'.format(i))
+            #for model_output in self.model.tts(**model_input, stream=stream, speed=speed):
+            for model_output in flow_infer():
+                speech_len = model_output['tts_speech'].shape[1] / self.sample_rate
+                logging.info('yield speech len {}, rtf {}'.format(speech_len, (time.time() - start_time) / speech_len))
+                yield model_output
+                start_time = time.time()
+
     def inference_cross_lingual(self, tts_text, prompt_speech_16k, stream=False, speed=1.0, text_frontend=True):
         for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
             model_input = self.frontend.frontend_cross_lingual(i, prompt_speech_16k, self.sample_rate)
