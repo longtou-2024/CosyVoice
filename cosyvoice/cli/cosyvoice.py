@@ -102,6 +102,27 @@ class CosyVoice:
                 yield model_output
                 start_time = time.time()
 
+    def inference_zero_shot_rt(self, tts_text, prompt_text, prompt_speech_16k, zero_shot_spk_id='', stream=False, speed=1.0, text_frontend=True):
+        prompt_text = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)
+        for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
+            if (not isinstance(i, Generator)) and len(i) < 0.5 * len(prompt_text):
+                logging.warning('synthesis text {} too short than prompt text {}, this may lead to bad performance'.format(i, prompt_text))
+            model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_speech_16k, self.sample_rate, zero_shot_spk_id)
+            start_time = time.time()
+            logging.info('synthesis text {}'.format(i))
+            for model_output in self.model.tts_rt2(**model_input, stream=stream, speed=speed):
+                speech_len = model_output['tts_speech'].shape[1] / self.sample_rate
+                flow_time = model_output['flow_time']
+                voc_time = model_output['voc_time']
+                lm_time = model_output['lm_time']
+                #logging.info('yield speech len {}, rtf {}'.format(speech_len, (time.time() - start_time) / speech_len))
+                msg = f'yield speech len {speech_len}, rtf {((time.time() - start_time) / speech_len)}'
+                msg += f'\nlm {lm_time:.2f}, flow {flow_time:.2f}, voc {voc_time:.2f}'
+                msg += f'\nRT: lm {lm_time / speech_len:.2f}, flow {flow_time / speech_len:.2f}, voc {voc_time / speech_len:.2f}'
+                logging.info(msg)
+                yield model_output
+                start_time = time.time()
+
     def inference_zero_shot_prosody_transfer(self, tts_text, prosody_prompt_text, prosody_prompt_speech_16k, prompt_text, prompt_speech_16k, stream=False, speed=1.0, text_frontend=True):
         prosody_prompt_text = self.frontend.text_normalize(prosody_prompt_text, split=False, text_frontend=text_frontend)
         prompt_text = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)

@@ -68,9 +68,11 @@ class CosyVoiceFrontEnd:
                 'failed to initialize ttsfrd resource'
             self.frd.set_lang_type('pinyinvg')
         else:
-            self.zh_tn_model = ZhNormalizer(remove_erhua=False, full_to_half=False, overwrite_cache=True)
-            self.en_tn_model = EnNormalizer()
-            self.inflect_parser = inflect.engine()
+            # NOTE(longtou): pass it for inference test
+            pass
+            #self.zh_tn_model = ZhNormalizer(remove_erhua=False, full_to_half=False, overwrite_cache=True)
+            #self.en_tn_model = EnNormalizer()
+            #self.inflect_parser = inflect.engine()
 
     def _extract_text_token(self, text):
         if isinstance(text, Generator):
