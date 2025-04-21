@@ -252,8 +252,8 @@ class CosyVoice2Model(CosyVoiceModel):
             self.llm.half()
             self.flow.half()
         # stream related params, check examples/libritts/cosyvoice2/conf/cosyvoice2.yaml
-        #self.token_hop_len = 25 # 1s chunk for flow
-        self.token_hop_len = 75
+        self.token_hop_len = 25 # 1s chunk for flow
+        #self.token_hop_len = 75
         self.flow_decoder_required_cache_size = 0 if use_flow_cache is False else 1 * self.token_hop_len * self.flow.token_mel_ratio
         # hift cache
         self.mel_cache_len = 8
