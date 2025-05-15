@@ -123,7 +123,7 @@ class CosyVoice:
                 yield model_output
                 start_time = time.time()
 
-    def inference_zero_shot_prosody_transfer(self, tts_text, prosody_prompt_text, prosody_prompt_speech_16k, prompt_text, prompt_speech_16k, stream=False, speed=1.0, text_frontend=True):
+    def inference_zero_shot_prosody_transfer(self, tts_text, prosody_prompt_text, prosody_prompt_speech_16k, prompt_text, prompt_speech_16k, zero_shot_spk_id='', stream=False, speed=1.0, text_frontend=True):
         prosody_prompt_text = self.frontend.text_normalize(prosody_prompt_text, split=False, text_frontend=text_frontend)
         prompt_text = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)
         for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
@@ -141,7 +141,7 @@ class CosyVoice:
 
             # frontend_zero_shot with prosody prompt
             #print(f"[DEBUG1]: {i}")
-            model_input = self.frontend.frontend_zero_shot(i, prosody_prompt_text, prosody_prompt_speech_16k, self.sample_rate)
+            model_input = self.frontend.frontend_zero_shot(i, prosody_prompt_text, prosody_prompt_speech_16k, self.sample_rate, zero_shot_spk_id)
             text = model_input["text"]
             _prompt_text = model_input["prompt_text"]
             llm_prompt_speech_token = model_input["llm_prompt_speech_token"]
@@ -150,7 +150,7 @@ class CosyVoice:
 
             # frontend_zero_shot with target prompt
             #print(f"[DEBUG2]: {i}")
-            model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_speech_16k, self.sample_rate)
+            model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_speech_16k, self.sample_rate, zero_shot_spk_id)
             flow_embedding = model_input["flow_embedding"]
             prompt_speech_feat = model_input["prompt_speech_feat"]
             flow_prompt_speech_token = model_input["flow_prompt_speech_token"]
@@ -255,6 +255,8 @@ class CosyVoice2(CosyVoice):
             load_jit, load_trt, fp16 = False, False, False
             logging.warning('no cuda device, set load_jit/load_trt/fp16 to False')
         self.model = CosyVoice2Model(configs['llm'], configs['flow'], configs['hift'], fp16, use_flow_cache)
+        # NOTE(longtou):
+        #self.model.load('{}/llm_azure_1.pt'.format(model_dir),
         self.model.load('{}/llm.pt'.format(model_dir),
                         '{}/flow.pt'.format(model_dir) if use_flow_cache is False else '{}/flow.cache.pt'.format(model_dir),
                         '{}/hift.pt'.format(model_dir))

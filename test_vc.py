@@ -13,16 +13,6 @@ import torch
 ref_audio_dir = "ref_audio_pej"
 prosody_audio_dir = "ref_prosody_cosy"
 
-prosody_sent_syn = {
-    "annoying": "싫어! 나 밥 안먹을꺼야 놀게 해줘~",
-    "fairy": "고래는 멋있어요. 거대한 몸으로 바다를 거니는 모습, 상상만해도 설레죠.",
-    "history": "임금이 태평한 태평성대를 보았느냐? 내 마음이 지옥이기에 그나마 세상이 평온한 것이다.",
-    "joy": "많이 기다리셨죠? 드디어 최종 워크샵 장소가 결정되었습니다!",
-    "ridicule": "너가 지금 나를 잡아먹으려고 하는구나?",
-    "sad": "아이고 또 떨어졌니? 걱정이 늘었구나.",
-    "sport": "경기가 종료됐습니다! 오늘의 승리는 티원이 거두었고, 최종 스코어는 이대영 입니다. 오늘의 엠브이피는 페이커 선수으로 선정됐습니다.",
-}
-
 # parse ref
 scp = {}
 for line in Path(ref_audio_dir).glob("*.wav"):
@@ -52,13 +42,7 @@ cosyvoice = CosyVoice2('pretrained_models/CosyVoice2-0.5B', load_jit=False, load
 outdir = Path("outdir")
 outdir.mkdir(parents=True, exist_ok=True)
 
-
-def text_fn():
-    return "안녕하세요 카카오 엔터테인먼트 임직원 여러분, 내일은 내일의 해가 뜨는 법입니다."
-
 for uttid in scp.keys():
-    if uttid != "0127":
-        continue
     fpath = scp[uttid]
     prompt_speech_16k = load_wav(fpath, 16000)
     prompt_text = text_raw[uttid].strip()
@@ -68,11 +52,11 @@ for uttid in scp.keys():
         pr_prompt_speech_16k = load_wav(pr_fpath, 16000)
         pr_prompt_text = pr_text_raw[pr_uttid]
         prosody = pr_uttid.split('_', maxsplit=1)[0]
-        text_to_syn = prosody_sent_syn[prosody]
 
         tts_speeches = []
-        for tts_output in cosyvoice.inference_zero_shot_prosody_transfer(text_to_syn, pr_prompt_text, pr_prompt_speech_16k, prompt_text, prompt_speech_16k, stream=False):
+        #def inference_vc(self, source_speech_16k, prompt_speech_16k, stream=False, speed=1.0):
+        for tts_output in cosyvoice.inference_vc(pr_prompt_speech_16k, prompt_speech_16k, stream=False):
             tts_speeches.append(tts_output['tts_speech'])
         tts_speeches = torch.concat(tts_speeches, dim=1) # [C,T]
         torchaudio.save(outdir / f'{uttid}_{prosody}.wav', tts_speeches, cosyvoice.sample_rate)
-
+    break
