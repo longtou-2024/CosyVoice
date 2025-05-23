@@ -256,7 +256,7 @@ class CosyVoice2(CosyVoice):
             logging.warning('no cuda device, set load_jit/load_trt/fp16 to False')
         self.model = CosyVoice2Model(configs['llm'], configs['flow'], configs['hift'], fp16, use_flow_cache)
         # NOTE(longtou):
-        #self.model.load('{}/llm_azure_1.pt'.format(model_dir),
+        #self.model.load('{}/llm_azure.pt'.format(model_dir),
         self.model.load('{}/llm.pt'.format(model_dir),
                         '{}/flow.pt'.format(model_dir) if use_flow_cache is False else '{}/flow.cache.pt'.format(model_dir),
                         '{}/hift.pt'.format(model_dir))
