@@ -107,6 +107,55 @@ def filter(data,
                 continue
         yield sample
 
+def filter_lt(data,
+           max_length=10240,
+           min_length=10,
+           token_max_length=200,
+           token_min_length=1,
+           min_output_input_ratio=0.0005,
+           max_output_input_ratio=1,
+           mode='train'):
+    """ Filter sample according to feature and label length
+        Inplace operation.
+
+        Args::
+            data: Iterable[{key, wav, label, sample_rate}]
+            max_length: drop utterance which is greater than max_length(10ms)
+            min_length: drop utterance which is less than min_length(10ms)
+            token_max_length: drop utterance which is greater than
+                token_max_length, especially when use char unit for
+                english modeling
+            token_min_length: drop utterance which is
+                less than token_max_length
+            min_output_input_ratio: minimal ration of
+                token_length / feats_length(10ms)
+            max_output_input_ratio: maximum ration of
+                token_length / feats_length(10ms)
+
+        Returns:
+            Iterable[{key, wav, label, sample_rate}]
+    """
+    for sample in data:
+        sample['speech'], sample['sample_rate'] = torchaudio.load(BytesIO(sample['audio_data']))
+        sample['speech'] = sample['speech'].mean(dim=0, keepdim=True)
+        del sample['audio_data']
+        # sample['wav'] is torch.Tensor, we have 100 frames every second
+        num_frames = sample['speech'].size(1) / sample['sample_rate'] * 100
+        if num_frames < min_length:
+            continue
+        if num_frames > max_length:
+            continue
+        if len(sample['text_token']) < token_min_length:
+            continue
+        if len(sample['text_token']) > token_max_length:
+            continue
+        if num_frames != 0:
+            if len(sample['text_token']) / num_frames < min_output_input_ratio:
+                continue
+            if len(sample['text_token']) / num_frames > max_output_input_ratio:
+                continue
+        yield sample
+
 
 def resample(data, resample_rate=22050, min_sample_rate=16000, mode='train'):
     """ Resample data.
@@ -181,6 +230,29 @@ def compute_fbank(data,
             token_len = int(min(feat.shape[0] / token_mel_ratio, sample["speech_token"].shape[0]))
             feat = feat[:token_mel_ratio * token_len]
             sample["speech_token"] = sample["speech_token"][:token_len]
+        sample['speech_feat'] = feat
+        yield sample
+
+def compute_fbank_lt(data,
+                  feat_extractor,
+                  token_mel_ratio=0,
+                  mode='train'):
+    """ Extract fbank
+
+        Args:
+            data: Iterable[{key, wav, label, sample_rate}]
+
+        Returns:
+            Iterable[{key, feat, label}]
+    """
+    for sample in data:
+        assert 'sample_rate' in sample
+        assert 'speech' in sample
+        assert 'utt' in sample
+        assert 'text_token' in sample
+        waveform = sample['speech'] # [C,T]
+        # feat_extractor := s3tokenizer.log_mel_spectrogram
+        feat = feat_extractor(waveform[0]).transpose(0, 1) # [T,C]
         sample['speech_feat'] = feat
         yield sample
 
@@ -319,6 +391,8 @@ def static_batch(data, batch_size=16):
         yield buf
 
 
+# NOTE(longtou): matcha mel 24000/480 = 50 frames per second
+# : whisper mel 16000/160 = 100 frames per second
 def dynamic_batch(data, max_frames_in_batch=12000, mode='train'):
     """ Dynamic batch the data until the total frames in batch
         reach `max_frames_in_batch`
@@ -437,5 +511,85 @@ def padding(data, use_spk_embedding, mode='train', gan=False):
         if use_spk_embedding is True:
             batch["embedding"] = batch["spk_embedding"]
         else:
+            batch["embedding"] = batch["utt_embedding"]
+        yield batch
+
+def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
+    """ Padding the data into training data
+
+        Args:
+            data: Iterable[List[{key, feat, label}]]
+
+        Returns:
+            Iterable[Tuple(keys, feats, labels, feats lengths, label lengths)]
+    """
+    for sample in data:
+        assert isinstance(sample, list)
+        speech_feat_len = torch.tensor([x['speech_feat'].size(1) for x in sample],
+                                       dtype=torch.int32)
+        order = torch.argsort(speech_feat_len, descending=True)
+
+        utts = [sample[i]['utt'] for i in order]
+        speech = [sample[i]['speech'].squeeze(dim=0) for i in order]
+        speech_len = torch.tensor([i.size(0) for i in speech], dtype=torch.int32)
+        speech = pad_sequence(speech, batch_first=True, padding_value=0)
+        #speech_token = [torch.tensor(sample[i]['speech_token']) for i in order]
+        #speech_token_len = torch.tensor([i.size(0) for i in speech_token], dtype=torch.int32)
+        #speech_token = pad_sequence(speech_token,
+        #                            batch_first=True,
+        #                            padding_value=0)
+        speech_feat = [sample[i]['speech_feat'] for i in order]
+        speech_feat_len = torch.tensor([i.size(0) for i in speech_feat], dtype=torch.int32)
+        speech_feat = pad_sequence(speech_feat,
+                                   batch_first=True,
+                                   padding_value=0)
+        text = [sample[i]['text'] for i in order]
+        text_token = [torch.tensor(sample[i]['text_token']) for i in order]
+        text_token_len = torch.tensor([i.size(0) for i in text_token], dtype=torch.int32)
+        text_token = pad_sequence(text_token, batch_first=True, padding_value=0)
+        batch = {
+            "utts": utts,
+            "speech": speech,
+            "speech_len": speech_len,
+            "speech_feat": speech_feat,
+            "speech_feat_len": speech_feat_len,
+            "text": text,
+            "text_token": text_token,
+            "text_token_len": text_token_len,
+        }
+
+        if "utt_embedding" in sample[0]:
+            utt_embedding = torch.stack([sample[i]['utt_embedding'] for i in order], dim=0)
+            batch.update({"utt_embedding": utt_embedding})
+        if "spk_embedding" in sample[0]:
+            spk_embedding = torch.stack([sample[i]['spk_embedding'] for i in order], dim=0)
+            batch.update({"spk_embedding": spk_embedding})
+
+        if gan is True:
+            # in gan train, we need pitch_feat
+            pitch_feat = [sample[i]['pitch_feat'] for i in order]
+            pitch_feat_len = torch.tensor([i.size(0) for i in pitch_feat], dtype=torch.int32)
+            pitch_feat = pad_sequence(pitch_feat,
+                                      batch_first=True,
+                                      padding_value=0)
+            batch["pitch_feat"] = pitch_feat
+            batch["pitch_feat_len"] = pitch_feat_len
+        else:
+            # only gan train needs speech, delete it to save memory
+            del batch["speech"]
+            del batch["speech_len"]
+        if mode == 'inference':
+            tts_text = [sample[i]['tts_text'] for i in order]
+            tts_index = [sample[i]['tts_index'] for i in order]
+            tts_text_token = [torch.tensor(sample[i]['tts_text_token']) for i in order]
+            tts_text_token_len = torch.tensor([i.size(0) for i in tts_text_token], dtype=torch.int32)
+            tts_text_token = pad_sequence(tts_text_token, batch_first=True, padding_value=-1)
+            batch.update({'tts_text': tts_text,
+                          'tts_index': tts_index,
+                          'tts_text_token': tts_text_token,
+                          'tts_text_token_len': tts_text_token_len})
+        if use_spk_embedding is True:
+            batch["embedding"] = batch["spk_embedding"]
+        elif "utt_embedding" in batch:
             batch["embedding"] = batch["utt_embedding"]
         yield batch

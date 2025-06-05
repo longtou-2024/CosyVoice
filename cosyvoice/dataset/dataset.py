@@ -17,11 +17,16 @@ import random
 import json
 import math
 from functools import partial
+from pathlib import Path
+import io
 
 import torch
 import torch.distributed as dist
 from torch.utils.data import IterableDataset
+import webdataset as wds
+
 from cosyvoice.utils.file_utils import read_lists, read_json_lists
+from cosyvoice.dataset.webdataset import build_wds
 
 
 class Processor(IterableDataset):
@@ -156,6 +161,46 @@ def Dataset(data_list_file,
     if mode == 'inference':
         # map partial arg to parquet_opener func in inference mode
         data_pipeline[0] = partial(data_pipeline[0], tts_data=tts_data)
+    if gan is True:
+        # map partial arg to padding func in gan mode
+        data_pipeline[-1] = partial(data_pipeline[-1], gan=gan)
+    for func in data_pipeline:
+        dataset = Processor(dataset, func, mode=mode)
+    return dataset
+
+
+class WebDataList(IterableDataset):
+
+    def __init__(self, recipe_names):
+        #self.sampler = DistributedSampler(shuffle, partition)
+        self.epoch = None
+        datasets = [build_wds(name) for name in recipe_names]
+        self.dataset = wds.RoundRobin(datasets, longest=True)
+
+    def set_epoch(self, epoch):
+        #self.sampler.set_epoch(epoch)
+        self.epoch = epoch
+
+    def __iter__(self):
+        ## NOTE(longtou): just follow base code decision
+        ## NOTE do not return sample directly, must initialize a new dict
+        #yield {**sample}
+        for sample in self.dataset:
+            yield sample
+
+
+def WebDataset(recipe_names,
+            data_pipeline,
+            mode='train',
+            gan=False,
+            ):
+    """ Construct dataset from arguments
+
+    """
+    assert mode == "train"
+    # e.g. "gs://literature mediazen" --> ["literature", "mediazen"]
+    recipe_names = recipe_names.replace("gs://", "").split(' ')
+    dataset = WebDataList(recipe_names)
     if gan is True:
         # map partial arg to padding func in gan mode
         data_pipeline[-1] = partial(data_pipeline[-1], gan=gan)

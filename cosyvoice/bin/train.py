@@ -22,6 +22,7 @@ import os
 import torch
 import torch.distributed as dist
 import deepspeed
+from tqdm import tqdm
 
 from hyperpyyaml import load_hyperpyyaml
 
@@ -114,6 +115,16 @@ def main():
     # Get dataset & dataloader
     train_dataset, cv_dataset, train_data_loader, cv_data_loader = \
         init_dataset_and_dataloader(args, configs, gan)
+
+    # NOTE(longtou): debug
+    #local_rank = int(os.environ.get('LOCAL_RANK', 0))
+    #f_log = open(f"log{local_rank}.txt", 'w')
+    #for sample in tqdm(train_dataset):
+    #    for x in sample["utts"]:
+    #        f_log.write(f"{x}\n")
+    #    import sys; sys.exit()
+        #import pdb; pdb.set_trace()
+    #import sys; sys.exit()
 
     # Do some sanity checks and save config to arsg.model_dir
     configs = check_modify_and_save_config(args, configs)

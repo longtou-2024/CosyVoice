@@ -32,7 +32,7 @@ from torch.nn.utils import clip_grad_norm_
 
 from deepspeed.runtime.zero.stage_1_and_2 import estimate_zero2_model_states_mem_needs_all_live
 
-from cosyvoice.dataset.dataset import Dataset
+from cosyvoice.dataset.dataset import Dataset, WebDataset
 from cosyvoice.utils.scheduler import WarmupLR, NoamHoldAnnealing, ConstantLR
 
 
@@ -52,8 +52,12 @@ def init_distributed(args):
 
 def init_dataset_and_dataloader(args, configs, gan):
     data_pipeline = configs['data_pipeline_gan'] if gan is True else configs['data_pipeline']
-    train_dataset = Dataset(args.train_data, data_pipeline=data_pipeline, mode='train', gan=gan, shuffle=True, partition=True)
-    cv_dataset = Dataset(args.cv_data, data_pipeline=data_pipeline, mode='train', gan=gan, shuffle=False, partition=False)
+    if args.train_data.startswith("gs://"):
+        train_dataset = WebDataset(args.train_data, data_pipeline=data_pipeline, mode='train', gan=gan)
+        cv_dataset = WebDataset(args.cv_data, data_pipeline=data_pipeline, mode='train', gan=gan)
+    else:
+        train_dataset = Dataset(args.train_data, data_pipeline=data_pipeline, mode='train', gan=gan, shuffle=True, partition=True)
+        cv_dataset = Dataset(args.cv_data, data_pipeline=data_pipeline, mode='train', gan=gan, shuffle=False, partition=False)
 
     # do not use persistent_workers=True, as whisper tokenizer opens tiktoken file each time when the for loop starts
     train_data_loader = DataLoader(train_dataset,
@@ -199,7 +203,9 @@ def save_model(model, model_name, info_dict):
 
     if info_dict["train_engine"] == "torch_ddp":
         if rank == 0:
-            torch.save({**model.module.state_dict(), 'epoch': info_dict['epoch'], 'step': info_dict['step']}, save_model_path)
+            filtered_state_dict = {k: v for k,v in model.module.state_dict().items() if not k.startswith("speech_tokenizer")}
+            torch.save({**filtered_state_dict, 'epoch': info_dict['epoch'], 'step': info_dict['step']}, save_model_path)
+            #torch.save({**model.module.state_dict(), 'epoch': info_dict['epoch'], 'step': info_dict['step']}, save_model_path)
     else:
         with torch.no_grad():
             model.save_checkpoint(save_dir=model_dir,

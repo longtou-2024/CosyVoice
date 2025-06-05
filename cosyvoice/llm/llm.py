@@ -302,6 +302,9 @@ class Qwen2LM(TransformerLM):
         self.vllm_output_queue = {}
         self.lock = threading.Lock()
 
+        # NOTE(longtou): speech token for on the fly
+        self.speech_tokenizer = None
+
     def prepare_lm_input_target(self, text_token, text_token_emb, text_token_len, speech_token, speech_token_emb, speech_token_len):
         lm_target, lm_input = [], []
         text_token = unpad_sequence(text_token, text_token_len.cpu(), batch_first=True)
@@ -358,8 +361,24 @@ class Qwen2LM(TransformerLM):
         """
         text_token = batch['text_token'].to(device)
         text_token_len = batch['text_token_len'].to(device)
-        speech_token = batch['speech_token'].to(device)
-        speech_token_len = batch['speech_token_len'].to(device)
+        if 'speech_token' not in batch:
+            if self.speech_tokenizer is None:
+                import s3tokenizer
+                self.speech_tokenizer = s3tokenizer.load_model("/home/longtou.2024/mount/longtou/saved/cosyvoice/speech_tokenizer_v2.onnx").to(device)
+                self.speech_tokenizer.freeze()
+            speech_feat = batch["speech_feat"].transpose(1,2).to(device)
+            speech_feat_len = batch["speech_feat_len"].to(device)
+            with torch.cuda.amp.autocast(enabled=False):
+                speech_token, speech_token_len = self.speech_tokenizer.quantize(speech_feat, speech_feat_len)
+                speech_token = speech_token.clone() # for backward compatbility
+                speech_token_len = speech_token_len.clone() # for backward compatbility
+            del speech_feat
+            del speech_feat_len
+            del batch["speech_feat"]
+            del batch["speech_feat_len"]
+        else:
+            speech_token = batch['speech_token'].to(device)
+            speech_token_len = batch['speech_token_len'].to(device)
 
         # 1. encode text_token
         text_token_emb = self.llm.model.model.embed_tokens(text_token)
