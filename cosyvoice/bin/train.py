@@ -120,7 +120,9 @@ def main():
     #local_rank = int(os.environ.get('LOCAL_RANK', 0))
     #f_log = open(f"log{local_rank}.txt", 'w')
     #for sample in tqdm(train_dataset):
+    #for sample in tqdm(cv_dataset):
     #    for x in sample["utts"]:
+    #        print(x)
     #        f_log.write(f"{x}\n")
     #    import sys; sys.exit()
         #import pdb; pdb.set_trace()

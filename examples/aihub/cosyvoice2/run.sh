@@ -8,7 +8,8 @@ pretrained_model_dir=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained
 num_workers=1
 prefetch=100
 config=conf/cosyvoice2_lt.yaml
-train_data="gs://literature mediazen"
+#train_data="gs://literature skt_emotion_large skt_emotion_small mediazen_emotion mediazen commbooks aihub_news mediazen_adult mediazen_teen saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon emilia_ko emilia_yodas_ko emilia_en emilia_zh"
+train_data="gs://azure"
 cv_data="gs://azure"
 train_engine=torch_ddp
 model_dir=`pwd`/exp/cosyvoice2/llm
@@ -39,7 +40,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     echo "Notice deepspeed has its own optimizer config. Modify conf/ds_stage2.json if necessary"
   fi
   torchrun --nnodes=1 --nproc_per_node=$num_gpus \
-      --rdzv_id=$job_id --rdzv_backend="c10d" --rdzv_endpoint="localhost:1234" \
+      --rdzv_id=$job_id --rdzv_backend="c10d" --rdzv_endpoint="localhost:12345" \
     cosyvoice/bin/train.py \
     --train_engine $train_engine \
     --config ${config} \
