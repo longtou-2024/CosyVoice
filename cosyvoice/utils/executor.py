@@ -45,13 +45,14 @@ class Executor:
         # torch.nn.parallel.DistributedDataParallel to be able to train
         # with uneven inputs across participating processes.
         model.train()
-        model_context = model.join if info_dict['train_engine'] == 'torch_ddp' else nullcontext
+        #model_context = model.join if info_dict['train_engine'] == 'torch_ddp' else nullcontext
+        model_context = nullcontext
         with model_context():
-            #if self.rank == 0:
-            #    pbar = tqdm()
+            if self.rank == 0:
+                pbar = tqdm()
             for batch_idx, batch_dict in enumerate(train_data_loader):
-                #if self.rank == 0:
-                #    pbar.update(1)
+                if self.rank == 0:
+                    pbar.update(1)
                 info_dict["tag"] = "TRAIN"
                 info_dict["step"] = self.step
                 info_dict["epoch"] = self.epoch
@@ -73,7 +74,6 @@ class Executor:
                     info_dict = batch_forward(model, batch_dict, scaler, info_dict)
                     info_dict = batch_backward(model, scaler, info_dict)
 
-                #print(f"{self.rank}: {len(batch_dict['utts'])}")
                 info_dict = update_parameter_and_lr(model, optimizer, scheduler, scaler, info_dict)
                 log_per_step(writer, info_dict)
                 # NOTE specify save_per_step in cosyvoice.yaml if you want to enable step save

@@ -11,8 +11,7 @@ PROB_INSTRUCTED = 0.1
 
 name2url = {
     "azure": "gs://ai-lab-speech-bucket/longtou/db/azure/wds_v2/shard-00000{0..7}.tar",
-    #"literature": "gs://ai-lab-speech-bucket/longtou/db/literature/wds_v2/shard-0000{00..46}.tar",
-    "literature": "gs://ai-lab-speech-bucket/longtou/db/literature/wds_v2/shard-0000{00..02}.tar",
+    "literature": "gs://ai-lab-speech-bucket/longtou/db/literature/wds_v2/shard-0000{00..46}.tar",
     "skt_emotion_large": "gs://ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2/large/shard-0000{00..24}.tar",
     "skt_emotion_small": "gs://ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2/large/shard-0000{00..14}.tar",
     "mediazen_emotion": "gs://ai-lab-speech-bucket/longtou/db/mediazen_emotion/wds_v2/shard-000{000..110}.tar",
@@ -301,13 +300,13 @@ def decode_emilia_yodas_ko(sample):
 def build_wds(recipe_name, mode="train"):
     shard_url = name2url[recipe_name]
     cache_dir = f"wds_cache_{recipe_name}"
-    Path(cache_dir).mkdir(parents=True, exist_ok=True)
+    #Path(cache_dir).mkdir(parents=True, exist_ok=True)
     _decode = globals()[f"decode_{recipe_name}"]
     resampled = True if mode == "train" else False
+    #cache_dir=cache_dir,
+    #cache_size=int(1e9),
     dataset = wds.WebDataset(
         shard_url,
-        cache_dir=cache_dir,
-        cache_size=int(1e9),
         nodesplitter=wds.split_by_node,
         workersplitter=wds.split_by_worker,
         resampled=resampled, # if True, generate an infinite stream of samples
