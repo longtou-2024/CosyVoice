@@ -317,13 +317,13 @@ def log_per_step(writer, info_dict):
     rank = int(os.environ.get('RANK', 0))
 
     # only rank 0 write to tensorboard to avoid multi-process write
-    if writer is not None:
-        if (info_dict['train_engine'] == 'deepspeed' and info_dict['is_gradient_accumulation_boundary'] is True) or \
-           (info_dict['train_engine'] == 'torch_ddp' and (info_dict['batch_idx'] + 1) % info_dict['accum_grad'] == 0):
-            for k in ['epoch', 'lr', 'grad_norm']:
-                writer.add_scalar('{}/{}'.format(tag, k), info_dict[k], step + 1)
-            for k, v in loss_dict.items():
-                writer.add_scalar('{}/{}'.format(tag, k), v, step + 1)
+    #if writer is not None:
+    #    if (info_dict['train_engine'] == 'deepspeed' and info_dict['is_gradient_accumulation_boundary'] is True) or \
+    #       (info_dict['train_engine'] == 'torch_ddp' and (info_dict['batch_idx'] + 1) % info_dict['accum_grad'] == 0):
+    #        for k in ['epoch', 'lr', 'grad_norm']:
+    #            writer.add_scalar('{}/{}'.format(tag, k), info_dict[k], step + 1)
+    #        for k, v in loss_dict.items():
+    #            writer.add_scalar('{}/{}'.format(tag, k), v, step + 1)
 
     # TRAIN & CV, Shell log (stdout)
     if (info_dict['batch_idx'] + 1) % info_dict['log_interval'] == 0:
@@ -335,6 +335,15 @@ def log_per_step(writer, info_dict):
                 info_dict["lr"], info_dict['grad_norm'])
         log_str += ' rank {}'.format(rank)
         logging.debug(log_str)
+
+        # NOTE(longtou): writing to bucket takes times, so move here
+        if writer is not None:
+            if (info_dict['train_engine'] == 'deepspeed' and info_dict['is_gradient_accumulation_boundary'] is True) or \
+               (info_dict['train_engine'] == 'torch_ddp' and (info_dict['batch_idx'] + 1) % info_dict['accum_grad'] == 0):
+                for k in ['epoch', 'lr', 'grad_norm']:
+                    writer.add_scalar('{}/{}'.format(tag, k), info_dict[k], step + 1)
+                for k, v in loss_dict.items():
+                    writer.add_scalar('{}/{}'.format(tag, k), v, step + 1)
 
 
 def log_per_save(writer, info_dict):

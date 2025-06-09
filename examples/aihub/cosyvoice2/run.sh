@@ -2,12 +2,13 @@
 # Copyright 2024 Alibaba Inc. All Rights Reserved.
 . ./path.sh || exit 1;
 
+export OMP_NUM_THREADS=1
 stage=1
 stop_stage=5
 pretrained_model_dir=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B
 num_workers=1
 prefetch=100
-config=conf/cosyvoice2_lt.yaml
+conf=conf/cosyvoice2_lt.yaml # DO NOT USE 'CONFIG', its var name is used in 'parse_options.sh'
 train_data="gs://literature skt_emotion_large skt_emotion_small mediazen_emotion mediazen commbooks aihub_news mediazen_adult mediazen_teen saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon emilia_ko emilia_yodas_ko emilia_en emilia_zh"
 #train_data="gs://literature"
 cv_data="gs://azure"
@@ -40,10 +41,10 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     echo "Notice deepspeed has its own optimizer config. Modify conf/ds_stage2.json if necessary"
   fi
   torchrun --nnodes=1 --nproc_per_node=$num_gpus \
-      --rdzv_id=$job_id --rdzv_backend="c10d" --rdzv_endpoint="localhost:12345" \
+      --rdzv_id=$job_id --rdzv_backend="c10d" --rdzv_endpoint="localhost:1234" \
     cosyvoice/bin/train.py \
     --train_engine $train_engine \
-    --config ${config} \
+    --config ${conf} \
     --train_data "${train_data}" \
     --cv_data "${cv_data}" \
     --qwen_pretrain_path $pretrained_model_dir/CosyVoice-BlankEN \
@@ -54,11 +55,11 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --num_workers ${num_workers} \
     --prefetch ${prefetch} \
     --pin_memory \
-    --use_amp \
     --deepspeed_config ${deepspeed_config} \
     --deepspeed.save_states model+optimizer \
     ${_opts}
 fi
+  #--use_amp \ # infinity grad norm error?
 #--checkpoint $pretrained_model_dir/$model.pt \
 
 # average model

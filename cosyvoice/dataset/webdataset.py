@@ -7,7 +7,7 @@ import random
 import webdataset as wds
 
 SPECIAL_TOKEN = "<|endofprompt|>"
-PROB_INSTRUCTED = 0.1
+PROB_INSTRUCTED = 0.3
 
 name2url = {
     "azure": "gs://ai-lab-speech-bucket/longtou/db/azure/wds_v2/shard-00000{0..7}.tar",
@@ -300,13 +300,13 @@ def decode_emilia_yodas_ko(sample):
 def build_wds(recipe_name, mode="train"):
     shard_url = name2url[recipe_name]
     cache_dir = f"wds_cache_{recipe_name}"
-    #Path(cache_dir).mkdir(parents=True, exist_ok=True)
+    Path(cache_dir).mkdir(parents=True, exist_ok=True)
     _decode = globals()[f"decode_{recipe_name}"]
     resampled = True if mode == "train" else False
-    #cache_dir=cache_dir,
-    #cache_size=int(1e9),
     dataset = wds.WebDataset(
         shard_url,
+        cache_dir=cache_dir,
+        cache_size=int(3e9),
         nodesplitter=wds.split_by_node,
         workersplitter=wds.split_by_worker,
         resampled=resampled, # if True, generate an infinite stream of samples

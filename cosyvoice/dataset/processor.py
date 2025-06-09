@@ -525,7 +525,7 @@ def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
     """
     for sample in data:
         assert isinstance(sample, list)
-        speech_feat_len = torch.tensor([x['speech_feat'].size(1) for x in sample],
+        speech_feat_len = torch.tensor([x['speech_feat'].size(0) for x in sample],
                                        dtype=torch.int32)
         order = torch.argsort(speech_feat_len, descending=True)
 
