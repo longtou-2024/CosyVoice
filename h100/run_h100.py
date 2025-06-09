@@ -14,16 +14,17 @@ from kfp import kubernetes
 from kfp.dsl import PipelineTask
 from kfp.kubernetes import common
 
-IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:aihub"
-N_GPU = 1
-N_CPU = "12"
-MEM_SIZE = "100Gi"
+IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v1.7"
+N_GPU = 2
+N_CPU = "20"
+MEM_SIZE = "400Gi"
 MOUNT_PATH = "/home/longtou.2024/mount"
 MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250609"
 CONFIG = f"{MODEL_DIR}/cosyvoice2_lt.yaml"
 TB_DIR = f"{MODEL_DIR}/tensorboard"
+#export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7" \
 SHELL_COMMAND = f''' \
-export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7" \
+export CUDA_VISIBLE_DEVICES="0,1" \
 && . ../../../activate_python.sh \
 && ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG}
 '''
@@ -107,12 +108,18 @@ def cosyvoice_pipe(
         pvc_name="longtou-gcs-fuse-csi-static-pvc3",
         mount_path=pvc_mount_path,
     )
+    kubernetes.empty_dir_mount(
+                task_1,
+                volume_name="dshm3",
+                mount_path="/dev/shm",
+                medium="Memory",
+                size_limit="300Gi")
 
-compiler.Compiler().compile(cosyvoice_pipe, "cosyvoice_pipe.yaml")
+compiler.Compiler().compile(cosyvoice_pipe, "cosyvoice_pipe2.yaml")
 
 client = Client(host="https://3313888af2601658-dot-us-central1.pipelines.googleusercontent.com")
 run = client.create_run_from_pipeline_package(
-        "cosyvoice_pipe.yaml",
+        "cosyvoice_pipe2.yaml",
         arguments={
             "project": "prod-ai-project",
             "location": "us-central1",
