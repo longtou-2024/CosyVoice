@@ -16,6 +16,7 @@
 import os
 import argparse
 import glob
+from pathlib import Path
 
 import yaml
 import torch
@@ -67,6 +68,9 @@ def main():
             args.src_path + '/epoch_{}_whole.pt'.format(score[0])
             for score in sorted_val_scores[:args.num]
         ]
+    else:
+        path_list = list(Path(args.src_path).glob("*.pt"))
+
     print(path_list)
     avg = {}
     num = args.num

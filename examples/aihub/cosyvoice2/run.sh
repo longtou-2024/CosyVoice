@@ -75,9 +75,9 @@ if [ ${stage} -le 2 ] && [ ${stop_stage} -ge 2 ]; then
   python cosyvoice/bin/average_model.py \
     --dst_model $decode_checkpoint \
     --src_path $src_path  \
-    --num ${average_num} \
-    --val_best
+    --num ${average_num}
 fi
+#--val_best
 
 if [ ${stage} -le 3 ] && [ ${stop_stage} -ge 3 ]; then
   echo "Export your model for inference speedup. Remember copy your llm or flow model to model_dir"
