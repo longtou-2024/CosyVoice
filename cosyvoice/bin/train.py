@@ -87,6 +87,9 @@ def get_args():
                         default=0,
                         type=int,
                         help='webdataset cache size')
+    parser.add_argument('--from_mount',
+                        action="store_true",
+                        help='load wds from gcsfuse mount dir')
     parser = deepspeed.add_config_arguments(parser)
     args = parser.parse_args()
     return args

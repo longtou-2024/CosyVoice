@@ -297,8 +297,10 @@ def decode_emilia_yodas_ko(sample):
 ### end of decoding function list ###
 
 
-def build_wds(recipe_name, mode="train", cache_size=0):
+def build_wds(recipe_name, mode="train", cache_size=0, from_mount=False):
     shard_url = name2url[recipe_name]
+    if from_mount:
+        shard_url = shard_url.replace("gs://prod-ai-lab-speech-bucket", "/home/longtou.2024/mount")
     cache_dir = None
     if cache_size > 0:
         cache_dir = f"wds_cache_{recipe_name}"

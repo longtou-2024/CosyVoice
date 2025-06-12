@@ -171,16 +171,16 @@ def Dataset(data_list_file,
 
 class WebDataList(IterableDataset):
 
-    def __init__(self, recipe_names, mode="train", cache_size=0):
+    def __init__(self, recipe_names, mode="train", cache_size=0, from_mount=False):
         #self.sampler = DistributedSampler(shuffle, partition)
         self.epoch = None
         datasets_ko = []
         datasets_other = []
         for name in recipe_names:
             if name in ("emilia_en", "emilia_zh"):
-                datasets_other.append(build_wds(name, mode=mode, cache_size=cache_size))
+                datasets_other.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount))
             else:
-                datasets_ko.append(build_wds(name, mode=mode, cache_size=cache_size))
+                datasets_ko.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount))
         dataset_ko = wds.RoundRobin(datasets_ko, longest=True)
 
         if len(datasets_other) > 0:
@@ -206,7 +206,8 @@ def WebDataset(recipe_names,
             data_pipeline,
             mode='train',
             gan=False,
-           cache_size=0,
+            cache_size=0,
+            from_mount=False,
             ):
     """ Construct dataset from arguments
 
@@ -214,7 +215,7 @@ def WebDataset(recipe_names,
     #assert mode == "train"
     # e.g. "gs://literature mediazen" --> ["literature", "mediazen"]
     recipe_names = recipe_names.replace("gs://", "").split(' ')
-    dataset = WebDataList(recipe_names, mode=mode, cache_size=cache_size)
+    dataset = WebDataList(recipe_names, mode=mode, cache_size=cache_size, from_mount=from_mount)
     if gan is True:
         # map partial arg to padding func in gan mode
         data_pipeline[-1] = partial(data_pipeline[-1], gan=gan)

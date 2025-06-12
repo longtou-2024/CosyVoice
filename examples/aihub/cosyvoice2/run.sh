@@ -9,6 +9,7 @@ pretrained_model_dir=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained
 num_workers=1
 prefetch=100
 cache_size=0
+from_mount=true
 conf=conf/cosyvoice2_lt.yaml # DO NOT USE 'CONFIG', its var name is used in 'parse_options.sh'
 train_data="gs://literature skt_emotion_large skt_emotion_small mediazen_emotion mediazen commbooks aihub_news mediazen_adult mediazen_teen saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon emilia_ko emilia_yodas_ko emilia_en emilia_zh"
 #train_data="gs://literature"
@@ -29,6 +30,9 @@ src_path=$model_dir/tobe_averaged
 _opts=
 if [ -n "$checkpoint" ]; then
   _opts+="--checkpoint ${checkpoint}"
+fi
+if [ "${from_mount}" = true ]; then
+  _opts+=" --from_mount"
 fi
 
 # train llm
