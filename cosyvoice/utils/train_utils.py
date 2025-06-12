@@ -53,8 +53,8 @@ def init_distributed(args):
 def init_dataset_and_dataloader(args, configs, gan):
     data_pipeline = configs['data_pipeline_gan'] if gan is True else configs['data_pipeline']
     if args.train_data.startswith("gs://"):
-        train_dataset = WebDataset(args.train_data, data_pipeline=data_pipeline, mode='train', gan=gan)
-        cv_dataset = WebDataset(args.cv_data, data_pipeline=data_pipeline, mode='valid', gan=gan)
+        train_dataset = WebDataset(args.train_data, data_pipeline=data_pipeline, mode='train', gan=gan, cache_size=args.cache_size)
+        cv_dataset = WebDataset(args.cv_data, data_pipeline=data_pipeline, mode='valid', gan=gan, cache_size=args.cache_size)
     else:
         train_dataset = Dataset(args.train_data, data_pipeline=data_pipeline, mode='train', gan=gan, shuffle=True, partition=True)
         cv_dataset = Dataset(args.cv_data, data_pipeline=data_pipeline, mode='train', gan=gan, shuffle=False, partition=False)

@@ -83,6 +83,10 @@ def get_args():
                         default=60,
                         type=int,
                         help='timeout (in seconds) of cosyvoice_join.')
+    parser.add_argument('--cache_size',
+                        default=0,
+                        type=int,
+                        help='webdataset cache size')
     parser = deepspeed.add_config_arguments(parser)
     args = parser.parse_args()
     return args

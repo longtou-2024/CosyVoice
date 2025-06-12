@@ -166,7 +166,8 @@ class CosyVoice2(CosyVoice):
             logging.warning('no cuda device, set load_jit/load_trt/fp16 to False')
         self.model = CosyVoice2Model(configs['llm'], configs['flow'], configs['hift'], fp16)
         #self.model.load('{}/llm.pt'.format(model_dir),
-        self.model.load('/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt',
+        #self.model.load('/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250609/torch_ddp/llm_avg.pt',
+        self.model.load('/home/longtou.2024/llm_avg.pt',
                         '{}/flow.pt'.format(model_dir),
                         '{}/hift.pt'.format(model_dir))
         if load_vllm:

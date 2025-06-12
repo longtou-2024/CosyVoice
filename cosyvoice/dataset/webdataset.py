@@ -297,16 +297,18 @@ def decode_emilia_yodas_ko(sample):
 ### end of decoding function list ###
 
 
-def build_wds(recipe_name, mode="train"):
+def build_wds(recipe_name, mode="train", cache_size=0):
     shard_url = name2url[recipe_name]
-    cache_dir = f"wds_cache_{recipe_name}"
-    Path(cache_dir).mkdir(parents=True, exist_ok=True)
+    cache_dir = None
+    if cache_size > 0:
+        cache_dir = f"wds_cache_{recipe_name}"
+        Path(cache_dir).mkdir(parents=True, exist_ok=True)
     _decode = globals()[f"decode_{recipe_name}"]
     resampled = True if mode == "train" else False
     dataset = wds.WebDataset(
         shard_url,
         cache_dir=cache_dir,
-        cache_size=int(3e9),
+        cache_size=cache_size,
         nodesplitter=wds.split_by_node,
         workersplitter=wds.split_by_worker,
         resampled=resampled, # if True, generate an infinite stream of samples

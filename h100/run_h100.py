@@ -14,19 +14,20 @@ from kfp import kubernetes
 from kfp.dsl import PipelineTask
 from kfp.kubernetes import common
 
-IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v1.7"
-N_GPU = 2
-N_CPU = "20"
-MEM_SIZE = "400Gi"
+IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v1.13"
+N_GPU = 8
+N_CPU = "80"
+MEM_SIZE = "800Gi"
 MOUNT_PATH = "/home/longtou.2024/mount"
-MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250609"
+MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250610"
 CONFIG = f"{MODEL_DIR}/cosyvoice2_lt.yaml"
 TB_DIR = f"{MODEL_DIR}/tensorboard"
-#export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7" \
+CKPT = f"{MODEL_DIR}/torch_ddp/epoch_0_step_140000.pt"
+#export CUDA_VISIBLE_DEVICES="0,1" \
 SHELL_COMMAND = f''' \
-export CUDA_VISIBLE_DEVICES="0,1" \
+export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6,7" \
 && . ../../../activate_python.sh \
-&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG}
+&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --checkpoint {CKPT}
 '''
 
 def add_pod_annotation(
