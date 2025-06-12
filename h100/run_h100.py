@@ -14,7 +14,7 @@ from kfp import kubernetes
 from kfp.dsl import PipelineTask
 from kfp.kubernetes import common
 
-IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v2.3"
+IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v2.4"
 N_GPU = 7
 N_CPU = "70"
 MEM_SIZE = "700Gi"
@@ -27,7 +27,7 @@ CKPT = f"{MODEL_DIR}/torch_ddp/epoch_0_step_140000.pt"
 SHELL_COMMAND = f''' \
 export CUDA_VISIBLE_DEVICES="0,1,2,3,4,5,6" \
 && . ../../../activate_python.sh \
-&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --checkpoint {CKPT} --cache_size -1
+&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --checkpoint {CKPT} --from_mount true
 '''
 
 def add_pod_annotation(
