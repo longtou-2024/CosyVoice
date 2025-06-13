@@ -318,6 +318,28 @@ def tokenize(data, get_tokenizer, allowed_special, mode='train'):
             sample['tts_text_token'] = tokenizer.encode(sample['tts_text'], allowed_special=allowed_special)
         yield sample
 
+def tokenize_lt(data, get_tokenizer, allowed_special, mode='train'):
+    """ Decode text to chars or BPE
+        Inplace operation
+
+        Args:
+            data: Iterable[{key, wav, txt, sample_rate}]
+
+        Returns:
+            Iterable[{key, wav, txt, tokens, label, sample_rate}]
+    """
+    tokenizer = get_tokenizer()
+    for sample in data:
+        assert 'text' in sample
+        assert "caption" in sample
+        sample['caption_token'] = tokenizer.encode(sample['caption'], allowed_special=allowed_special)
+        sample['text_woc_token'] = tokenizer.encode(sample['text'], allowed_special=allowed_special)
+        sample['text_token'] = tokenizer.encode(sample["caption"] + sample['text'], allowed_special=allowed_special)
+        assert len(sample["caption_token"]) + len(sample["text_woc_token"]) == len(sample["text_token"])
+        if mode == 'inference':
+            sample['tts_text_token'] = tokenizer.encode(sample['tts_text'], allowed_special=allowed_special)
+        yield sample
+
 
 def shuffle(data, shuffle_size=10000, mode='train'):
     """ Local shuffle the data
@@ -547,6 +569,11 @@ def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
         text_token = [torch.tensor(sample[i]['text_token']) for i in order]
         text_token_len = torch.tensor([i.size(0) for i in text_token], dtype=torch.int32)
         text_token = pad_sequence(text_token, batch_first=True, padding_value=0)
+
+        caption_token = [torch.tensor(sample[i]['caption_token']) for i in order]
+        caption_token_len = torch.tensor([i.size(0) for i in caption_token], dtype=torch.int32)
+        text_woc_token = [torch.tensor(sample[i]['text_woc_token']) for i in order]
+        text_woc_token_len = torch.tensor([i.size(0) for i in text_woc_token], dtype=torch.int32)
         batch = {
             "utts": utts,
             "speech": speech,
@@ -556,6 +583,8 @@ def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
             "text": text,
             "text_token": text_token,
             "text_token_len": text_token_len,
+            "caption_token_len": caption_token_len,
+            "text_woc_token_len": text_woc_token_len,
         }
 
         if "utt_embedding" in sample[0]:
