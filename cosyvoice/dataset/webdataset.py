@@ -6,56 +6,32 @@ import random
 
 import webdataset as wds
 
-#SPECIAL_TOKEN = "<|endofprompt|>"
-PROB_INSTRUCTED = 1.0
-
-#name2url = {
-#    "azure": "gs://prod-ai-lab-speech-bucket/longtou/db/azure/wds_v2/shard-00000{0..7}.tar",
-#    "literature": "gs://prod-ai-lab-speech-bucket/longtou/db/literature/wds_v2/shard-0000{00..46}.tar",
-#    "skt_emotion_large": "gs://prod-ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2/large/shard-0000{00..24}.tar",
-#    "skt_emotion_small": "gs://prod-ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2/large/shard-0000{00..14}.tar",
-#    "mediazen_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_emotion/wds_v2/shard-000{000..110}.tar",
-#    "mediazen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen/wds_v2/shard-00{0000..1055}.tar",
-#    "commbooks": "gs://prod-ai-lab-speech-bucket/longtou/db/commbooks/wds_v2/shard-000{000..104}.tar",
-#    "kaist_audiobook": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-0000{00..10}.tar",
-#    "kaist_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-00000{0..8}.tar",
-#    "aihub_news": "gs://prod-ai-lab-speech-bucket/longtou/db/aihub_news/wds_v2/shard-000{000..107}.tar",
-#    "mediazen_adult": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/emilia_pipe/shard-0000{00..18}.tar",
-#    "mediazen_teen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/emilia_pipe/shard-0000{00..11}.tar",
-#    "saltlux_jeju": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_jeju/emilia_pipe/shard-00000{0..6}.tar",
-#    "saltlux_chungcheong": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_chungcheong/emilia_pipe/shard-0000{00..17}.tar",
-#    "saltlux_gyeongsang": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_gyeongsang/emilia_pipe/shard-0000{00..29}.tar",
-#    "saltlux_jeolla": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_jeolla/emilia_pipe/shard-0000{00..20}.tar",
-#    "saltlux_gangwon": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_gangwon/emilia_pipe/shard-0000{00..12}.tar",
-#    "emilia_en": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/en/shard-00{0000..1092}.tar",
-#    "emilia_zh": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/zh/shard-00{0000..1194}.tar",
-#    "emilia_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/ko/shard-00000{0..4}.tar",
-#    "emilia_yodas_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia_yodas/wds/ko/shard-000{000..207}.tar",
-#}
+PROB_INSTRUCTED = 0.8
 
 name2url = {
-    "azure": "gs://ai-lab-speech-bucket/longtou/db/azure/wds_v2/shard-00000{0..7}.tar",
-    "literature": "gs://ai-lab-speech-bucket/longtou/db/literature/wds_v2/shard-0000{00..46}.tar",
-    "skt_emotion_large": "gs://ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2/large/shard-0000{00..24}.tar",
-    "skt_emotion_small": "gs://ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2/large/shard-0000{00..14}.tar",
-    "mediazen_emotion": "gs://ai-lab-speech-bucket/longtou/db/mediazen_emotion/wds_v2/shard-000{000..110}.tar",
-    "mediazen": "gs://ai-lab-speech-bucket/longtou/db/mediazen/wds_v2/shard-00{0000..1055}.tar",
-    "commbooks": "gs://ai-lab-speech-bucket/longtou/db/commbooks/wds_v2/shard-000{000..104}.tar",
-    "kaist_audiobook": "gs://ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-0000{00..10}.tar",
-    "kaist_emotion": "gs://ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-00000{0..8}.tar",
-    "aihub_news": "gs://ai-lab-speech-bucket/longtou/db/aihub_news/wds_v2/shard-000{000..107}.tar",
-    "mediazen_adult": "gs://ai-lab-speech-bucket/longtou/db/mediazen_adult/emilia_pipe/shard-0000{00..18}.tar",
-    "mediazen_teen": "gs://ai-lab-speech-bucket/longtou/db/mediazen_teen/emilia_pipe/shard-0000{00..11}.tar",
-    "saltlux_jeju": "gs://ai-lab-speech-bucket/longtou/db/saltlux_jeju/emilia_pipe/shard-00000{0..6}.tar",
-    "saltlux_chungcheong": "gs://ai-lab-speech-bucket/longtou/db/saltlux_chungcheong/emilia_pipe/shard-0000{00..17}.tar",
-    "saltlux_gyeongsang": "gs://ai-lab-speech-bucket/longtou/db/saltlux_gyeongsang/emilia_pipe/shard-0000{00..29}.tar",
-    "saltlux_jeolla": "gs://ai-lab-speech-bucket/longtou/db/saltlux_jeolla/emilia_pipe/shard-0000{00..20}.tar",
-    "saltlux_gangwon": "gs://ai-lab-speech-bucket/longtou/db/saltlux_gangwon/emilia_pipe/shard-0000{00..12}.tar",
-    "emilia_en": "gs://ai-lab-speech-bucket/longtou/db/emilia/wds/en/shard-00{0000..1092}.tar",
-    "emilia_zh": "gs://ai-lab-speech-bucket/longtou/db/emilia/wds/zh/shard-00{0000..1194}.tar",
-    "emilia_ko": "gs://ai-lab-speech-bucket/longtou/db/emilia/wds/ko/shard-00000{0..4}.tar",
-    "emilia_yodas_ko": "gs://ai-lab-speech-bucket/longtou/db/emilia_yodas/wds/ko/shard-000{000..207}.tar",
+    "azure": "gs://prod-ai-lab-speech-bucket/longtou/db/azure/wds_v2/shard-00000{0..7}.tar",
+    "literature": "gs://prod-ai-lab-speech-bucket/longtou/db/literature/wds_v2/shard-0000{00..46}.tar",
+    "skt_emotion_large": "gs://prod-ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2/large/shard-0000{00..24}.tar",
+    "skt_emotion_small": "gs://prod-ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2/large/shard-0000{00..14}.tar",
+    "mediazen_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_emotion/wds_v2/shard-000{000..110}.tar",
+    "mediazen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen/wds_v2/shard-00{0000..1055}.tar",
+    "commbooks": "gs://prod-ai-lab-speech-bucket/longtou/db/commbooks/wds_v2/shard-000{000..104}.tar",
+    "kaist_audiobook": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-0000{00..10}.tar",
+    "kaist_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-00000{0..8}.tar",
+    "aihub_news": "gs://prod-ai-lab-speech-bucket/longtou/db/aihub_news/wds_v2/shard-000{000..107}.tar",
+    "mediazen_adult": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/emilia_pipe/shard-0000{00..18}.tar",
+    "mediazen_teen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/emilia_pipe/shard-0000{00..11}.tar",
+    "saltlux_jeju": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_jeju/emilia_pipe/shard-00000{0..6}.tar",
+    "saltlux_chungcheong": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_chungcheong/emilia_pipe/shard-0000{00..17}.tar",
+    "saltlux_gyeongsang": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_gyeongsang/emilia_pipe/shard-0000{00..29}.tar",
+    "saltlux_jeolla": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_jeolla/emilia_pipe/shard-0000{00..20}.tar",
+    "saltlux_gangwon": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_gangwon/emilia_pipe/shard-0000{00..12}.tar",
+    "emilia_en": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/en/shard-00{0000..1092}.tar",
+    "emilia_zh": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/zh/shard-00{0000..1194}.tar",
+    "emilia_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/ko/shard-00000{0..4}.tar",
+    "emilia_yodas_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia_yodas/wds/ko/shard-000{000..207}.tar",
 }
+
 
 def pad_caption(caption):
     if caption != "":
@@ -92,7 +68,6 @@ def decode_literature(sample):
 
             prompt = emotion_style[0]["emotion"]
             caption = prompt
-            #transcript = prompt + SPECIAL_TOKEN + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": pad_caption(caption)}
 
@@ -346,11 +321,15 @@ def decode_emilia_yodas_ko(sample):
 ### end of decoding function list ###
 
 
-def build_wds(recipe_name, mode="train", cache_size=0, from_mount=False):
+def build_wds(recipe_name, mode="train", cache_size=0, from_mount=False, from_prod=False):
     shard_url = name2url[recipe_name]
-    if from_mount:
-        #shard_url = shard_url.replace("gs://prod-ai-lab-speech-bucket", "/home/longtou.2024/mount")
-        shard_url = shard_url.replace("gs://ai-lab-speech-bucket", "/home/longtou.2024/mount")
+    if from_prod is False:
+        shard_url = shard_url.replace("prod-", "")
+        if from_mount is True:
+            shard_url = shard_url.replace("gs://ai-lab-speech-bucket", "/home/longtou.2024/mount")
+    else:
+        if from_mount is True:
+            shard_url = shard_url.replace("gs://prod-ai-lab-speech-bucket", "/home/longtou.2024/mount")
     cache_dir = None
     if cache_size > 0:
         cache_dir = f"wds_cache_{recipe_name}"
