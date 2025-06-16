@@ -90,6 +90,9 @@ def get_args():
     parser.add_argument('--from_mount',
                         action="store_true",
                         help='load wds from gcsfuse mount dir')
+    parser.add_argument('--from_prod',
+                        action="store_true",
+                        help='load wds from prod bucket instead of dev')
     parser = deepspeed.add_config_arguments(parser)
     args = parser.parse_args()
     return args
