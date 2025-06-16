@@ -9,7 +9,7 @@ sample_rate: 24000
 llm_input_size: 896
 llm_output_size: 896
 spk_embed_dim: 192
-qwen_pretrain_path: ''
+qwen_pretrain_path: '/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B/CosyVoice-BlankEN'
 token_frame_rate: 25
 token_mel_ratio: 2
 
@@ -28,7 +28,7 @@ llm: !new:cosyvoice.llm.llm.Qwen2LM2
     lsm_weight: 0
     mix_ratio: [5, 15]
     clm: !new:cosyvoice.llm.llm.Qwen2Encoder
-        pretrain_path: !ref <qwen_pretrain_path>
+        pretrain_path: "/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/Qwen2.5-0.5B-Instruct"
     llm: !new:cosyvoice.llm.llm.Qwen2Encoder
         pretrain_path: !ref <qwen_pretrain_path>
     sampling: !name:cosyvoice.utils.common.ras_sampling
@@ -154,7 +154,7 @@ filter_lt: !name:cosyvoice.dataset.processor.filter_lt
     token_max_length: 200
     token_min_length: 1
 resample: !name:cosyvoice.dataset.processor.resample
-    resample_rate: !ref <sample_rate>
+    resample_rate: 16000 # 16kHz for speech tokenizer
 truncate: !name:cosyvoice.dataset.processor.truncate
     truncate_length: 24480 # must be a multiplier of hop_size
 feat_extractor: !name:matcha.utils.audio.mel_spectrogram
@@ -182,7 +182,7 @@ sort: !name:cosyvoice.dataset.processor.sort
     sort_size: 500  # sort_size should be less than shuffle_size
 batch: !name:cosyvoice.dataset.processor.batch
     batch_type: 'dynamic'
-    max_frames_in_batch: 1600 # whisper_mel 100Hz
+    max_frames_in_batch: 9000 # whisper_mel 100Hz
 padding: !name:cosyvoice.dataset.processor.padding
     use_spk_embedding: True # change to True during sft
 padding_lt: !name:cosyvoice.dataset.processor.padding_lt
@@ -220,10 +220,10 @@ data_pipeline_gan: [
 train_conf:
     optim: adam
     optim_conf:
-        lr: 0.002 # change to 1e-5 during sft
+        lr: 0.001 # change to 1e-5 during sft
     scheduler: warmuplr # change to constantlr during sft
     scheduler_conf:
-        warmup_steps: 10000
+        warmup_steps: 4000
     max_epoch: 100
     grad_clip: 5
     accum_grad: 2

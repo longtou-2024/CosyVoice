@@ -104,6 +104,7 @@ class CosyVoice:
                 yield model_output
                 start_time = time.time()
 
+
     def inference_cross_lingual(self, tts_text, prompt_speech_16k, zero_shot_spk_id='', stream=False, speed=1.0, text_frontend=True):
         for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
             model_input = self.frontend.frontend_cross_lingual(i, prompt_speech_16k, self.sample_rate, zero_shot_spk_id)
@@ -165,8 +166,8 @@ class CosyVoice2(CosyVoice):
             load_jit, load_trt, fp16 = False, False, False
             logging.warning('no cuda device, set load_jit/load_trt/fp16 to False')
         self.model = CosyVoice2Model(configs['llm'], configs['flow'], configs['hift'], fp16)
-        #self.model.load('{}/llm.pt'.format(model_dir),
-        self.model.load('/home/longtou.2024/ckpt/torch_ddp/llm_avg.pt',
+        #self.model.load('/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt',
+        self.model.load('{}/llm.pt'.format(model_dir),
                         '{}/flow.pt'.format(model_dir),
                         '{}/hift.pt'.format(model_dir))
         if load_vllm:
@@ -190,6 +191,93 @@ class CosyVoice2(CosyVoice):
             start_time = time.time()
             logging.info('synthesis text {}'.format(i))
             for model_output in self.model.tts(**model_input, stream=stream, speed=speed):
+                speech_len = model_output['tts_speech'].shape[1] / self.sample_rate
+                logging.info('yield speech len {}, rtf {}'.format(speech_len, (time.time() - start_time) / speech_len))
+                yield model_output
+                start_time = time.time()
+
+
+class CosyVoice2LLM(CosyVoice):
+
+    def __init__(self, model_dir, yaml_path, load_jit=False, load_trt=False, load_vllm=False, fp16=False, trt_concurrent=1):
+        self.instruct = True if '-Instruct' in model_dir else False
+        self.model_dir = model_dir
+        self.fp16 = fp16
+        if not os.path.exists(model_dir):
+            model_dir = snapshot_download(model_dir)
+        hyper_yaml_path = yaml_path
+        if not os.path.exists(hyper_yaml_path):
+            raise ValueError('{} not found!'.format(hyper_yaml_path))
+        with open(hyper_yaml_path, 'r') as f:
+            configs = load_hyperpyyaml(f)
+        assert get_model_type(configs) == CosyVoice2Model, 'do not use {} for CosyVoice2 initialization!'.format(model_dir)
+        self.frontend = CosyVoiceFrontEnd(configs['get_tokenizer'],
+                                          configs['feat_extractor'],
+                                          '{}/campplus.onnx'.format(model_dir),
+                                          '{}/speech_tokenizer_v2.onnx'.format(model_dir),
+                                          '{}/spk2info.pt'.format(model_dir),
+                                          configs['allowed_special'])
+        self.sample_rate = configs['sample_rate']
+        if torch.cuda.is_available() is False and (load_jit is True or load_trt is True or fp16 is True):
+            load_jit, load_trt, fp16 = False, False, False
+            logging.warning('no cuda device, set load_jit/load_trt/fp16 to False')
+        self.model = CosyVoice2Model(configs['llm'], configs['flow'], configs['hift'], fp16)
+        #self.model.load('{}/llm.pt'.format(model_dir),
+        self.model.load('/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt',
+                        '{}/flow.pt'.format(model_dir),
+                        '{}/hift.pt'.format(model_dir))
+        if load_vllm:
+            self.model.load_vllm('{}/vllm'.format(model_dir))
+        if load_jit:
+            self.model.load_jit('{}/flow.encoder.{}.zip'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'))
+        if load_trt:
+            self.model.load_trt('{}/flow.decoder.estimator.{}.mygpu.plan'.format(model_dir, 'fp16' if self.fp16 is True else 'fp32'),
+                                '{}/flow.decoder.estimator.fp32.onnx'.format(model_dir),
+                                trt_concurrent,
+                                self.fp16)
+        del configs
+
+    def inference_instruct(self, *args, **kwargs):
+        raise NotImplementedError('inference_instruct is not implemented for CosyVoice2!')
+
+    def inference_instruct2(self, tts_text, instruct_text, prompt_speech_16k, zero_shot_spk_id='', stream=False, speed=1.0, text_frontend=True):
+        assert isinstance(self.model, CosyVoice2Model), 'inference_instruct2 is only implemented for CosyVoice2!'
+        for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
+            model_input = self.frontend.frontend_instruct2(i, instruct_text, prompt_speech_16k, self.sample_rate, zero_shot_spk_id)
+            start_time = time.time()
+            logging.info('synthesis text {}'.format(i))
+            for model_output in self.model.tts(**model_input, stream=stream, speed=speed):
+                speech_len = model_output['tts_speech'].shape[1] / self.sample_rate
+                logging.info('yield speech len {}, rtf {}'.format(speech_len, (time.time() - start_time) / speech_len))
+                yield model_output
+                start_time = time.time()
+
+    def inference_zero_shot_caption(self, tts_text_caption, tts_text, prompt_text_caption, prompt_text, prompt_speech_16k, zero_shot_spk_id='', stream=False, speed=1.0, text_frontend=True):
+        tts_text_caption_token, tts_text_caption_token_len = None, None
+        prompt_text_caption_token, prompt_text_caption_token_len = None, None
+        if len(tts_text_caption) > 0:
+            tts_text_caption = "<caption>" + tts_text_caption + "</caption>"
+            tts_text_caption_token, tts_text_caption_token_len = self.frontend._extract_text_token(tts_text_caption)
+        if len(prompt_text_caption) > 0:
+            prompt_text_caption = "<caption>" + prompt_text_caption + "</caption>"
+            prompt_text_caption_token, prompt_text_caption_token_len = self.frontend._extract_text_token(prompt_text_caption)
+
+        prompt_text = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)
+        for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
+            if (not isinstance(i, Generator)) and len(i) < 0.5 * len(prompt_text):
+                logging.warning('synthesis text {} too short than prompt text {}, this may lead to bad performance'.format(i, prompt_text))
+            model_input = self.frontend.frontend_zero_shot(i, prompt_text, prompt_speech_16k, self.sample_rate, zero_shot_spk_id)
+            start_time = time.time()
+            logging.info('synthesis text {}'.format(i))
+            model_input.update(
+                {
+                    "text_caption": tts_text_caption_token,
+                    "text_caption_len": tts_text_caption_token_len,
+                    "prompt_text_caption": prompt_text_caption_token,
+                    "prompt_text_caption_len": prompt_text_caption_token_len,
+                }
+            )
+            for model_output in self.model.tts_caption(**model_input, stream=stream, speed=speed):
                 speech_len = model_output['tts_speech'].shape[1] / self.sample_rate
                 logging.info('yield speech len {}, rtf {}'.format(speech_len, (time.time() - start_time) / speech_len))
                 yield model_output

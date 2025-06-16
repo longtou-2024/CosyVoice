@@ -9,10 +9,11 @@ pretrained_model_dir=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained
 num_workers=1
 prefetch=100
 cache_size=0
-from_mount=false
+from_mount=true
 conf=conf/cosyvoice2_lt2.yaml # DO NOT USE 'CONFIG', its var name is used in 'parse_options.sh'
 #train_data="gs://literature skt_emotion_large skt_emotion_small mediazen_emotion mediazen commbooks aihub_news mediazen_adult mediazen_teen saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon emilia_ko emilia_yodas_ko emilia_en emilia_zh"
-train_data="gs://literature"
+#train_data="gs://literature"
+train_data="gs://literature skt_emotion_large skt_emotion_small mediazen_emotion mediazen commbooks aihub_news mediazen_adult mediazen_teen saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon emilia_ko emilia_yodas_ko"
 cv_data="gs://azure"
 train_engine=torch_ddp
 model_dir=`pwd`/exp/cosyvoice2/llm
@@ -63,6 +64,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --deepspeed_config ${deepspeed_config} \
     --deepspeed.save_states model+optimizer \
     --cache_size ${cache_size} \
+    --checkpoint $pretrained_model_dir/llm.pt \
     ${_opts}
 fi
   #--use_amp \ # infinity grad norm error?

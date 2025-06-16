@@ -6,7 +6,7 @@ import random
 
 import webdataset as wds
 
-SPECIAL_TOKEN = "<|endofprompt|>"
+#SPECIAL_TOKEN = "<|endofprompt|>"
 PROB_INSTRUCTED = 1.0
 
 #name2url = {
@@ -57,6 +57,11 @@ name2url = {
     "emilia_yodas_ko": "gs://ai-lab-speech-bucket/longtou/db/emilia_yodas/wds/ko/shard-000{000..207}.tar",
 }
 
+def pad_caption(caption):
+    if caption != "":
+        caption = "<caption>" + caption + "</caption>"
+    return caption
+
 ### implement decoding function for each dataset ###
 
 def decode_azure(sample):
@@ -65,7 +70,7 @@ def decode_azure(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"]
     caption = ""
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_literature(sample):
     uttid = sample["__key__"]
@@ -86,10 +91,10 @@ def decode_literature(sample):
             #    style_set.add(item["style"])
 
             prompt = emotion_style[0]["emotion"]
-            caption = prompt + SPECIAL_TOKEN
+            caption = prompt
             #transcript = prompt + SPECIAL_TOKEN + transcript
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_mediazen(sample):
     uttid = sample["__key__"]
@@ -97,7 +102,7 @@ def decode_mediazen(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["전사정보"]["OrgLabelText"]
     caption = ""
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_skt_emotion_large(sample):
     uttid = sample["__key__"]
@@ -112,9 +117,9 @@ def decode_skt_emotion_large(sample):
         style_main = json_data["style_main"]
         #style_sub = json_data["style_sub"]
         prompt = style_main
-        caption = prompt + SPECIAL_TOKEN
+        caption = prompt
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_skt_emotion_small(sample):
     uttid = sample["__key__"]
@@ -123,7 +128,7 @@ def decode_skt_emotion_small(sample):
     transcript = json_data["transcript"]
     caption = ""
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_mediazen_emotion(sample):
     uttid = sample["__key__"]
@@ -158,9 +163,9 @@ def decode_mediazen_emotion(sample):
             prompt = speech_style
 
         if prompt is not None:
-            caption = prompt + SPECIAL_TOKEN
+            caption = prompt
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_commbooks(sample):
     uttid = sample["__key__"]
@@ -193,9 +198,9 @@ def decode_commbooks(sample):
         if style in ('중계체', '애니체', '낭독체', '친절체', '독백체', '구연체'):
             prompt += f" {style}"
         if prompt != "":
-            caption = prompt.strip() + SPECIAL_TOKEN
+            caption = prompt.strip()
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_saltlux_jeju(sample):
     uttid = sample["__key__"]
@@ -207,9 +212,9 @@ def decode_saltlux_jeju(sample):
     if random.random() < PROB_INSTRUCTED:
         # build instructed dataset if possible
         prompt = "제주도 방언"
-        caption = prompt + SPECIAL_TOKEN
+        caption = prompt
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_saltlux_jeolla(sample):
     uttid = sample["__key__"]
@@ -221,9 +226,9 @@ def decode_saltlux_jeolla(sample):
     if random.random() < PROB_INSTRUCTED:
         # build instructed dataset if possible
         prompt = "전라도 방언"
-        caption = prompt = SPECIAL_TOKEN
+        caption = prompt
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_saltlux_chungcheong(sample):
     uttid = sample["__key__"]
@@ -235,9 +240,9 @@ def decode_saltlux_chungcheong(sample):
     if random.random() < PROB_INSTRUCTED:
         # build instructed dataset if possible
         prompt = "충청도 방언"
-        caption = prompt + SPECIAL_TOKEN
+        caption = prompt
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_saltlux_gangwon(sample):
     uttid = sample["__key__"]
@@ -249,9 +254,9 @@ def decode_saltlux_gangwon(sample):
     if random.random() < PROB_INSTRUCTED:
         # build instructed dataset if possible
         prompt = "강원도 방언"
-        caption = prompt + SPECIAL_TOKEN
+        caption = prompt
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_saltlux_gyeongsang(sample):
     uttid = sample["__key__"]
@@ -263,9 +268,9 @@ def decode_saltlux_gyeongsang(sample):
     if random.random() < PROB_INSTRUCTED:
         # build instructed dataset if possible
         prompt = "경상도 방언"
-        caption = prompt + SPECIAL_TOKEN
+        caption = prompt
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_mediazen_adult(sample):
     uttid = sample["__key__"]
@@ -274,7 +279,7 @@ def decode_mediazen_adult(sample):
     transcript = json_data["text"]
     caption = ""
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_mediazen_teen(sample):
     uttid = sample["__key__"]
@@ -283,7 +288,7 @@ def decode_mediazen_teen(sample):
     transcript = json_data["text"]
     caption = ""
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_aihub_news(sample):
     uttid = sample["__key__"]
@@ -298,9 +303,9 @@ def decode_aihub_news(sample):
     if random.random() < PROB_INSTRUCTED:
         # build instructed dataset if possible
         prompt = "아나운서"
-        caption = prompt + SPECIAL_TOKEN
+        caption = prompt
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_emilia_en(sample):
     uttid = sample["__key__"]
@@ -309,7 +314,7 @@ def decode_emilia_en(sample):
     transcript = json_data["text"]
     caption = ""
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_emilia_zh(sample):
     uttid = sample["__key__"]
@@ -318,7 +323,7 @@ def decode_emilia_zh(sample):
     transcript = json_data["text"]
     caption = ""
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_emilia_ko(sample):
     uttid = sample["__key__"]
@@ -327,7 +332,7 @@ def decode_emilia_ko(sample):
     transcript = json_data["text"].strip()
     caption = ""
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": pad_caption(caption)}
 
 def decode_emilia_yodas_ko(sample):
     uttid = sample["__key__"]
@@ -336,7 +341,7 @@ def decode_emilia_yodas_ko(sample):
     transcript = json_data["text"].strip()
     caption = ""
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": caption}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "caption": pad_caption(caption)}
 
 ### end of decoding function list ###
 
@@ -344,7 +349,8 @@ def decode_emilia_yodas_ko(sample):
 def build_wds(recipe_name, mode="train", cache_size=0, from_mount=False):
     shard_url = name2url[recipe_name]
     if from_mount:
-        shard_url = shard_url.replace("gs://prod-ai-lab-speech-bucket", "/home/longtou.2024/mount")
+        #shard_url = shard_url.replace("gs://prod-ai-lab-speech-bucket", "/home/longtou.2024/mount")
+        shard_url = shard_url.replace("gs://ai-lab-speech-bucket", "/home/longtou.2024/mount")
     cache_dir = None
     if cache_size > 0:
         cache_dir = f"wds_cache_{recipe_name}"

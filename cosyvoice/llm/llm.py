@@ -608,6 +608,8 @@ class Qwen2LM2(TransformerLM):
 
         self.llm_embedding = torch.nn.Embedding(2, llm_input_size)
         self.clm = clm
+        for param in clm.model.parameters():
+            param.requires_grad = False
         self.llm = llm
         self.llm_decoder = nn.Linear(llm_output_size, speech_token_size + 3)
         self.criterion_ce = LabelSmoothingLoss(
@@ -732,7 +734,12 @@ class Qwen2LM2(TransformerLM):
 
         # NOTE(longtou): run clm forward
         caption_token_len = batch['caption_token_len'].to(device)
-        clm_output, clm_output_mask = self.clm(text_token_emb, text_token_len) # (B,T,D)
+        clm_input = []
+        for i in range(len(text_token_len)):
+            this_text_token_emb = torch.concat([self.llm_embedding.weight[self.sos_eos].reshape(1,-1), text_token_emb[i][:-1]], dim=0)
+            clm_input.append(this_text_token_emb)
+        clm_input = pad_sequence(clm_input, batch_first=True, padding_value=IGNORE_ID)
+        clm_output, clm_output_mask = self.clm(clm_input, text_token_len) # (B,T,D)
         hidden_states = []
         text_woc_token = []
         text_token_emb_woc = []
@@ -774,11 +781,54 @@ class Qwen2LM2(TransformerLM):
             max_token_text_ratio: float = 20,
             min_token_text_ratio: float = 2,
             uuid: str = '',
+            text_caption: torch.Tensor = None,
+            text_caption_len: torch.Tensor = None,
+            prompt_text_caption: torch.Tensor = None,
+            prompt_text_caption_len: torch.Tensor = None,
     ) -> Generator[torch.Tensor, None, None]:
         device = text.device
-        text = torch.concat([prompt_text, text], dim=1)
-        text_len += prompt_text_len
-        text = self.llm.model.model.embed_tokens(text)
+        all_text_len = text_len + prompt_text_len
+        all_text = []
+        if prompt_text_caption is not None:
+            all_text.append(prompt_text_caption)
+            all_text_len += prompt_text_caption_len
+        all_text.append(prompt_text)
+        if text_caption is not None:
+            all_text.append(text_caption)
+            all_text_len += text_caption_len
+        all_text.append(text)
+        all_text = torch.concat(all_text, dim=1)
+        all_text_emb = self.llm.model.model.embed_tokens(all_text)
+
+        assert len(text_len) == 1 # single batch
+        sos_eos_emb = self.llm_embedding.weight[self.sos_eos].reshape(1, 1, -1)
+        clm_input = torch.concat([sos_eos_emb, all_text_emb[:,:-1]], dim=1) # (B,T,D)
+
+        # NOTE(longtou): run clm forward
+        clm_output, clm_output_mask = self.clm(clm_input, all_text_len) # (B,T,D)
+        # skip caption part
+        text_emb_woc = []
+        # # parse prompt_text
+        s_idx = 0
+        if prompt_text_caption is not None:
+            s_idx += prompt_text_caption_len[0]
+        e_idx = s_idx + prompt_text_len[0]
+        clm_output_prompt_text = clm_output[:, s_idx:e_idx]
+        text_emb_woc.append(all_text_emb[:, s_idx:e_idx])
+        # # parse text
+        s_idx = e_idx
+        if text_caption is not None:
+            s_idx += text_caption_len[0]
+        e_idx = s_idx + text_len[0]
+        clm_output_text = clm_output[:, s_idx:e_idx]
+        text_emb_woc.append(all_text_emb[:, s_idx:e_idx])
+
+        hidden_states = torch.concat([clm_output_prompt_text, clm_output_text], dim=1)
+        text_emb_woc = torch.concat(text_emb_woc, dim=1)
+
+
+        fused_text_emb_woc = self.fusion(hidden_states, text_emb_woc)
+        #fused_text_emb_woc = text_emb_woc
 
         # 3. concat llm_input
         sos_eos_emb = self.llm_embedding.weight[self.sos_eos].reshape(1, 1, -1)
@@ -787,11 +837,14 @@ class Qwen2LM2(TransformerLM):
             prompt_speech_token_emb = self.speech_embedding(prompt_speech_token)
         else:
             prompt_speech_token_emb = torch.zeros(1, 0, self.llm_input_size, dtype=text.dtype).to(device)
-        lm_input = torch.concat([sos_eos_emb, text, task_id_emb, prompt_speech_token_emb], dim=1)
+        #lm_input = torch.concat([sos_eos_emb, text, task_id_emb, prompt_speech_token_emb], dim=1)
+        lm_input = torch.concat([sos_eos_emb, fused_text_emb_woc, task_id_emb, prompt_speech_token_emb], dim=1)
 
         # 4. cal min/max_length
-        min_len = int((text_len - prompt_text_len) * min_token_text_ratio)
-        max_len = int((text_len - prompt_text_len) * max_token_text_ratio)
+        #min_len = int((text_len - prompt_text_len) * min_token_text_ratio)
+        #max_len = int((text_len - prompt_text_len) * max_token_text_ratio)
+        min_len = int(text_len * min_token_text_ratio)
+        max_len = int(text_len * max_token_text_ratio)
 
         # 5. step by step decode
         for token in self.inference_wrapper(lm_input, sampling, min_len, max_len, uuid):
