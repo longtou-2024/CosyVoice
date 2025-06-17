@@ -12,14 +12,14 @@ cache_size=0
 from_mount=true # use gcsfuse
 from_prod=false # bucket from prod instead of dev
 conf=conf/cosyvoice2_lt.yaml # DO NOT USE 'CONFIG', its var name is used in 'parse_options.sh'
-train_data="gs://literature skt_emotion_large skt_emotion_small mediazen_emotion mediazen commbooks aihub_news mediazen_adult mediazen_teen saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon emilia_ko emilia_yodas_ko emilia_en emilia_zh"
-#train_data="gs://literature"
+#train_data="gs://literature skt_emotion_large skt_emotion_small mediazen_emotion mediazen commbooks aihub_news mediazen_adult mediazen_teen saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon emilia_ko emilia_yodas_ko emilia_en emilia_zh"
+train_data="gs://commbooks"
 cv_data="gs://azure"
 train_engine=torch_ddp
 model_dir=`pwd`/exp/cosyvoice2/llm
 tensorboard_dir=`pwd`/tensorboard/cosyvoice2/llm
 deepspeed_config=./conf/ds_stage2.json
-checkpoint= # llm checkpoint for resume training
+checkpoint=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B/llm.pt # llm checkpoint for resume training
 
 . parse_options.sh
 

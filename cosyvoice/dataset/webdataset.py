@@ -7,7 +7,7 @@ import random
 import webdataset as wds
 
 SPECIAL_TOKEN = "<|endofprompt|>"
-PROB_INSTRUCTED = 0.3
+PROB_INSTRUCTED = 1.0
 
 name2url = {
     "azure": "gs://prod-ai-lab-speech-bucket/longtou/db/azure/wds_v2/shard-00000{0..7}.tar",
@@ -155,13 +155,14 @@ def decode_commbooks(sample):
         intensity = json_style["intensity"]
         style = json_style["style"]
         sub_style = json_style["sub_style"]
-        prompt = ""
-        if emotion in ('기쁨', '무감정', '분노', '슬픔'):
-            prompt += emotion
-        if style in ('중계체', '애니체', '낭독체', '친절체', '독백체', '구연체'):
-            prompt += f" {style}"
-        if prompt != "":
-            transcript = prompt.strip() + SPECIAL_TOKEN + transcript
+        if int(intensity) >= 2:
+            prompt = ""
+            if emotion in ('기쁨', '분노', '슬픔'):
+                prompt += emotion
+            if style in ('중계체', '애니체', '낭독체', '친절체', '독백체', '구연체'):
+                prompt += f" {style}"
+            if prompt != "":
+                transcript = prompt.strip() + SPECIAL_TOKEN + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
