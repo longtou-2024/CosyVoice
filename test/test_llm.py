@@ -14,7 +14,7 @@ cosyvoice = CosyVoice2LLM(
     load_trt=False, load_vllm=False, fp16=False)
 
 prompt_speech_16k = load_wav('./test/ke_kim/F-A3-D-005-0051.wav', 16000)
-tts_text_caption = ""
+tts_text_caption = "아나운서"
 tts_text = "안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다."
 prompt_text_caption = ""
 prompt_text ="아빠 말씀에 엄마가 막내이모를 향해 화를 버럭 냈습니다."
