@@ -47,6 +47,7 @@ def decode_literature(sample):
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"]
+    gender = json_data["gender"] # (MALE|FEMALE)
 
     if random.random() < PROB_INSTRUCTED:
         # build instructed dataset if possible
@@ -69,6 +70,10 @@ def decode_mediazen(sample):
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["전사정보"]["OrgLabelText"]
+
+    spk_info = json_data["화자정보"]
+    gender = spk_info["Gender"] # [Female|
+
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
 def decode_skt_emotion_large(sample):
@@ -143,6 +148,7 @@ def decode_commbooks(sample):
         transcript = tr
     else:
         transcript = text
+    gender = jsno_data["gender"]
 
     if random.random() < PROB_INSTRUCTED:
         # build instructed dataset if possible
