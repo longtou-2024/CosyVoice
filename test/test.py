@@ -11,7 +11,7 @@ cosyvoice = CosyVoice2('/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrai
 
 prompt_speech_16k = load_wav('./test/ke_kim/F-A3-D-005-0051.wav', 16000)
 #for i, j in enumerate(cosyvoice.inference_zero_shot('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', '아빠 말씀에 엄마가 막내이모를 향해 화를 버럭 냈습니다.', prompt_speech_16k, stream=False)):
-for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', '뉴스체', prompt_speech_16k, stream=False)):
+for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', '기쁨 낭독체', prompt_speech_16k, stream=False)):
 #for i, j in enumerate(cosyvoice.inference_instruct2('요즘 시장 갈라면 사람이 많쿠게. 뭐사러 갔수다? 요즘은 물가가 많이 오르쿠게.', '제주도 방언', prompt_speech_16k, stream=False)):
 #for i, j in enumerate(cosyvoice.inference_instruct2('마! 니 동수햄 아나? 나랑 지금 한따까리 할래?', '경상도 방언', prompt_speech_16k, stream=False)):
 #for i, j in enumerate(cosyvoice.inference_zero_shot('마! 니 동수햄 아나? 나랑 지금 한따까리 할래?', '아빠 말씀에 엄마가 막내이모를 향해 화를 버럭 냈습니다.', prompt_speech_16k, stream=False)):
