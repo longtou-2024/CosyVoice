@@ -45,7 +45,7 @@ def decode_azure(sample):
     transcript = json_data["transcript"]
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
-def decode_literature(sample, tar):
+def decode_literature(sample, **kwargs):
     uttid = sample["__key__"]
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
@@ -54,47 +54,48 @@ def decode_literature(sample, tar):
 
     caption = {}
     #with tarfile.open("/home/longtou.2024/mount/longtou/db/literature/caption/speech_rate.tar", 'r') as tar:
-    try:
-        file_obj = tar["speech_rate"].extractfile(f"{uttid}.json")
-    except KeyError:
-        file_obj = None
-    if file_obj:
-        json_data = json.load(io.BytesIO(file_obj.read()))
-        speech_rate = json_data["n_frames_75hz"] / json_data["n_phn"]
-        if speech_rate < 5.16:
-            caption["speech_rate"] = "fast"
-        elif speech_rate > 6.5:
-            caption["speech_rate"] = "slow"
+    tar = kwargs["tar"]
+    key2members = kwargs["key2members"]
+
+    json_fpath = f"{uttid}.json"
+    if json_fpath in key2members["speech_rate"]:
+        file_obj = tar["speech_rate"].extractfile(key2members["speech_rate"][json_fpath])
+        if file_obj:
+            json_data = json.load(io.BytesIO(file_obj.read()))
+            speech_rate = json_data["n_frames_75hz"] / json_data["n_phn"]
+            if speech_rate < 4.7:
+                caption["speech_rate"] = "fast"
+            elif speech_rate > 7.0:
+                caption["speech_rate"] = "slow"
 
     #with tarfile.open("/home/longtou.2024/mount/longtou/db/literature/caption/pitch.tar", 'r') as tar:
-    try:
-        file_obj = tar["pitch"].extractfile(f"{uttid}.npy")
-    except KeyError:
-        file_obj = None
-    if file_obj:
-        pitch = np.load(io.BytesIO(file_obj.read()))
-        pitch = pitch[pitch != 0]
-        if len(pitch) > 0:
-            pitch_mean = np.mean(pitch)
-            pitch_std = np.std(pitch)
-            if gender == "MALE":
-                if pitch_mean < 19.13:
-                    caption["pitch"] = "low pitch"
-                elif pitch_mean > 42.24:
-                    caption["pitch"] = "high pitch"
-                if pitch_std < 5.14:
-                    caption["tone"] = "monotone"
-                elif pitch_std > 10.87:
-                    caption["tone"] = "expressive"
-            elif gender == "FEMALE":
-                if pitch_mean < 48.27:
-                    caption["pitch"] = "low pitch"
-                elif pitch_mean > 79.57:
-                    caption["pitch"] = "high pitch"
-                if pitch_std < 8.33:
-                    caption["tone"] = "monotone"
-                elif pitch_std > 17.85:
-                    caption["tone"] = "expressive"
+    npy_fpath = f"{uttid}.npy"
+    if npy_fpath in key2members["pitch"]:
+        file_obj = tar["pitch"].extractfile(key2members["pitch"][npy_fpath])
+        if file_obj:
+            pitch = np.load(io.BytesIO(file_obj.read()))
+            pitch = pitch[pitch != 0]
+            if len(pitch) > 0:
+                pitch_mean = np.mean(pitch)
+                pitch_std = np.std(pitch)
+                if gender == "MALE":
+                    if pitch_mean < 16.0:
+                        caption["pitch"] = "male low"
+                    elif pitch_mean > 54.0:
+                        caption["pitch"] = "male high"
+                    if pitch_std < 4.3:
+                        caption["tone"] = "male monotone"
+                    elif pitch_std > 18.0:
+                        caption["tone"] = "male expressive"
+                elif gender == "FEMALE":
+                    if pitch_mean < 43.0:
+                        caption["pitch"] = "female low"
+                    elif pitch_mean > 100.0:
+                        caption["pitch"] = "female high"
+                    if pitch_std < 7.0:
+                        caption["tone"] = "female monotone"
+                    elif pitch_std > 27.0:
+                        caption["tone"] = "female expressive"
 
     keys = list(caption.keys())
     if len(keys) > 0:
@@ -189,7 +190,7 @@ def decode_mediazen_emotion(sample):
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
-def decode_commbooks(sample, tar):
+def decode_commbooks(sample, **kwargs):
     uttid = sample["__key__"]
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
@@ -205,48 +206,48 @@ def decode_commbooks(sample, tar):
 
 
     caption = {}
+    tar = kwargs["tar"]
+    key2members = kwargs["key2members"]
     #with tarfile.open("/home/longtou.2024/mount/longtou/db/commbooks/caption/speech_rate.tar", 'r') as tar:
-    try:
-        file_obj = tar["speech_rate"].extractfile(f"{uttid}.json")
-    except KeyError:
-        file_obj = None
-    if file_obj:
-        json_data = json.load(io.BytesIO(file_obj.read()))
-        speech_rate = json_data["n_frames_75hz"] / json_data["n_phn"]
-        if speech_rate < 4.9:
-            caption["speech_rate"] = "fast"
-        elif speech_rate > 6.09:
-            caption["speech_rate"] = "slow"
+    json_fpath = f"{uttid}.json"
+    if json_fpath in key2members["speech_rate"]:
+        file_obj = tar["speech_rate"].extractfile(key2members["speech_rate"][json_fpath])
+        if file_obj:
+            json_data = json.load(io.BytesIO(file_obj.read()))
+            speech_rate = json_data["n_frames_75hz"] / json_data["n_phn"]
+            if speech_rate < 4.7:
+                caption["speech_rate"] = "fast"
+            elif speech_rate > 7.0:
+                caption["speech_rate"] = "slow"
 
     #with tarfile.open("/home/longtou.2024/mount/longtou/db/commbooks/caption/pitch.tar", 'r') as tar:
-    try:
-        file_obj = tar["pitch"].extractfile(f"{uttid}.npy")
-    except KeyError:
-        file_obj = None
-    if file_obj:
-        pitch = np.load(io.BytesIO(file_obj.read()))
-        pitch = pitch[pitch != 0]
-        if len(pitch) > 0:
-            pitch_mean = np.mean(pitch)
-            pitch_std = np.std(pitch)
-            if gender == "MALE":
-                if pitch_mean < 22.96:
-                    caption["pitch"] = "low pitch"
-                elif pitch_mean > 45.40:
-                    caption["pitch"] = "high pitch"
-                if pitch_std < 7.00:
-                    caption["tone"] = "monotone"
-                elif pitch_std > 14.84:
-                    caption["tone"] = "expressive"
-            elif gender == "FEMALE":
-                if pitch_mean < 55.11:
-                    caption["pitch"] = "low pitch"
-                elif pitch_mean > 88.90:
-                    caption["pitch"] = "high pitch"
-                if pitch_std < 13.00:
-                    caption["tone"] = "monotone"
-                elif pitch_std > 24.27:
-                    caption["tone"] = "expressive"
+    npy_fpath = f"{uttid}.npy"
+    if npy_fpath in key2members["pitch"]:
+        file_obj = tar["pitch"].extractfile(key2members["pitch"][npy_fpath])
+        if file_obj:
+            pitch = np.load(io.BytesIO(file_obj.read()))
+            pitch = pitch[pitch != 0]
+            if len(pitch) > 0:
+                pitch_mean = np.mean(pitch)
+                pitch_std = np.std(pitch)
+                if gender == "MALE":
+                    if pitch_mean < 16.0:
+                        caption["pitch"] = "male low"
+                    elif pitch_mean > 54.0:
+                        caption["pitch"] = "male high"
+                    if pitch_std < 4.3:
+                        caption["tone"] = "male monotone"
+                    elif pitch_std > 18.0:
+                        caption["tone"] = "male expressive"
+                elif gender == "FEMALE":
+                    if pitch_mean < 43.0:
+                        caption["pitch"] = "female low"
+                    elif pitch_mean > 100.0:
+                        caption["pitch"] = "female high"
+                    if pitch_std < 7.00:
+                        caption["tone"] = "female monotone"
+                    elif pitch_std > 27.0:
+                        caption["tone"] = "female expressive"
 
     keys = list(caption.keys())
     if len(keys) > 0:
@@ -426,7 +427,10 @@ def build_wds(recipe_name, mode="train", cache_size=0, from_mount=False, from_pr
         tar = dict()
         tar["speech_rate"] = tarfile.open(f"/home/longtou.2024/mount/longtou/db/{recipe_name}/caption/speech_rate.tar", 'r')
         tar["pitch"] = tarfile.open(f"/home/longtou.2024/mount/longtou/db/{recipe_name}/caption/pitch.tar", 'r')
-        _decode = functools.partial(_decode, tar=tar)
+        key2members = dict()
+        key2members["speech_rate"] = {m.name: m for m in tar["speech_rate"].getmembers()}
+        key2members["pitch"] = {m.name: m for m in tar["pitch"].getmembers()}
+        _decode = functools.partial(_decode, tar=tar, key2members=key2members)
     resampled = True if mode == "train" else False
     dataset = wds.WebDataset(
         shard_url,
