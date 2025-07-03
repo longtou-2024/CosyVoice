@@ -34,6 +34,9 @@ name2url = {
     "emilia_zh": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/zh/shard-00{0000..1194}.tar",
     "emilia_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/ko/shard-00000{0..4}.tar",
     "emilia_yodas_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia_yodas/wds/ko/shard-000{000..207}.tar",
+    "whispering": "gs://prod-ai-lab-speech-bucket/longtou/db/whispering/emilia_pipe/shard-000000.tar",
+    "mediazen_teen_laugh": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/wds_laughter_tag/shard-000000.tar",
+    "mediazen_adult_laugh": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/wds_laughter_tag/shard-000000.tar",
 }
 
 ### implement decoding function for each dataset ###
@@ -350,11 +353,30 @@ def decode_mediazen_adult(sample):
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript}
 
+def decode_mediazen_adult_laugh(sample):
+    uttid = sample["__key__"]
+    mp3 = sample["mp3"]
+    #json_data = json.load(io.BytesIO(sample["json"]))
+    json_data = json.load(io.BytesIO(sample["laughter.json"]))
+    #transcript = json_data["text"]
+    transcript = json_data["transcript"]
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+
 def decode_mediazen_teen(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"]
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+
+def decode_mediazen_teen_laugh(sample):
+    uttid = sample["__key__"]
+    mp3 = sample["mp3"]
+    #json_data = json.load(io.BytesIO(sample["json"]))
+    json_data = json.load(io.BytesIO(sample["laughter.json"]))
+    transcript = json_data["transcript"]
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript}
 
@@ -406,6 +428,17 @@ def decode_emilia_yodas_ko(sample):
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript}
 
+def decode_whispering(sample):
+    uttid = sample["__key__"]
+    mp3 = sample["mp3"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["text"].strip()
+
+    prompt = "속삭임"
+    transcript = prompt + SPECIAL_TOKEN + transcript
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+
 ### end of decoding function list ###
 
 
@@ -423,14 +456,6 @@ def build_wds(recipe_name, mode="train", cache_size=0, from_mount=False, from_pr
         cache_dir = f"wds_cache_{recipe_name}"
         Path(cache_dir).mkdir(parents=True, exist_ok=True)
     _decode = globals()[f"decode_{recipe_name}"]
-    if recipe_name in ("literature", "commbooks"):
-        tar = dict()
-        tar["speech_rate"] = tarfile.open(f"/home/longtou.2024/mount/longtou/db/{recipe_name}/caption/speech_rate.tar", 'r')
-        tar["pitch"] = tarfile.open(f"/home/longtou.2024/mount/longtou/db/{recipe_name}/caption/pitch.tar", 'r')
-        key2members = dict()
-        key2members["speech_rate"] = {m.name: m for m in tar["speech_rate"].getmembers()}
-        key2members["pitch"] = {m.name: m for m in tar["pitch"].getmembers()}
-        _decode = functools.partial(_decode, tar=tar, key2members=key2members)
     resampled = True if mode == "train" else False
     dataset = wds.WebDataset(
         shard_url,
