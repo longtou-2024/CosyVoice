@@ -45,33 +45,33 @@ def decode_azure(sample):
     uttid = sample["__key__"]
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["transcript"]
+    transcript = json_data["transcript"].strip()
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
 def decode_literature(sample, **kwargs):
     uttid = sample["__key__"]
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["transcript"]
+    transcript = json_data["transcript"].strip()
     gender = json_data["gender"] # (MALE|FEMALE)
 
+    # 1) caption: 'pitch', 'tone'
     caption = {}
-    #with tarfile.open("/home/longtou.2024/mount/longtou/db/literature/caption/speech_rate.tar", 'r') as tar:
     tar = kwargs["tar"]
     key2members = kwargs["key2members"]
 
-    json_fpath = f"{uttid}.json"
-    if json_fpath in key2members["speech_rate"]:
-        file_obj = tar["speech_rate"].extractfile(key2members["speech_rate"][json_fpath])
-        if file_obj:
-            json_data = json.load(io.BytesIO(file_obj.read()))
-            speech_rate = json_data["n_frames_75hz"] / json_data["n_phn"]
-            if speech_rate < 4.7:
-                caption["speech_rate"] = "fast"
-            elif speech_rate > 7.0:
-                caption["speech_rate"] = "slow"
+    # parse speech_rate
+    #json_fpath = f"{uttid}.json"
+    #if json_fpath in key2members["speech_rate"]:
+    #    file_obj = tar["speech_rate"].extractfile(key2members["speech_rate"][json_fpath])
+    #    if file_obj:
+    #        json_data = json.load(io.BytesIO(file_obj.read()))
+    #        speech_rate = json_data["n_frames_75hz"] / json_data["n_phn"]
+    #        if speech_rate < 4.7:
+    #            caption["speech_rate"] = "fast"
+    #        elif speech_rate > 7.0:
+    #            caption["speech_rate"] = "slow"
 
-    #with tarfile.open("/home/longtou.2024/mount/longtou/db/literature/caption/pitch.tar", 'r') as tar:
     npy_fpath = f"{uttid}.npy"
     if npy_fpath in key2members["pitch"]:
         file_obj = tar["pitch"].extractfile(key2members["pitch"][npy_fpath])
@@ -83,42 +83,38 @@ def decode_literature(sample, **kwargs):
                 pitch_std = np.std(pitch)
                 if gender == "MALE":
                     if pitch_mean < 16.0:
-                        caption["pitch"] = "male low"
+                        caption["pitch"] = "남자 낮은음"
                     elif pitch_mean > 54.0:
-                        caption["pitch"] = "male high"
+                        caption["pitch"] = "남자 높은음"
                     if pitch_std < 4.3:
-                        caption["tone"] = "male monotone"
+                        caption["tone"] = "남자 모노톤"
                     elif pitch_std > 18.0:
-                        caption["tone"] = "male expressive"
+                        caption["tone"] = "남자 다이나믹톤"
                 elif gender == "FEMALE":
                     if pitch_mean < 43.0:
-                        caption["pitch"] = "female low"
+                        caption["pitch"] = "여자 낮은음"
                     elif pitch_mean > 100.0:
-                        caption["pitch"] = "female high"
+                        caption["pitch"] = "여자 높은음"
                     if pitch_std < 7.0:
-                        caption["tone"] = "female monotone"
+                        caption["tone"] = "여자 모노톤"
                     elif pitch_std > 27.0:
-                        caption["tone"] = "female expressive"
+                        caption["tone"] = "여자 다이나믹톤"
+
+    # 2) emotion
+    # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
+    emotion_style = json_data["emotion_style"]
+    if len(emotion_style) > 0:
+        #emotion_set = set()
+        #style_set = set()
+        #for item in emotion_style:
+        #    emotion_set.add(item["emotion"])
+        #    style_set.add(item["style"])
+        caption["emotion"] = emotion_style[0]["emotion"]
 
     keys = list(caption.keys())
     if len(keys) > 0:
         k = random.choice(keys)
         transcript = caption[k] + SPECIAL_TOKEN + transcript
-
-
-    #if random.random() < PROB_INSTRUCTED:
-    #    # build instructed dataset if possible
-    #    # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
-    #    emotion_style = json_data["emotion_style"]
-    #    if len(emotion_style) > 0:
-    #        #emotion_set = set()
-    #        #style_set = set()
-    #        #for item in emotion_style:
-    #        #    emotion_set.add(item["emotion"])
-    #        #    style_set.add(item["style"])
-
-    #        prompt = emotion_style[0]["emotion"]
-    #        transcript = prompt + SPECIAL_TOKEN + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -199,31 +195,31 @@ def decode_commbooks(sample, **kwargs):
     json_data = json.load(io.BytesIO(sample["json"]))
     # tr: 십오 센티미터
     # origin_text: 15cm
-    tr = json_data["voice_piece"]["tr"]
-    text = json_data["origin_text"]
+    tr = json_data["voice_piece"]["tr"].strip()
+    text = json_data["origin_text"].strip()
     if random.random() < 0.5:
         transcript = tr
     else:
         transcript = text
     gender = json_data["gender"]
 
-
+    # 1) caption: pitch, tone
     caption = {}
     tar = kwargs["tar"]
     key2members = kwargs["key2members"]
-    #with tarfile.open("/home/longtou.2024/mount/longtou/db/commbooks/caption/speech_rate.tar", 'r') as tar:
-    json_fpath = f"{uttid}.json"
-    if json_fpath in key2members["speech_rate"]:
-        file_obj = tar["speech_rate"].extractfile(key2members["speech_rate"][json_fpath])
-        if file_obj:
-            json_data = json.load(io.BytesIO(file_obj.read()))
-            speech_rate = json_data["n_frames_75hz"] / json_data["n_phn"]
-            if speech_rate < 4.7:
-                caption["speech_rate"] = "fast"
-            elif speech_rate > 7.0:
-                caption["speech_rate"] = "slow"
 
-    #with tarfile.open("/home/longtou.2024/mount/longtou/db/commbooks/caption/pitch.tar", 'r') as tar:
+    # parse speech_rate
+    #json_fpath = f"{uttid}.json"
+    #if json_fpath in key2members["speech_rate"]:
+    #    file_obj = tar["speech_rate"].extractfile(key2members["speech_rate"][json_fpath])
+    #    if file_obj:
+    #        json_data = json.load(io.BytesIO(file_obj.read()))
+    #        speech_rate = json_data["n_frames_75hz"] / json_data["n_phn"]
+    #        if speech_rate < 4.7:
+    #            caption["speech_rate"] = "fast"
+    #        elif speech_rate > 7.0:
+    #            caption["speech_rate"] = "slow"
+
     npy_fpath = f"{uttid}.npy"
     if npy_fpath in key2members["pitch"]:
         file_obj = tar["pitch"].extractfile(key2members["pitch"][npy_fpath])
@@ -235,48 +231,40 @@ def decode_commbooks(sample, **kwargs):
                 pitch_std = np.std(pitch)
                 if gender == "MALE":
                     if pitch_mean < 16.0:
-                        caption["pitch"] = "male low"
+                        caption["pitch"] = "남자 낮은음"
                     elif pitch_mean > 54.0:
-                        caption["pitch"] = "male high"
+                        caption["pitch"] = "남자 높은음"
                     if pitch_std < 4.3:
-                        caption["tone"] = "male monotone"
+                        caption["tone"] = "남자 모노톤"
                     elif pitch_std > 18.0:
-                        caption["tone"] = "male expressive"
+                        caption["tone"] = "남자 다이나믹톤"
                 elif gender == "FEMALE":
                     if pitch_mean < 43.0:
-                        caption["pitch"] = "female low"
+                        caption["pitch"] = "여자 낮은음"
                     elif pitch_mean > 100.0:
-                        caption["pitch"] = "female high"
+                        caption["pitch"] = "여자 높은음"
                     if pitch_std < 7.00:
-                        caption["tone"] = "female monotone"
+                        caption["tone"] = "여자 모노톤"
                     elif pitch_std > 27.0:
-                        caption["tone"] = "female expressive"
+                        caption["tone"] = "여자 다이나믹톤"
+
+    # 2) emotion
+    # emotion: {'기쁨', '무감정', '분노', '슬픔'}
+    # intensity: {0, 1, 2, 3}
+    # style: {'중계체', '대화체', '애니체', '낭독체', '친절체', '독백체', '구연체'}
+    # sub_style: {'', '중학생', '20대 청년', '일반설명', '아빠', '40대,아저씨', '할머니', ...
+    json_style = json_data["style"]
+    emotion = json_style["emotion"]
+    intensity = json_style["intensity"]
+    style = json_style["style"]
+    sub_style = json_style["sub_style"]
+    if int(intensity) >= 2:
+        caption["emotion"] = emotion
 
     keys = list(caption.keys())
     if len(keys) > 0:
         k = random.choice(keys)
         transcript = caption[k] + SPECIAL_TOKEN + transcript
-
-
-    #if random.random() < PROB_INSTRUCTED:
-    #    # build instructed dataset if possible
-    #    # emotion: {'기쁨', '무감정', '분노', '슬픔'}
-    #    # intensity: {0, 1, 2, 3}
-    #    # style: {'중계체', '대화체', '애니체', '낭독체', '친절체', '독백체', '구연체'}
-    #    # sub_style: {'', '중학생', '20대 청년', '일반설명', '아빠', '40대,아저씨', '할머니', ...
-    #    json_style = json_data["style"]
-    #    emotion = json_style["emotion"]
-    #    intensity = json_style["intensity"]
-    #    style = json_style["style"]
-    #    sub_style = json_style["sub_style"]
-    #    if int(intensity) >= 2:
-    #        prompt = ""
-    #        if emotion in ('기쁨', '분노', '슬픔'):
-    #            prompt += emotion
-    #        if style in ('중계체', '애니체', '낭독체', '친절체', '독백체', '구연체'):
-    #            prompt += f" {style}"
-    #        if prompt != "":
-    #            transcript = prompt.strip() + SPECIAL_TOKEN + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -356,9 +344,7 @@ def decode_mediazen_adult(sample):
 def decode_mediazen_adult_laugh(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
-    #json_data = json.load(io.BytesIO(sample["json"]))
     json_data = json.load(io.BytesIO(sample["laughter.json"]))
-    #transcript = json_data["text"]
     transcript = json_data["transcript"]
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript}
@@ -374,7 +360,6 @@ def decode_mediazen_teen(sample):
 def decode_mediazen_teen_laugh(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
-    #json_data = json.load(io.BytesIO(sample["json"]))
     json_data = json.load(io.BytesIO(sample["laughter.json"]))
     transcript = json_data["transcript"]
 
@@ -457,6 +442,16 @@ def build_wds(recipe_name, mode="train", cache_size=0, from_mount=False, from_pr
         Path(cache_dir).mkdir(parents=True, exist_ok=True)
     _decode = globals()[f"decode_{recipe_name}"]
     resampled = True if mode == "train" else False
+
+    if recipe_name in ("literature", "commbooks"):
+        tar = dict()
+        tar["speech_rate"] = tarfile.open(f"/home/longtou.2024/mount/longtou/db/{recipe_name}/caption/speech_rate.tar", 'r')
+        tar["pitch"] = tarfile.open(f"/home/longtou.2024/mount/longtou/db/{recipe_name}/caption/pitch.tar", 'r')
+        key2members = dict()
+        key2members["speech_rate"] = {m.name: m for m in tar["speech_rate"].getmembers()}
+        key2members["pitch"] = {m.name: m for m in tar["pitch"].getmembers()}
+        _decode = functools.partial(_decode, tar=tar, key2members=key2members)
+
     dataset = wds.WebDataset(
         shard_url,
         cache_dir=cache_dir,

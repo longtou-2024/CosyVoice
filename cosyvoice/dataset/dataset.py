@@ -174,20 +174,38 @@ class WebDataList(IterableDataset):
     def __init__(self, recipe_names, mode="train", cache_size=0, from_mount=False, from_prod=False):
         #self.sampler = DistributedSampler(shuffle, partition)
         self.epoch = None
-        datasets_ko = []
-        datasets_other = []
-        for name in recipe_names:
-            if name in ("emilia_en", "emilia_zh"):
-                datasets_other.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-            else:
-                datasets_ko.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-        dataset_ko = wds.RoundRobin(datasets_ko, longest=True)
 
-        if len(datasets_other) > 0:
-            dataset_other = wds.RoundRobin(datasets_other, longest=True)
-            dataset = wds.RandomMix([dataset_ko, dataset_other], probs=[0.5,0.5], longest=False)
+        # 1) mix ko with foreign
+        #datasets_ko = []
+        #datasets_other = []
+        #for name in recipe_names:
+        #    if name in ("emilia_en", "emilia_zh"):
+        #        datasets_other.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
+        #    else:
+        #        datasets_ko.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
+        #dataset_ko = wds.RoundRobin(datasets_ko, longest=True)
+
+        #if len(datasets_other) > 0:
+        #    dataset_other = wds.RoundRobin(datasets_other, longest=True)
+        #    dataset = wds.RandomMix([dataset_ko, dataset_other], probs=[0.5,0.5], longest=False)
+        #else:
+        #    dataset = dataset_ko
+        # 2) mix caption with non-caption
+        ds_caption, ds = [], []
+        for name in recipe_names:
+            if name  in ("literature", "commbooks", "whispering", "mediazen_teen_laugh" "mediazen_adult_laugh"):
+                ds_caption.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
+            else:
+                ds.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
+        if len(ds_caption) == 0:
+            dataset = wds.RoundRobin(ds, longest=True)
+        elif len(ds) == 0:
+            dataset = wds.RoundRobin(ds_caption, longest=True)
         else:
-            dataset = dataset_ko
+            ds = wds.RoundRobin(ds, longest=True)
+            ds_caption = wds.RoundRobin(ds_caption, longest=True)
+            dataset = wds.RandomMix([ds, ds_caption], probs=[0.5, 0.5], longest=False)
+
         self.dataset = dataset
 
     def set_epoch(self, epoch):
