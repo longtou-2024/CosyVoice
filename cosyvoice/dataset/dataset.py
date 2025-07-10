@@ -193,7 +193,7 @@ class WebDataList(IterableDataset):
         # 2) mix caption with non-caption
         ds_caption, ds = [], []
         for name in recipe_names:
-            if name  in ("literature", "commbooks", "whispering", "mediazen_teen_laugh" "mediazen_adult_laugh"):
+            if name  in ("literature_speaking_rate", "literature_tone", "commbooks_speaking_rate", "commbooks_tone"):
                 ds_caption.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
             else:
                 ds.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
