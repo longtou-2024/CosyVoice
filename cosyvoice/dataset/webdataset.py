@@ -37,7 +37,30 @@ name2url = {
     "whispering": "gs://prod-ai-lab-speech-bucket/longtou/db/whispering/emilia_pipe/shard-000000.tar",
     "mediazen_teen_laugh": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/wds_laughter_tag/shard-000000.tar",
     "mediazen_adult_laugh": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/wds_laughter_tag/shard-000000.tar",
+    "literature_speaking_rate": "gs://prod-ai-lab-speech-bucket/longtou/db/literature/wds_speaking_rate/shard-00000{0..2}.tar",
+    "literature_tone": "gs://prod-ai-lab-speech-bucket/longtou/db/literature/wds_tone/shard-00000{0..2}.tar",
+    "commbooks_speaking_rate": "gs://prod-ai-lab-speech-bucket/longtou/db/commbooks/wds_speaking_rate/shard-00000{0..5}.tar",
+    "commbooks_tone": "gs://prod-ai-lab-speech-bucket/longtou/db/commbooks/wds_tone/shard-00000{0..7}.tar",
 }
+
+def PROMPT_TEMPLATE(spk_id, emotion, pitch, tone):
+    if pitch is None: pitch = ""
+    if tone is None: tone = ""
+    pitch = {"high": "높은음", "low": "낮은음", "": ""}[pitch]
+    tone = {"dynamic": "다이나믹", "mono": "모노", "": ""}[tone]
+
+    # 화자, 성별, 감정, 피치, 톤, 속삭임, 나이,
+    if random.random() < 0.2:
+        spk_id = ""
+    if random.random() < 0.2:
+        emotion = ""
+    if random.random() < 0.2:
+        pitch = ""
+    if random.random() < 0.2:
+        tone = ""
+
+    prompt = f"화자: {spk_id}, 감정: {emotion}, 피치: {pitch}, 톤: {tone}"
+    return prompt
 
 ### implement decoding function for each dataset ###
 
@@ -46,6 +69,8 @@ def decode_azure(sample):
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"].strip()
+    prompt = PROMPT_TEMPLATE(spk_id="azure", emotion="", pitch="", tone="")
+    transcript = prompt + SPECIAL_TOKEN + transcript
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
 def decode_literature(sample, **kwargs):
@@ -54,53 +79,9 @@ def decode_literature(sample, **kwargs):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"].strip()
     gender = json_data["gender"] # (MALE|FEMALE)
+    spk_id = uttid.split('-')[2]
 
-    # 1) caption: 'pitch', 'tone'
-    caption = {}
-    tar = kwargs["tar"]
-    key2members = kwargs["key2members"]
-
-    # parse speech_rate
-    #json_fpath = f"{uttid}.json"
-    #if json_fpath in key2members["speech_rate"]:
-    #    file_obj = tar["speech_rate"].extractfile(key2members["speech_rate"][json_fpath])
-    #    if file_obj:
-    #        json_data = json.load(io.BytesIO(file_obj.read()))
-    #        speech_rate = json_data["n_frames_75hz"] / json_data["n_phn"]
-    #        if speech_rate < 4.7:
-    #            caption["speech_rate"] = "fast"
-    #        elif speech_rate > 7.0:
-    #            caption["speech_rate"] = "slow"
-
-    npy_fpath = f"{uttid}.npy"
-    if npy_fpath in key2members["pitch"]:
-        file_obj = tar["pitch"].extractfile(key2members["pitch"][npy_fpath])
-        if file_obj:
-            pitch = np.load(io.BytesIO(file_obj.read()))
-            pitch = pitch[pitch != 0]
-            if len(pitch) > 0:
-                pitch_mean = np.mean(pitch)
-                pitch_std = np.std(pitch)
-                if gender == "MALE":
-                    if pitch_mean < 16.0:
-                        caption["pitch"] = "남자 낮은음"
-                    elif pitch_mean > 54.0:
-                        caption["pitch"] = "남자 높은음"
-                    if pitch_std < 4.3:
-                        caption["tone"] = "남자 모노톤"
-                    elif pitch_std > 18.0:
-                        caption["tone"] = "남자 다이나믹톤"
-                elif gender == "FEMALE":
-                    if pitch_mean < 43.0:
-                        caption["pitch"] = "여자 낮은음"
-                    elif pitch_mean > 100.0:
-                        caption["pitch"] = "여자 높은음"
-                    if pitch_std < 7.0:
-                        caption["tone"] = "여자 모노톤"
-                    elif pitch_std > 27.0:
-                        caption["tone"] = "여자 다이나믹톤"
-
-    # 2) emotion
+    emotion = ""
     # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
     emotion_style = json_data["emotion_style"]
     if len(emotion_style) > 0:
@@ -109,12 +90,62 @@ def decode_literature(sample, **kwargs):
         #for item in emotion_style:
         #    emotion_set.add(item["emotion"])
         #    style_set.add(item["style"])
-        caption["emotion"] = emotion_style[0]["emotion"]
+        emotion = emotion_style[0]["emotion"]
 
-    keys = list(caption.keys())
-    if len(keys) > 0:
-        k = random.choice(keys)
-        transcript = caption[k] + SPECIAL_TOKEN + transcript
+    prompt = PROMPT_TEMPLATE(spk_id=f"lit_{spk_id}", emotion=emotion, pitch="", tone="")
+    transcript = prompt + SPECIAL_TOKEN + transcript
+
+    return {"utt": uttid, "audio_data": wav, "text": transcript}
+
+def decode_literature_speaking_rate(sample, **kwargs):
+    uttid = sample["__key__"]
+    wav = sample["wav"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["text_tagged"].strip()
+    gender = json_data["gender"] # (MALE|FEMALE)
+    gender = "남자" if gender == "MALE" else "여자"
+    spk_id = uttid.split('-')[2]
+
+    emotion = ""
+    # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
+    emotion_style = json_data["emotion_style"]
+    if len(emotion_style) > 0:
+        #emotion_set = set()
+        #style_set = set()
+        #for item in emotion_style:
+        #    emotion_set.add(item["emotion"])
+        #    style_set.add(item["style"])
+        emotion = emotion_style[0]["emotion"]
+
+    prompt = PROMPT_TEMPLATE(spk_id=f"lit_{spk_id}", emotion=emotion, pitch="", tone="")
+    transcript = prompt + SPECIAL_TOKEN + transcript
+
+    return {"utt": uttid, "audio_data": wav, "text": transcript}
+
+def decode_literature_tone(sample, **kwargs):
+    uttid = sample["__key__"]
+    wav = sample["wav"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["transcript"].strip()
+    gender = json_data["gender"] # (MALE|FEMALE)
+    gender = "남자" if gender == "MALE" else "여자"
+    spk_id = uttid.split('-')[2]
+    pitch = json_data["pitch"]
+    tone = json_data["tone"]
+
+    emotion = ""
+    # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
+    emotion_style = json_data["emotion_style"]
+    if len(emotion_style) > 0:
+        #emotion_set = set()
+        #style_set = set()
+        #for item in emotion_style:
+        #    emotion_set.add(item["emotion"])
+        #    style_set.add(item["style"])
+        emotion = emotion_style[0]["emotion"]
+
+    prompt = PROMPT_TEMPLATE(spk_id=f"lit_{spk_id}", emotion=emotion, pitch=pitch, tone=tone)
+    transcript = prompt + SPECIAL_TOKEN + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -202,69 +233,84 @@ def decode_commbooks(sample, **kwargs):
     else:
         transcript = text
     gender = json_data["gender"]
+    spk_id = uttid.split('-')[3]
 
-    # 1) caption: pitch, tone
-    caption = {}
-    tar = kwargs["tar"]
-    key2members = kwargs["key2members"]
-
-    # parse speech_rate
-    #json_fpath = f"{uttid}.json"
-    #if json_fpath in key2members["speech_rate"]:
-    #    file_obj = tar["speech_rate"].extractfile(key2members["speech_rate"][json_fpath])
-    #    if file_obj:
-    #        json_data = json.load(io.BytesIO(file_obj.read()))
-    #        speech_rate = json_data["n_frames_75hz"] / json_data["n_phn"]
-    #        if speech_rate < 4.7:
-    #            caption["speech_rate"] = "fast"
-    #        elif speech_rate > 7.0:
-    #            caption["speech_rate"] = "slow"
-
-    npy_fpath = f"{uttid}.npy"
-    if npy_fpath in key2members["pitch"]:
-        file_obj = tar["pitch"].extractfile(key2members["pitch"][npy_fpath])
-        if file_obj:
-            pitch = np.load(io.BytesIO(file_obj.read()))
-            pitch = pitch[pitch != 0]
-            if len(pitch) > 0:
-                pitch_mean = np.mean(pitch)
-                pitch_std = np.std(pitch)
-                if gender == "MALE":
-                    if pitch_mean < 16.0:
-                        caption["pitch"] = "남자 낮은음"
-                    elif pitch_mean > 54.0:
-                        caption["pitch"] = "남자 높은음"
-                    if pitch_std < 4.3:
-                        caption["tone"] = "남자 모노톤"
-                    elif pitch_std > 18.0:
-                        caption["tone"] = "남자 다이나믹톤"
-                elif gender == "FEMALE":
-                    if pitch_mean < 43.0:
-                        caption["pitch"] = "여자 낮은음"
-                    elif pitch_mean > 100.0:
-                        caption["pitch"] = "여자 높은음"
-                    if pitch_std < 7.00:
-                        caption["tone"] = "여자 모노톤"
-                    elif pitch_std > 27.0:
-                        caption["tone"] = "여자 다이나믹톤"
-
-    # 2) emotion
+    emotion = ""
     # emotion: {'기쁨', '무감정', '분노', '슬픔'}
     # intensity: {0, 1, 2, 3}
     # style: {'중계체', '대화체', '애니체', '낭독체', '친절체', '독백체', '구연체'}
     # sub_style: {'', '중학생', '20대 청년', '일반설명', '아빠', '40대,아저씨', '할머니', ...
     json_style = json_data["style"]
-    emotion = json_style["emotion"]
+    this_emotion = json_style["emotion"]
     intensity = json_style["intensity"]
     style = json_style["style"]
     sub_style = json_style["sub_style"]
     if int(intensity) >= 2:
-        caption["emotion"] = emotion
+        emotion = this_emotion
 
-    keys = list(caption.keys())
-    if len(keys) > 0:
-        k = random.choice(keys)
-        transcript = caption[k] + SPECIAL_TOKEN + transcript
+    prompt = PROMPT_TEMPLATE(spk_id=f"cb_{spk_id}", emotion=emotion, pitch="", tone="")
+    transcript = prompt + SPECIAL_TOKEN + transcript
+
+    return {"utt": uttid, "audio_data": wav, "text": transcript}
+
+def decode_commbooks_speaking_rate(sample, **kwargs):
+    uttid = sample["__key__"]
+    wav = sample["wav"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["text_tagged"].strip()
+    gender = json_data["gender"]
+    spk_id = uttid.split('-')[3]
+
+    emotion = ""
+    # emotion: {'기쁨', '무감정', '분노', '슬픔'}
+    # intensity: {0, 1, 2, 3}
+    # style: {'중계체', '대화체', '애니체', '낭독체', '친절체', '독백체', '구연체'}
+    # sub_style: {'', '중학생', '20대 청년', '일반설명', '아빠', '40대,아저씨', '할머니', ...
+    json_style = json_data["style"]
+    this_emotion = json_style["emotion"]
+    intensity = json_style["intensity"]
+    style = json_style["style"]
+    sub_style = json_style["sub_style"]
+    if int(intensity) >= 2:
+        emotion = this_emotion
+
+    prompt = PROMPT_TEMPLATE(spk_id=f"cb_{spk_id}", emotion=emotion, pitch="", tone="")
+    transcript = prompt + SPECIAL_TOKEN + transcript
+
+    return {"utt": uttid, "audio_data": wav, "text": transcript}
+
+def decode_commbooks_tone(sample, **kwargs):
+    uttid = sample["__key__"]
+    wav = sample["wav"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    # tr: 십오 센티미터
+    # origin_text: 15cm
+    tr = json_data["voice_piece"]["tr"].strip()
+    text = json_data["origin_text"].strip()
+    if random.random() < 0.5:
+        transcript = tr
+    else:
+        transcript = text
+    gender = json_data["gender"]
+    spk_id = uttid.split('-')[3]
+    pitch = json_data["pitch"]
+    tone = json_data["tone"]
+
+    emotion = ""
+    # emotion: {'기쁨', '무감정', '분노', '슬픔'}
+    # intensity: {0, 1, 2, 3}
+    # style: {'중계체', '대화체', '애니체', '낭독체', '친절체', '독백체', '구연체'}
+    # sub_style: {'', '중학생', '20대 청년', '일반설명', '아빠', '40대,아저씨', '할머니', ...
+    json_style = json_data["style"]
+    this_emotion = json_style["emotion"]
+    intensity = json_style["intensity"]
+    style = json_style["style"]
+    sub_style = json_style["sub_style"]
+    if int(intensity) >= 2:
+        emotion = this_emotion
+
+    prompt = PROMPT_TEMPLATE(spk_id=f"cb_{spk_id}", emotion=emotion, pitch=pitch, tone=tone)
+    transcript = prompt + SPECIAL_TOKEN + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -442,15 +488,6 @@ def build_wds(recipe_name, mode="train", cache_size=0, from_mount=False, from_pr
         Path(cache_dir).mkdir(parents=True, exist_ok=True)
     _decode = globals()[f"decode_{recipe_name}"]
     resampled = True if mode == "train" else False
-
-    if recipe_name in ("literature", "commbooks"):
-        tar = dict()
-        tar["speech_rate"] = tarfile.open(f"/home/longtou.2024/mount/longtou/db/{recipe_name}/caption/speech_rate.tar", 'r')
-        tar["pitch"] = tarfile.open(f"/home/longtou.2024/mount/longtou/db/{recipe_name}/caption/pitch.tar", 'r')
-        key2members = dict()
-        key2members["speech_rate"] = {m.name: m for m in tar["speech_rate"].getmembers()}
-        key2members["pitch"] = {m.name: m for m in tar["pitch"].getmembers()}
-        _decode = functools.partial(_decode, tar=tar, key2members=key2members)
 
     dataset = wds.WebDataset(
         shard_url,
