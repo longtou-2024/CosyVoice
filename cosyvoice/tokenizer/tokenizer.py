@@ -256,8 +256,16 @@ class QwenTokenizer():
                 "<fast>", "</fast>", "<slow>", "</slow>",
                 "<high>", "</high>", "<low>", "</low>",
                 "<dynamic>", "</dynamic>", "<mono>", "</mono>",
+                "<슬픔>", "</슬픔>",
+                "<당황>", "</당황>",
+                "<무감정>", "</무감정>",
+                "<불안>", "</불안>",
+                "<상처>", "</상처>",
+                "<기쁨>", "</기쁨>",
+                "<분노>", "</분노>",
             ]
         }
+        # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
         self.special_tokens = special_tokens
         self.tokenizer = AutoTokenizer.from_pretrained(token_path)
         self.tokenizer.add_special_tokens(special_tokens)

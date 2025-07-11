@@ -44,12 +44,10 @@ name2url = {
 }
 
 def PROMPT_TEMPLATE(spk_id, emotion, pitch, tone, infer=False):
+    # 화자, 성별, 감정, 피치, 톤, 속삭임, 나이,
     if pitch is None: pitch = ""
     if tone is None: tone = ""
-    pitch = {"high": "높은음", "low": "낮은음", "": ""}[pitch]
-    tone = {"dynamic": "다이나믹", "mono": "모노", "": ""}[tone]
 
-    # 화자, 성별, 감정, 피치, 톤, 속삭임, 나이,
     if infer == False:
         if random.random() < 0.2:
             spk_id = ""
@@ -63,6 +61,12 @@ def PROMPT_TEMPLATE(spk_id, emotion, pitch, tone, infer=False):
     prompt = f"화자: {spk_id}, 감정: {emotion}, 피치: {pitch}, 톤: {tone}"
     return prompt
 
+def SPK_PROMPT(spk_id):
+    if random.random() < 0.5:
+        return spk_id + SPECIAL_TOKEN
+    else:
+        return ""
+
 ### implement decoding function for each dataset ###
 
 def decode_azure(sample):
@@ -71,7 +75,7 @@ def decode_azure(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"].strip()
     #prompt = PROMPT_TEMPLATE(spk_id="azure", emotion="", pitch="", tone="")
-    #transcript = prompt + SPECIAL_TOKEN + transcript
+    transcript = SPK_PROMPT("azure") + transcript
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
 def decode_literature(sample, **kwargs):
@@ -94,7 +98,9 @@ def decode_literature(sample, **kwargs):
         emotion = emotion_style[0]["emotion"]
 
     #prompt = PROMPT_TEMPLATE(spk_id=f"lit_{spk_id}", emotion=emotion, pitch="", tone="")
-    #transcript = prompt + SPECIAL_TOKEN + transcript
+    if emotion != "":
+        transcript = f"<{emotion}>" + transcript + f"</{emotion}>"
+    transcript = SPK_PROMPT(f"lit_{spk_id}") + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -119,7 +125,7 @@ def decode_literature_speaking_rate(sample, **kwargs):
         emotion = emotion_style[0]["emotion"]
 
     #prompt = PROMPT_TEMPLATE(spk_id=f"lit_{spk_id}", emotion=emotion, pitch="", tone="")
-    #transcript = prompt + SPECIAL_TOKEN + transcript
+    transcript = SPK_PROMPT(f"lit_{spk_id}") + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -154,6 +160,7 @@ def decode_literature_tone(sample, **kwargs):
     else:
         tag = tone
     transcript = f"<{tag}>" + transcript + f"</{tag}>"
+    transcript = SPK_PROMPT(f"lit_{spk_id}") + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -257,7 +264,9 @@ def decode_commbooks(sample, **kwargs):
         emotion = this_emotion
 
     #prompt = PROMPT_TEMPLATE(spk_id=f"cb_{spk_id}", emotion=emotion, pitch="", tone="")
-    #transcript = prompt + SPECIAL_TOKEN + transcript
+    if emotion != "":
+        transcript = f"<{emotion}>" + transcript + f"</{emotion}>"
+    transcript = SPK_PROMPT(f"cb_{spk_id}") + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -283,7 +292,7 @@ def decode_commbooks_speaking_rate(sample, **kwargs):
         emotion = this_emotion
 
     #prompt = PROMPT_TEMPLATE(spk_id=f"cb_{spk_id}", emotion=emotion, pitch="", tone="")
-    #transcript = prompt + SPECIAL_TOKEN + transcript
+    transcript = SPK_PROMPT(f"cb_{spk_id}") + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -326,6 +335,7 @@ def decode_commbooks_tone(sample, **kwargs):
     else:
         tag = tone
     transcript = f"<{tag}>" + transcript + f"</{tag}>"
+    transcript = SPK_PROMPT(f"cb_{spk_id}") + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
