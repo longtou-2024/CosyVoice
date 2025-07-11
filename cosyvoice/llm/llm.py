@@ -313,9 +313,9 @@ class Qwen2LM(TransformerLM):
         speech_token_emb = unpad_sequence(speech_token_emb, speech_token_len.cpu(), batch_first=True)
         for i in range(len(text_token)):
             # bistream sequence
-            if random.random() < 0.5 and speech_token_len[i] / text_token_len[i] > self.mix_ratio[1] / self.mix_ratio[0]:
+            #if random.random() < 0.5 and speech_token_len[i] / text_token_len[i] > self.mix_ratio[1] / self.mix_ratio[0]:
             # NOTE(longtou): disable stream mode
-            #if random.random() < 0 and speech_token_len[i] / text_token_len[i] > self.mix_ratio[1] / self.mix_ratio[0]:
+            if random.random() < 0 and speech_token_len[i] / text_token_len[i] > self.mix_ratio[1] / self.mix_ratio[0]:
                 this_lm_target, this_lm_input = [], []
                 this_lm_target.append(IGNORE_ID)
                 this_lm_input.append(self.llm_embedding.weight[self.sos_eos].reshape(1, -1))
