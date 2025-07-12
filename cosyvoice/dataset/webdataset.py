@@ -43,23 +43,30 @@ name2url = {
     "commbooks_tone": "gs://prod-ai-lab-speech-bucket/longtou/db/commbooks/wds_tone/shard-00000{0..7}.tar",
 }
 
-def PROMPT_TEMPLATE(spk_id, emotion, pitch, tone):
+def PROMPT_TEMPLATE(spk_id, style, gender=None, probs=[0.5, 0]):
     # 화자, 성별, 감정, 피치, 톤, 속삭임, 나이,
-    if pitch is None: pitch = ""
-    if tone is None: tone = ""
-    pitch = {"high": "높은음", "low": "낮은음", "": ""}[pitch]
-    tone = {"dynamic": "다이나믹", "mono": "모노", "": ""}[tone]
-    styles = [x for x in [emotion, pitch, tone] if x != ""]
-    style = ""
-    if len(styles) > 0:
-        style = random.choice(styles)
+    en2ko = {"high": "높은음", "low": "낮은음", "dynamic": "다이나믹톤", "mono": "모노톤"}
+    gen2ko = {"M": "남자", "F": "여자"}
+    if style in en2ko:
+        style = en2ko[style]
+        style = gen2ko[gender] + " " + style
 
-    if random.random() < 0.5:
-        spk_id = ""
-    if random.random() < 0.5:
-        style = ""
+    spk_prompt = f"당신은 {spk_id} 화자입니다."
+    style_prompt = f"{style} 스타일로 발화해주세요."
 
-    prompt = f"화자는 {spk_id}, 스타일은 {style}"
+    if spk_id != "" and style != "":
+        if random.random() < probs[0]:
+            spk_id = ""
+        if spk_id != "":
+            if random.random() < probs[1]:
+                style = ""
+
+    if spk_id == "":
+        prompt = style_prompt
+    elif style == "":
+        prompt = spk_prompt
+    else:
+        prompt = spk_prompt + " " + style_prompt
     return prompt + SPECIAL_TOKEN
 
 def SPK_PROMPT(spk_id):
@@ -75,7 +82,7 @@ def decode_azure(sample):
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"].strip()
-    prompt = PROMPT_TEMPLATE(spk_id="azure", emotion="", pitch="", tone="")
+    prompt = PROMPT_TEMPLATE(spk_id="애저", style="", probs=[0, 0])
     transcript = prompt + transcript
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -85,6 +92,7 @@ def decode_literature(sample, **kwargs):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"].strip()
     gender = json_data["gender"] # (MALE|FEMALE)
+    gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
     spk_id = uttid.split('-')[2]
 
     emotion = ""
@@ -98,7 +106,7 @@ def decode_literature(sample, **kwargs):
         #    style_set.add(item["style"])
         emotion = emotion_style[0]["emotion"]
 
-    prompt = PROMPT_TEMPLATE(spk_id=f"lit_{spk_id}", emotion=emotion, pitch="", tone="")
+    prompt = PROMPT_TEMPLATE(spk_id=f"문학작품_{spk_id}", style=emotion, probs=[0.5, 0.3])
     transcript = prompt + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
@@ -123,8 +131,8 @@ def decode_literature_speaking_rate(sample, **kwargs):
         #    style_set.add(item["style"])
         emotion = emotion_style[0]["emotion"]
 
-    prompt = PROMPT_TEMPLATE(spk_id=f"lit_{spk_id}", emotion="", pitch="", tone="")
-    transcript = prompt + transcript
+    #prompt = PROMPT_TEMPLATE(spk_id=f"문학작품_{spk_id}", style="")
+    #transcript = prompt + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -134,7 +142,7 @@ def decode_literature_tone(sample, **kwargs):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"].strip()
     gender = json_data["gender"] # (MALE|FEMALE)
-    gender = "남자" if gender == "MALE" else "여자"
+    gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
     spk_id = uttid.split('-')[2]
     pitch = json_data["pitch"]
     tone = json_data["tone"]
@@ -150,7 +158,13 @@ def decode_literature_tone(sample, **kwargs):
         #    style_set.add(item["style"])
         emotion = emotion_style[0]["emotion"]
 
-    prompt = PROMPT_TEMPLATE(spk_id=f"lit_{spk_id}", emotion="", pitch=pitch, tone=tone)
+    if pitch is None:
+        style = tone
+    elif tone is None:
+        style = pitch
+    else:
+        style = random.choice([pitch, tone])
+    prompt = PROMPT_TEMPLATE(spk_id=f"문학작품_{spk_id}", style=style, gender=gender, probs=[0.5, 0])
     transcript = prompt + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
@@ -239,6 +253,7 @@ def decode_commbooks(sample, **kwargs):
     else:
         transcript = text
     gender = json_data["gender"]
+    gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
     spk_id = uttid.split('-')[3]
 
     emotion = ""
@@ -254,7 +269,7 @@ def decode_commbooks(sample, **kwargs):
     if int(intensity) >= 2:
         emotion = this_emotion
 
-    prompt = PROMPT_TEMPLATE(spk_id=f"cb_{spk_id}", emotion=emotion, pitch="", tone="")
+    prompt = PROMPT_TEMPLATE(spk_id=f"커먼북스_{spk_id}", style=emotion, probs=[0.5, 0.3])
     transcript = prompt + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
@@ -265,6 +280,7 @@ def decode_commbooks_speaking_rate(sample, **kwargs):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text_tagged"].strip()
     gender = json_data["gender"]
+    gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
     spk_id = uttid.split('-')[3]
 
     emotion = ""
@@ -280,8 +296,7 @@ def decode_commbooks_speaking_rate(sample, **kwargs):
     if int(intensity) >= 2:
         emotion = this_emotion
 
-    prompt = PROMPT_TEMPLATE(spk_id=f"cb_{spk_id}", emotion="", pitch="", tone="")
-    transcript = prompt + transcript
+    #prompt = PROMPT_TEMPLATE(spk_id=f"cb_{spk_id}", emotion="", pitch="", tone="")
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -298,6 +313,7 @@ def decode_commbooks_tone(sample, **kwargs):
     else:
         transcript = text
     gender = json_data["gender"]
+    gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
     spk_id = uttid.split('-')[3]
     pitch = json_data["pitch"]
     tone = json_data["tone"]
@@ -315,7 +331,14 @@ def decode_commbooks_tone(sample, **kwargs):
     if int(intensity) >= 2:
         emotion = this_emotion
 
-    prompt = PROMPT_TEMPLATE(spk_id=f"cb_{spk_id}", emotion="", pitch=pitch, tone=tone)
+    if pitch is None:
+        style = tone
+    elif tone is None:
+        style = pitch
+    else:
+        style = random.choice([pitch, tone])
+
+    prompt = PROMPT_TEMPLATE(spk_id=f"커먼북스_{spk_id}", style=style, gender=gender, probs=[0.5, 0])
     transcript = prompt + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
