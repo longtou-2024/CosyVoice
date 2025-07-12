@@ -34,25 +34,25 @@ def pad_tag(text, tags):
 
 this_text = '지금 상황에서 제일감은 역시 여기, 삼삼침투입니다.'
 #prompt = f"화자는 {spk_id}, 스타일은 {style}"
-for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"화자는 azure, 스타일은 {''}", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"당신은 {'애저'} 화자입니다.", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[0]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"화자는 azure, 스타일은 {'높은음'}", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"당신은 {'애저'} 화자입니다. {'여성 높은음'} 스타일로 발화해주세요.", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[1]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"화자는 azure, 스타일은 {'낮은음'}", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"당신은 {'애저'} 화자입니다. {'여성 낮은음'} 스타일로 발화해주세요.", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[2]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"화자는 azure, 스타일은 {'다이나믹'}", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"당신은 {'애저'} 화자입니다. {'여성 다이나믹톤'} 스타일로 발화해주세요.", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[3]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"화자는 azure, 스타일은 {'모노'}", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"당신은 {'애저'} 화자입니다. {'여성 모노톤'} 스타일로 발화해주세요.", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[4]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"화자는 azure, 스타일은 {'기쁨'}", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"당신은 {'애저'} 화자입니다. {'기쁨'} 스타일로 발화해주세요.", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[5]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"화자는 azure, 스타일은 {'분노'}", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"당신은 {'애저'} 화자입니다. {'분노'} 스타일로 발화해주세요.", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[6]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"화자는 azure, 스타일은 {'슬픔'}", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"당신은 {'애저'} 화자입니다. {'슬픔'} 스타일로 발화해주세요.", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[7]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_instruct2(pad_tag(this_text, ("<fast>", "</fast>")), f"화자는 azure, 스타일은 {''}", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_instruct2(pad_tag(this_text, ("<fast>", "</fast>")), f"당신은 {'애저'} 화자입니다.", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[8]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_instruct2(pad_tag(this_text, ("<slow>", "</slow>")), f"화자는 azure, 스타일은 {''}", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_instruct2(pad_tag(this_text, ("<slow>", "</slow>")), f"당신은 {'애저'} 화자입니다.", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[9]}", j['tts_speech'], cosyvoice.sample_rate)
 
 

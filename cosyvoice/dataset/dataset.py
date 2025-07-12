@@ -193,7 +193,8 @@ class WebDataList(IterableDataset):
         # 2) mix caption with non-caption
         ds_caption, ds = [], []
         for name in recipe_names:
-            if name  in ("literature_speaking_rate", "literature_tone", "commbooks_speaking_rate", "commbooks_tone"):
+            if name  in ("literature_speaking_rate", "literature_tone", "commbooks_speaking_rate", "commbooks_tone", 
+                         "mediazen_teen_laugh", "mediazen_adult_laugh", "whispering"):
                 ds_caption.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
             else:
                 ds.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
@@ -204,7 +205,7 @@ class WebDataList(IterableDataset):
         else:
             ds = wds.RoundRobin(ds, longest=True)
             ds_caption = wds.RoundRobin(ds_caption, longest=True)
-            dataset = wds.RandomMix([ds, ds_caption], probs=[0.5, 0.5], longest=False)
+            dataset = wds.RandomMix([ds, ds_caption], probs=[0.6, 0.4], longest=False)
 
         self.dataset = dataset
 
