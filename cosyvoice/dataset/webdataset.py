@@ -9,9 +9,8 @@ import webdataset as wds
 import tarfile
 import numpy as np
 
-SPECIAL_TOKEN = "<|endofprompt|>"
-PROB_INSTRUCTED = 1.0
-UNKOWN = "알수없는"
+ENDOFPROMPT = "<|endofprompt|>"
+#PROB_INSTRUCTED = 1.0
 
 name2url = {
     "azure": "gs://prod-ai-lab-speech-bucket/longtou/db/azure/wds_v2/shard-00000{0..7}.tar",
@@ -44,37 +43,6 @@ name2url = {
     "commbooks_tone": "gs://prod-ai-lab-speech-bucket/longtou/db/commbooks/wds_tone/shard-00000{0..7}.tar",
 }
 
-def PROMPT_TEMPLATE(spk_id, style, gender=None, probs=[0.5, 0]):
-    # 화자, 성별, 감정, 피치, 톤, 속삭임, 나이,
-    en2ko = {"high": "높은음", "low": "낮은음", "dynamic": "다이나믹톤", "mono": "모노톤"}
-    gen2ko = {"M": "남성", "F": "여성"}
-    if style in en2ko:
-        style = en2ko[style]
-        style = gen2ko[gender] + " " + style
-
-    if spk_id != UNKOWN and style != UNKOWN:
-        if random.random() < probs[0]:
-            spk_id = UNKOWN
-        if spk_id != UNKOWN:
-            if random.random() < probs[1]:
-                style = UNKOWN
-
-    spk_prompt = f"당신은 {spk_id} 화자입니다."
-    style_prompt = f"{style} 스타일로 발화해주세요."
-
-    #if spk_id == "":
-    #    prompt = style_prompt
-    #elif style == "":
-    #    prompt = spk_prompt
-    #else:
-    prompt = spk_prompt + " " + style_prompt
-    return prompt + SPECIAL_TOKEN
-
-def SPK_PROMPT(spk_id):
-    if random.random() < 0.5:
-        return spk_id + SPECIAL_TOKEN
-    else:
-        return ""
 
 ### implement decoding function for each dataset ###
 
@@ -83,8 +51,7 @@ def decode_azure(sample):
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"].strip()
-    prompt = PROMPT_TEMPLATE(spk_id="애저", style=UNKOWN, probs=[0, 0])
-    transcript = prompt + transcript
+    transcript = "<|azure|>" + transcript
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
 def decode_literature(sample, **kwargs):
@@ -96,7 +63,7 @@ def decode_literature(sample, **kwargs):
     gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
     spk_id = uttid.split('-')[2]
 
-    emotion = UNKOWN
+    emotion = ""
     # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
     emotion_style = json_data["emotion_style"]
     if len(emotion_style) > 0:
@@ -107,8 +74,8 @@ def decode_literature(sample, **kwargs):
         #    style_set.add(item["style"])
         emotion = emotion_style[0]["emotion"]
 
-    prompt = PROMPT_TEMPLATE(spk_id=f"문학작품_{spk_id}", style=emotion, probs=[0.5, 0.3])
-    transcript = prompt + transcript
+    if emotion != "":
+        transcript =  emotion + ENDOFPROMPT+ transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -121,20 +88,6 @@ def decode_literature_speaking_rate(sample, **kwargs):
     gender = "남자" if gender == "MALE" else "여자"
     spk_id = uttid.split('-')[2]
 
-    emotion = UNKOWN
-    # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
-    emotion_style = json_data["emotion_style"]
-    if len(emotion_style) > 0:
-        #emotion_set = set()
-        #style_set = set()
-        #for item in emotion_style:
-        #    emotion_set.add(item["emotion"])
-        #    style_set.add(item["style"])
-        emotion = emotion_style[0]["emotion"]
-
-    #prompt = PROMPT_TEMPLATE(spk_id=f"문학작품_{spk_id}", style="")
-    #transcript = prompt + transcript
-
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
 def decode_literature_tone(sample, **kwargs):
@@ -143,21 +96,10 @@ def decode_literature_tone(sample, **kwargs):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"].strip()
     gender = json_data["gender"] # (MALE|FEMALE)
-    gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
+    gender = {"MALE": '남성', "FEMALE": '여성'}[gender]
     spk_id = uttid.split('-')[2]
     pitch = json_data["pitch"]
     tone = json_data["tone"]
-
-    emotion = UNKOWN
-    # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
-    emotion_style = json_data["emotion_style"]
-    if len(emotion_style) > 0:
-        #emotion_set = set()
-        #style_set = set()
-        #for item in emotion_style:
-        #    emotion_set.add(item["emotion"])
-        #    style_set.add(item["style"])
-        emotion = emotion_style[0]["emotion"]
 
     if pitch is None:
         style = tone
@@ -165,8 +107,9 @@ def decode_literature_tone(sample, **kwargs):
         style = pitch
     else:
         style = random.choice([pitch, tone])
-    prompt = PROMPT_TEMPLATE(spk_id=f"문학작품_{spk_id}", style=style, gender=gender, probs=[0.5, 0])
-    transcript = prompt + transcript
+    prompt = {"high": "높은음", "low": "낮은음", "dynamic": "다이나믹톤", "mono": "모노톤"}[style]
+    prompt = gender + " " + prompt
+    transcript = prompt + ENDOFPROMPT + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -254,24 +197,22 @@ def decode_commbooks(sample, **kwargs):
     else:
         transcript = text
     gender = json_data["gender"]
-    gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
+    gender = {"MALE": '남성', "FEMALE": '여성'}[gender]
     spk_id = uttid.split('-')[3]
 
-    emotion = UNKOWN
     # emotion: {'기쁨', '무감정', '분노', '슬픔'}
     # intensity: {0, 1, 2, 3}
     # style: {'중계체', '대화체', '애니체', '낭독체', '친절체', '독백체', '구연체'}
     # sub_style: {'', '중학생', '20대 청년', '일반설명', '아빠', '40대,아저씨', '할머니', ...
     json_style = json_data["style"]
-    this_emotion = json_style["emotion"]
+    emotion = json_style["emotion"]
     intensity = json_style["intensity"]
     style = json_style["style"]
     sub_style = json_style["sub_style"]
-    if int(intensity) >= 2:
-        emotion = this_emotion
-
-    prompt = PROMPT_TEMPLATE(spk_id=f"커먼북스_{spk_id}", style=emotion, probs=[0.5, 0.3])
-    transcript = prompt + transcript
+    #if int(intensity) >= 2:
+    #    emotion = this_emotion
+    prompt = style + " " + emotion + " " + f"{intensity}"
+    transcript = prompt + ENDOFPROMPT + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -283,21 +224,6 @@ def decode_commbooks_speaking_rate(sample, **kwargs):
     gender = json_data["gender"]
     gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
     spk_id = uttid.split('-')[3]
-
-    emotion = UNKOWN
-    # emotion: {'기쁨', '무감정', '분노', '슬픔'}
-    # intensity: {0, 1, 2, 3}
-    # style: {'중계체', '대화체', '애니체', '낭독체', '친절체', '독백체', '구연체'}
-    # sub_style: {'', '중학생', '20대 청년', '일반설명', '아빠', '40대,아저씨', '할머니', ...
-    json_style = json_data["style"]
-    this_emotion = json_style["emotion"]
-    intensity = json_style["intensity"]
-    style = json_style["style"]
-    sub_style = json_style["sub_style"]
-    if int(intensity) >= 2:
-        emotion = this_emotion
-
-    #prompt = PROMPT_TEMPLATE(spk_id=f"cb_{spk_id}", emotion="", pitch="", tone="")
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -314,23 +240,10 @@ def decode_commbooks_tone(sample, **kwargs):
     else:
         transcript = text
     gender = json_data["gender"]
-    gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
+    gender = {"MALE": '남성', "FEMALE": '여성'}[gender]
     spk_id = uttid.split('-')[3]
     pitch = json_data["pitch"]
     tone = json_data["tone"]
-
-    emotion = UNKOWN
-    # emotion: {'기쁨', '무감정', '분노', '슬픔'}
-    # intensity: {0, 1, 2, 3}
-    # style: {'중계체', '대화체', '애니체', '낭독체', '친절체', '독백체', '구연체'}
-    # sub_style: {'', '중학생', '20대 청년', '일반설명', '아빠', '40대,아저씨', '할머니', ...
-    json_style = json_data["style"]
-    this_emotion = json_style["emotion"]
-    intensity = json_style["intensity"]
-    style = json_style["style"]
-    sub_style = json_style["sub_style"]
-    if int(intensity) >= 2:
-        emotion = this_emotion
 
     if pitch is None:
         style = tone
@@ -338,9 +251,9 @@ def decode_commbooks_tone(sample, **kwargs):
         style = pitch
     else:
         style = random.choice([pitch, tone])
-
-    prompt = PROMPT_TEMPLATE(spk_id=f"커먼북스_{spk_id}", style=style, gender=gender, probs=[0.5, 0])
-    transcript = prompt + transcript
+    prompt = {"high": "높은음", "low": "낮은음", "dynamic": "다이나믹톤", "mono": "모노톤"}[style]
+    prompt = gender + " " + prompt
+    transcript = prompt + ENDOFPROMPT + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -495,8 +408,7 @@ def decode_whispering(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"].strip()
 
-    prompt = PROMPT_TEMPLATE(spk_id=UNKOWN, style="속삭임", probs=[0, 0])
-    transcript = prompt + transcript
+    transcript = "속삭임" + ENDOFPROMPT + transcript
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript}
 

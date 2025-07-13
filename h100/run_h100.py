@@ -27,7 +27,7 @@ TB_DIR = f"{MODEL_DIR}/tensorboard"
 SHELL_COMMAND = f''' \
 export CUDA_VISIBLE_DEVICES="0,1,2,3" \
 && . ../../../activate_python.sh \
-&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --from_mount true --from_prod true --train_data "gs://literature_speaking_rate commbooks_speaking_rate literature_tone commbooks_tone literature commbooks azure"
+&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --from_mount true --from_prod true --train_data "gs://literature_speaking_rate commbooks_speaking_rate literature_tone commbooks_tone literature commbooks azure mediazen_teen_laugh mediazen_adult_laugh whispering"
 '''
 
 def add_pod_annotation(

@@ -22,22 +22,26 @@ lit_005_sent = "아빠 말씀에 엄마가 막내이모를 향해 화를 버럭 
 #fout_names = ["base.wav", "fast.wav", "slow.wav"]
 #fout_names = ["base.wav", "mono.wav", "dynamic.wav"]
 #fout_names = ["base.wav", "low.wav", "high.wav"]
-fout_names = ["base.wav", "high.wav", "low.wav", "dynamic.wav", "mono.wav",
-              "happy.wav", "angry.wav", "sad.wav", "fast.wav", "slow.wav"]
-#fout_names = ["base.wav", "happy.wav", "angry.wav", "sad.wav", "dynamic.wav", "mono.wav"]
+#fout_names = ["base.wav", "high.wav", "low.wav", "dynamic.wav", "mono.wav",
+#              "happy.wav", "angry.wav", "sad.wav", "fast.wav", "slow.wav"]
+fout_names = ["base.wav", "high.wav", "low.wav", "dynamic.wav", "mono.wav", "happy.wav", "angry.wav", "sad.wav"]
 
-#for i, j in enumerate(cosyvoice.inference_zero_shot('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[0]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_zero_shot('<기쁨>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.<기쁨>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[1]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_zero_shot('<분노>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.<분노>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[2]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_zero_shot('<슬픔>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.<슬픔>', azure_sent, prompt_speech_16k, stream=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[3]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_zero_shot('<dynamic>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.<dynamic>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[4]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_zero_shot('<mono>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</mono>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[5]}", j['tts_speech'], cosyvoice.sample_rate)
+for i, j in enumerate(cosyvoice.inference_zero_shot('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
+    torchaudio.save(f"{outdir}/{fout_names[0]}", j['tts_speech'], cosyvoice.sample_rate)
+for i, j in enumerate(cosyvoice.inference_zero_shot('<high>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</high>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
+    torchaudio.save(f"{outdir}/{fout_names[1]}", j['tts_speech'], cosyvoice.sample_rate)
+for i, j in enumerate(cosyvoice.inference_zero_shot('<low>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</low>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
+    torchaudio.save(f"{outdir}/{fout_names[2]}", j['tts_speech'], cosyvoice.sample_rate)
+for i, j in enumerate(cosyvoice.inference_zero_shot('<dynamic>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</dynamic>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
+    torchaudio.save(f"{outdir}/{fout_names[3]}", j['tts_speech'], cosyvoice.sample_rate)
+for i, j in enumerate(cosyvoice.inference_zero_shot('<mono>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</mono>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
+    torchaudio.save(f"{outdir}/{fout_names[4]}", j['tts_speech'], cosyvoice.sample_rate)
+for i, j in enumerate(cosyvoice.inference_zero_shot('<기쁨>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</기쁨>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
+    torchaudio.save(f"{outdir}/{fout_names[5]}", j['tts_speech'], cosyvoice.sample_rate)
+for i, j in enumerate(cosyvoice.inference_zero_shot('<분노>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</분노>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
+    torchaudio.save(f"{outdir}/{fout_names[6]}", j['tts_speech'], cosyvoice.sample_rate)
+for i, j in enumerate(cosyvoice.inference_zero_shot('<슬픔>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</슬픔>', azure_sent, prompt_speech_16k, stream=False)):
+    torchaudio.save(f"{outdir}/{fout_names[7]}", j['tts_speech'], cosyvoice.sample_rate)
 
 
 def pad_tag(text, tags):
@@ -47,7 +51,7 @@ def pad_tag(text, tags):
         tagged.append(tags[0] + word + tags[1])
     return " ".join(tagged)
 
-#this_text = '지금 상황에서 제일감은 역시 여기, 삼삼침투입니다.'
+this_text = '지금 상황에서 제일감은 역시 여기, 삼삼침투입니다.'
 #for i, j in enumerate(cosyvoice.inference_instruct2(this_text, "azure", prompt_speech_16k, stream=False, text_frontend=False)):
 #    torchaudio.save(f"{outdir}/{fout_names[0]}", j['tts_speech'], cosyvoice.sample_rate)
 #for i, j in enumerate(cosyvoice.inference_instruct2("<high>" + this_text + "</high>", "azure", prompt_speech_16k, stream=False, text_frontend=False)):
