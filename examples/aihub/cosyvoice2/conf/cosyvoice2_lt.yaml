@@ -27,6 +27,8 @@ llm: !new:cosyvoice.llm.llm.Qwen2LM
     length_normalized_loss: True
     lsm_weight: 0
     mix_ratio: [5, 15]
+    clm: !new:cosyvoice.llm.llm.Qwen2Encoder
+        pretrain_path: "/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/Qwen2.5-0.5B-Instruct"
     llm: !new:cosyvoice.llm.llm.Qwen2Encoder
         pretrain_path: !ref <qwen_pretrain_path>
     sampling: !name:cosyvoice.utils.common.ras_sampling

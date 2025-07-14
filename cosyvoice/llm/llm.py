@@ -265,6 +265,7 @@ class Qwen2LM(TransformerLM):
             llm_input_size: int,
             llm_output_size: int,
             speech_token_size: int,
+            clm: torch.nn.Module,
             llm: torch.nn.Module,
             sampling: Callable,
             length_normalized_loss: bool = True,
@@ -281,6 +282,9 @@ class Qwen2LM(TransformerLM):
         self.fill_token = 2
 
         self.llm_embedding = torch.nn.Embedding(2, llm_input_size)
+        self.clm = clm
+        for param in clm.model.parameters():
+            param.requires_grad = False
         self.llm = llm
         self.llm_decoder = nn.Linear(llm_output_size, speech_token_size + 3)
         self.criterion_ce = LabelSmoothingLoss(
@@ -304,6 +308,23 @@ class Qwen2LM(TransformerLM):
 
         # NOTE(longtou): speech token for on the fly
         self.speech_tokenizer = None
+
+        # gate funsion related
+        self.input_proj = nn.Sequential(
+            nn.Linear(llm_input_size, llm_input_size * 2),
+            nn.ReLU(),
+            nn.Linear(llm_input_size * 2, llm_input_size)
+        )
+        self.gate = nn.Sequential(
+            nn.Linear(2 * llm_input_size, llm_input_size),
+            nn.Sigmoid()
+        )
+
+    # https://github.com/ictnlp/LLaMA-Omni2/blob/main/llama_omni2/model/speech_generator/speech_generator.py#L33
+    def fusion(self, hidden_states, text_emb):
+        hidden_states = self.input_proj(hidden_states)
+        gate = self.gate(torch.cat([hidden_states, text_emb], dim=-1))
+        return hidden_states * gate + text_emb * (1 - gate)
 
     def prepare_lm_input_target(self, text_token, text_token_emb, text_token_len, speech_token, speech_token_emb, speech_token_len):
         lm_target, lm_input = [], []
@@ -363,6 +384,8 @@ class Qwen2LM(TransformerLM):
         """
         text_token = batch['text_token'].to(device)
         text_token_len = batch['text_token_len'].to(device)
+        caption_token = batch['caption_token'].to(device)
+        caption_token_len = batch['caption_token_len'].to(device)
         if 'speech_token' not in batch:
             if self.speech_tokenizer is None:
                 import s3tokenizer
@@ -384,12 +407,25 @@ class Qwen2LM(TransformerLM):
 
         # 1. encode text_token
         text_token_emb = self.llm.model.model.embed_tokens(text_token)
+        caption_token_emb = self.llm.model.model.embed_tokens(caption_token)
 
         # 2. encode speech_token
         speech_token_emb = self.speech_embedding(speech_token)
 
+        # NOTE(longtou): run clm forward
+        clm_output, clm_output_mask = self.clm(caption_token_emb, caption_token_len)
+
+        hidden_states = []
+        for i in range(len(caption_token_len)):
+            c_len = caption_token_len[i]
+            hidden_states.append(clm_output[i, c_len-1:c_len]) # get last hidden state
+        hidden_states = pad_sequence(hidden_states, batch_first=True, padding_value=IGNORE_ID) # (B,1,C)
+        _T = text_token_emb.size(1)
+        fused_text_token_emb = self.fusion(hidden_states.expand(-1, _T, -1), text_token_emb)
+
         # 3. prepare llm_input/target
-        lm_target, lm_input, lm_input_len = self.prepare_lm_input_target(text_token, text_token_emb, text_token_len, speech_token, speech_token_emb, speech_token_len)
+        #lm_target, lm_input, lm_input_len = self.prepare_lm_input_target(text_token, text_token_emb, text_token_len, speech_token, speech_token_emb, speech_token_len)
+        lm_target, lm_input, lm_input_len = self.prepare_lm_input_target(text_token, fused_text_token_emb, text_token_len, speech_token, speech_token_emb, speech_token_len)
         lm_target = lm_target.to(device)
 
         # 4. run lm forward

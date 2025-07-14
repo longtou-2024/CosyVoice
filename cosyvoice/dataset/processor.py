@@ -314,6 +314,8 @@ def tokenize(data, get_tokenizer, allowed_special, mode='train'):
     for sample in data:
         assert 'text' in sample
         sample['text_token'] = tokenizer.encode(sample['text'], allowed_special=allowed_special)
+        assert 'caption' in sample
+        sample['caption_token'] = tokenizer.encode(sample['caption'], allowed_special=allowed_special)
         if mode == 'inference':
             sample['tts_text_token'] = tokenizer.encode(sample['tts_text'], allowed_special=allowed_special)
         yield sample
@@ -547,6 +549,11 @@ def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
         text_token = [torch.tensor(sample[i]['text_token']) for i in order]
         text_token_len = torch.tensor([i.size(0) for i in text_token], dtype=torch.int32)
         text_token = pad_sequence(text_token, batch_first=True, padding_value=0)
+
+        caption = [sample[i]['caption'] for i in order]
+        caption_token = [torch.tensor(sample[i]['caption_token']) for i in order]
+        caption_token_len = torch.tensor([i.size(0) for i in caption_token], dtype=torch.int32)
+        caption_token = pad_sequence(caption_token, batch_first=True, padding_value=0)
         batch = {
             "utts": utts,
             "speech": speech,
@@ -556,6 +563,9 @@ def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
             "text": text,
             "text_token": text_token,
             "text_token_len": text_token_len,
+            "caption": caption,
+            "caption_token": caption_token,
+            "caption_token_len": caption_token_len,
         }
 
         if "utt_embedding" in sample[0]:

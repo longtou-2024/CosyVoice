@@ -206,32 +206,26 @@ class WebDataList(IterableDataset):
         #    ds_small = wds.RoundRobin(ds_small, longest=True)
         #    dataset = wds.RandomMix([ds_large, ds_small], probs=[0.7, 0.3], longest=False)
         # 3) custome
-        #ds1, ds2, ds3 = [],[],[]
-        #for name in recipe_names:
-        #    if name in ("mediazen_teen_laugh", "mediazen_adult_laugh", "whispering"):
-        #        # n_shard: 1
-        #        ds1.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-
-        #    elif name in ("azure", "commbooks_speaking_rate", "commbooks_tone"):
-        #        # n_shard: 7
-        #        ds2.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-
-        #    elif name in ("commbooks",):
-        #        # n_shard: 104
-        #        ds3.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-        #    else:
-        #        raise Exception(name)
-        #ds1 = wds.RoundRobin(ds1, longest=True)
-        #ds2 = wds.RoundRobin(ds2, longest=True)
-        #ds3 = wds.RoundRobin(ds3, longest=True)
-        #dataset = wds.RandomMix([ds1, ds2, ds3], probs=[0.1, 0.2, 0.7], longest=False)
-        dataset = []
+        ds1, ds2 = [],[]
         for name in recipe_names:
             if name in ("mediazen_teen_laugh", "mediazen_adult_laugh", "whispering", "azure", "commbooks_speaking_rate", "commbooks_tone", "commbooks"):
-                dataset.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
+                ds1.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
+
+            elif name in ("mediazen",):
+                ds2.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
             else:
                 raise Exception(name)
-        dataset = wds.RoundRobin(dataset, longest=True)
+        ds1 = wds.RoundRobin(ds1, longest=True)
+        ds2 = wds.RoundRobin(ds2, longest=True)
+        dataset = wds.RandomMix([ds1, ds2], probs=[0.5, 0.5], longest=False)
+        # 4) default
+        #dataset = []
+        #for name in recipe_names:
+        #    if name in ("mediazen_teen_laugh", "mediazen_adult_laugh", "whispering", "azure", "commbooks_speaking_rate", "commbooks_tone", "commbooks"):
+        #        dataset.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
+        #    else:
+        #        raise Exception(name)
+        #dataset = wds.RoundRobin(dataset, longest=True)
 
         self.dataset = dataset
 
