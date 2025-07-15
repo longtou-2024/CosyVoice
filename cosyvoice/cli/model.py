@@ -123,6 +123,33 @@ class CosyVoiceModel:
                     self.tts_speech_token_dict[uuid].append(i)
         self.llm_end_dict[uuid] = True
 
+    def llm_job2(self, text, prompt_text, llm_prompt_speech_token, llm_embedding, uuid, unk_caption_text, caption_text):
+        with self.llm_context, torch.cuda.amp.autocast(self.fp16 is True and hasattr(self.llm, 'vllm') is False):
+            if isinstance(text, Generator):
+                assert isinstance(self, CosyVoice2Model), 'streaming input text is only implemented for CosyVoice2!'
+                for i in self.llm.inference_bistream(text=text,
+                                                     prompt_text=prompt_text.to(self.device),
+                                                     prompt_text_len=torch.tensor([prompt_text.shape[1]], dtype=torch.int32).to(self.device),
+                                                     prompt_speech_token=llm_prompt_speech_token.to(self.device),
+                                                     prompt_speech_token_len=torch.tensor([llm_prompt_speech_token.shape[1]], dtype=torch.int32).to(self.device),
+                                                     embedding=llm_embedding.to(self.device)):
+                    self.tts_speech_token_dict[uuid].append(i)
+            else:
+                for i in self.llm.inference(text=text.to(self.device),
+                                            text_len=torch.tensor([text.shape[1]], dtype=torch.int32).to(self.device),
+                                            prompt_text=prompt_text.to(self.device),
+                                            prompt_text_len=torch.tensor([prompt_text.shape[1]], dtype=torch.int32).to(self.device),
+                                            caption_text=caption_text.to(self.device),
+                                            caption_text_len=torch.tensor([caption_text.shape[1]], dtype=torch.int32).to(self.device),
+                                            unk_caption_text=unk_caption_text.to(self.device),
+                                            unk_caption_text_len=torch.tensor([unk_caption_text.shape[1]], dtype=torch.int32).to(self.device),
+                                            prompt_speech_token=llm_prompt_speech_token.to(self.device),
+                                            prompt_speech_token_len=torch.tensor([llm_prompt_speech_token.shape[1]], dtype=torch.int32).to(self.device),
+                                            embedding=llm_embedding.to(self.device),
+                                            uuid=uuid):
+                    self.tts_speech_token_dict[uuid].append(i)
+        self.llm_end_dict[uuid] = True
+
     def vc_job(self, source_speech_token, uuid):
         self.tts_speech_token_dict[uuid] = source_speech_token.flatten().tolist()
         self.llm_end_dict[uuid] = True
@@ -328,7 +355,7 @@ class CosyVoice2Model(CosyVoiceModel):
             self.tts_speech_token_dict[this_uuid], self.llm_end_dict[this_uuid] = [], False
             self.hift_cache_dict[this_uuid] = None
         if source_speech_token.shape[1] == 0:
-            p = threading.Thread(target=self.llm_job, args=(text, prompt_text, llm_prompt_speech_token, llm_embedding, this_uuid))
+            p = threading.Thread(target=self.llm_job2, args=(text, prompt_text, llm_prompt_speech_token, llm_embedding, this_uuid, kwargs["unk_caption_text"], kwargs["caption_text"]))
         else:
             p = threading.Thread(target=self.vc_job, args=(source_speech_token, this_uuid))
         p.start()

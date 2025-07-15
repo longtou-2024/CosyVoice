@@ -104,6 +104,20 @@ class CosyVoice:
                 yield model_output
                 start_time = time.time()
 
+    def inference_zero_shot2(self, caption, tts_text, prompt_text, prompt_speech_16k, zero_shot_spk_id='', stream=False, speed=1.0, text_frontend=True):
+        prompt_text = self.frontend.text_normalize(prompt_text, split=False, text_frontend=text_frontend)
+        for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
+            if (not isinstance(i, Generator)) and len(i) < 0.5 * len(prompt_text):
+                logging.warning('synthesis text {} too short than prompt text {}, this may lead to bad performance'.format(i, prompt_text))
+            model_input = self.frontend.frontend_zero_shot2(i, caption, prompt_text, prompt_speech_16k, self.sample_rate, zero_shot_spk_id)
+            start_time = time.time()
+            logging.info('synthesis text {}'.format(i))
+            for model_output in self.model.tts(**model_input, stream=stream, speed=speed):
+                speech_len = model_output['tts_speech'].shape[1] / self.sample_rate
+                logging.info('yield speech len {}, rtf {}'.format(speech_len, (time.time() - start_time) / speech_len))
+                yield model_output
+                start_time = time.time()
+
     def inference_cross_lingual(self, tts_text, prompt_speech_16k, zero_shot_spk_id='', stream=False, speed=1.0, text_frontend=True):
         for i in tqdm(self.frontend.text_normalize(tts_text, split=True, text_frontend=text_frontend)):
             model_input = self.frontend.frontend_cross_lingual(i, prompt_speech_16k, self.sample_rate, zero_shot_spk_id)
@@ -148,7 +162,8 @@ class CosyVoice2(CosyVoice):
         self.fp16 = fp16
         if not os.path.exists(model_dir):
             model_dir = snapshot_download(model_dir)
-        hyper_yaml_path = '{}/cosyvoice2.yaml'.format(model_dir)
+        #hyper_yaml_path = '{}/cosyvoice2.yaml'.format(model_dir)
+        hyper_yaml_path = '/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/conf/cosyvoice2_lt.yaml'
         if not os.path.exists(hyper_yaml_path):
             raise ValueError('{} not found!'.format(hyper_yaml_path))
         with open(hyper_yaml_path, 'r') as f:
