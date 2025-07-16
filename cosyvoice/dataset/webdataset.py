@@ -74,8 +74,8 @@ def decode_azure(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"].strip()
 
-    prompt = PROMPT_TEMPLATE(spk="azure", style=None, mask_probs=[0,0])
-    transcript = prompt + transcript
+    #prompt = PROMPT_TEMPLATE(spk="azure", style=None, mask_probs=[0,0])
+    transcript = "애저 화자" + ENDOFPROMPT + transcript
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
 def decode_literature(sample, **kwargs):
@@ -120,7 +120,7 @@ def decode_literature_tone(sample, **kwargs):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"].strip()
     gender = json_data["gender"] # (MALE|FEMALE)
-    gender = {"MALE": '남성', "FEMALE": '여성'}[gender]
+    gender = {"MALE": 'm', "FEMALE": 'f'}[gender]
     spk_id = uttid.split('-')[2]
     pitch = json_data["pitch"]
     tone = json_data["tone"]
@@ -131,9 +131,8 @@ def decode_literature_tone(sample, **kwargs):
         style = pitch
     else:
         style = random.choice([pitch, tone])
-    prompt = {"high": "높은음", "low": "낮은음", "dynamic": "다이나믹톤", "mono": "모노톤"}[style]
-    prompt = gender + " " + prompt
-    transcript = prompt + ENDOFPROMPT + transcript
+    tag = f"{gender}_{style}"
+    transcript = f"<{tag}>{transcript}</{tag}>"
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -146,9 +145,9 @@ def decode_mediazen(sample):
     spk_info = json_data["화자정보"]
     gender = spk_info["Gender"] # [Female|
 
-    if random.random() < 0.1:
-        prompt = PROMPT_TEMPLATE(spk="unkown", style=None, mask_probs=[0,0])
-        transcript = prompt + transcript
+    #if random.random() < 0.1:
+    #    prompt = PROMPT_TEMPLATE(spk="unkown", style=None, mask_probs=[0,0])
+    #    transcript = prompt + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -239,9 +238,18 @@ def decode_commbooks(sample, **kwargs):
     sub_style = json_style["sub_style"]
     #if int(intensity) >= 2:
     #    emotion = this_emotion
-    this_style = style + " " + emotion + " " + f"{intensity}"
-    prompt = PROMPT_TEMPLATE(spk=f"cb_{spk_id}", style=this_style, mask_probs=[0.5,0.5])
-    transcript = prompt + transcript
+
+    if style == "중계체":
+        tag = "sport"
+    elif style == "애니체":
+        tag = "anime"
+    elif int(intensity) >= 2:
+        tag = {"기쁨": "happy", "무감정": "normal", "분노": "angry", "슬픔": "sad"}[emotion]
+    else:
+        tag = None
+
+    if tag:
+        transcript = f"<{tag}>{transcript}</{tag}>"
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -253,10 +261,6 @@ def decode_commbooks_speaking_rate(sample, **kwargs):
     gender = json_data["gender"]
     gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
     spk_id = uttid.split('-')[3]
-
-    if random.random() < 0.5:
-        prompt = PROMPT_TEMPLATE(spk=f"cb_{spk_id}", style=None, mask_probs=[0,0])
-        transcript = prompt + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -273,7 +277,7 @@ def decode_commbooks_tone(sample, **kwargs):
     else:
         transcript = text
     gender = json_data["gender"]
-    gender = {"MALE": '남성', "FEMALE": '여성'}[gender]
+    gender = {"MALE": 'm', "FEMALE": 'f'}[gender]
     spk_id = uttid.split('-')[3]
     pitch = json_data["pitch"]
     tone = json_data["tone"]
@@ -284,10 +288,9 @@ def decode_commbooks_tone(sample, **kwargs):
         style = pitch
     else:
         style = random.choice([pitch, tone])
-    style = {"high": "높은음", "low": "낮은음", "dynamic": "다이나믹톤", "mono": "모노톤"}[style]
-    style = gender + " " + style
-    prompt = PROMPT_TEMPLATE(spk=f"cb_{spk_id}", style=style, mask_probs=[0.5,0.5])
-    transcript = prompt + transcript
+
+    tag = f"{gender}_{style}"
+    transcript = f"<{tag}>{transcript}</{tag}>"
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 
@@ -370,10 +373,6 @@ def decode_mediazen_adult_laugh(sample):
     json_data = json.load(io.BytesIO(sample["laughter.json"]))
     transcript = json_data["transcript"]
 
-    if random.random() < 0.5:
-        prompt = PROMPT_TEMPLATE(spk="unkown", style=None, mask_probs=[0,0])
-        transcript = prompt + transcript
-
     return {"utt": uttid, "audio_data": mp3, "text": transcript}
 
 def decode_mediazen_teen(sample):
@@ -389,10 +388,6 @@ def decode_mediazen_teen_laugh(sample):
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["laughter.json"]))
     transcript = json_data["transcript"]
-
-    if random.random() < 0.5:
-        prompt = PROMPT_TEMPLATE(spk="unkown", style=None, mask_probs=[0,0])
-        transcript = prompt + transcript
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript}
 
@@ -450,8 +445,8 @@ def decode_whispering(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"].strip()
 
-    prompt = PROMPT_TEMPLATE(spk="unkown", style="속삭임", mask_probs=[0.5, 0])
-    transcript = prompt + transcript
+    tag = f"whisper"
+    transcript = f"<{tag}>{transcript}</{tag}>"
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript}
 
