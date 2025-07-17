@@ -28,7 +28,7 @@ import pyworld as pw
 AUDIO_FORMAT_SETS = {'flac', 'mp3', 'm4a', 'ogg', 'opus', 'wav', 'wma'}
 
 class RandomQueue:
-    def __init__(self, max_size=20):
+    def __init__(self, max_size=5):
         self._items = []
         self.max_size = max_size
 
@@ -56,17 +56,21 @@ class RandomQueue:
     def __len__(self):
         return len(self._items)
 
+# nested defaultdict
 class Spk2Sample(defaultdict):
     def __init__(self, *args, **kwargs):
-        super().__init__(RandomQueue, *args, **kwargs)
+        super().__init__(lambda: defaultdict(RandomQueue), *args, **kwargs)
 
 def extend_sample(data, mode="train"):
     cache = Spk2Sample()
     for sample in data:
         spk_id = sample["spk_id"]
+        tag = sample["tag"]
         sample_copied = deepcopy(sample)
         if spk_id in cache:
-            sample2 = cache[spk_id].dequeue()
+            tags = list(cache[spk_id].keys())
+            selected_tag = random.choice(tags) # randomly sample from avalialbe tag
+            sample2 = cache[spk_id][selected_tag].sample()
 
             sample["utt"] = sample["utt"] + "@" + sample2["utt"]
             sample["text"] = sample["text"] + "<|debug|>" + sample2["text"]
@@ -80,8 +84,8 @@ def extend_sample(data, mode="train"):
             sample["speech"] = torch.cat([speech, speech2], dim=1)
             sample["sample_rate"] = sample_rate
 
-        if spk_id != "unkown":
-            cache[spk_id].enqueue(sample_copied)
+        if spk_id != "unkown" and tag != "":
+            cache[spk_id][tag].enqueue(sample_copied)
         yield sample
 
 def parquet_opener(data, mode='train', tts_data={}):

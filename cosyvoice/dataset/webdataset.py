@@ -23,8 +23,8 @@ name2url = {
     "kaist_audiobook": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-0000{00..10}.tar",
     "kaist_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-00000{0..8}.tar",
     "aihub_news": "gs://prod-ai-lab-speech-bucket/longtou/db/aihub_news/wds_v2/shard-000{000..107}.tar",
-    "mediazen_adult": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/emilia_pipe_v2/shard-000{000..010,100..110}.tar",
-    "mediazen_teen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/emilia_pipe_v2/shard-000{000..005,100..105}.tar",
+    "mediazen_adult": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/emilia_pipe_v2/shard-000{{000..010},{100..110}}.tar",
+    "mediazen_teen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/emilia_pipe_v2/shard-000{{000..005},{100..105}}.tar",
     "saltlux_jeju": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_jeju/emilia_pipe/shard-00000{0..6}.tar",
     "saltlux_chungcheong": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_chungcheong/emilia_pipe/shard-0000{00..17}.tar",
     "saltlux_gyeongsang": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_gyeongsang/emilia_pipe/shard-0000{00..29}.tar",
@@ -76,7 +76,7 @@ def decode_azure(sample):
 
     #prompt = PROMPT_TEMPLATE(spk="azure", style=None, mask_probs=[0,0])
     transcript = "애저 화자" + ENDOFPROMPT + transcript
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown"}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": ""}
 
 def decode_literature(sample, **kwargs):
     uttid = sample["__key__"]
@@ -250,7 +250,7 @@ def decode_commbooks(sample, **kwargs):
 
     transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
 def decode_commbooks_speaking_rate(sample, **kwargs):
     uttid = sample["__key__"]
@@ -280,7 +280,7 @@ def decode_commbooks_speaking_rate(sample, **kwargs):
 
     transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
 def decode_commbooks_tone(sample, **kwargs):
     uttid = sample["__key__"]
@@ -310,7 +310,7 @@ def decode_commbooks_tone(sample, **kwargs):
     tag = f"{gender}_{style}"
     transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
 def decode_saltlux_jeju(sample):
     uttid = sample["__key__"]
@@ -387,7 +387,7 @@ def decode_mediazen_adult(sample):
     tag = "chat"
     transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
 
 def decode_mediazen_adult_laugh(sample):
     uttid = sample["__key__"]
@@ -399,7 +399,7 @@ def decode_mediazen_adult_laugh(sample):
     tag = "chat"
     transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
 
 def decode_mediazen_teen(sample):
     uttid = sample["__key__"]
@@ -411,7 +411,7 @@ def decode_mediazen_teen(sample):
     tag = "chat"
     transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
 
 def decode_mediazen_teen_laugh(sample):
     uttid = sample["__key__"]
@@ -423,7 +423,7 @@ def decode_mediazen_teen_laugh(sample):
     tag = "chat"
     transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
 
 def decode_aihub_news(sample):
     uttid = sample["__key__"]
@@ -482,7 +482,7 @@ def decode_whispering(sample):
     tag = f"whisper"
     transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown"}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": tag}
 
 ### end of decoding function list ###
 
