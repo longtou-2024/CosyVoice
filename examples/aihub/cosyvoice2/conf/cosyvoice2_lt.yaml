@@ -130,6 +130,7 @@ hifigan: !new:cosyvoice.hifigan.hifigan.HiFiGan
     ]
 
 # processor functions
+extend_sample: !name:cosyvoice.dataset.processor.extend_sample
 parquet_opener: !name:cosyvoice.dataset.processor.parquet_opener
 get_tokenizer: !name:cosyvoice.tokenizer.tokenizer.get_qwen_tokenizer
     token_path: !ref <qwen_pretrain_path>
@@ -186,6 +187,7 @@ padding_lt: !name:cosyvoice.dataset.processor.padding_lt
 # dataset processor pipeline
 data_pipeline: [
     #!ref <parquet_opener>,
+    !ref <extend_sample>,
     !ref <tokenize>,
     !ref <filter_lt>,
     !ref <resample>,

@@ -241,8 +241,8 @@ def decode_commbooks(sample, **kwargs):
 
     if style == "중계체":
         tag = "sport"
-    elif style == "애니체":
-        tag = "anime"
+    elif style == "낭독체":
+        tag = "recite"
     elif int(intensity) >= 2:
         tag = {"기쁨": "happy", "무감정": "normal", "분노": "angry", "슬픔": "sad"}[emotion]
     else:

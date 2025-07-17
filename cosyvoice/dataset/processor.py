@@ -13,9 +13,10 @@
 # limitations under the License.
 import logging
 import random
+from io import BytesIO
+from collections import defaultdict
 
 import pyarrow.parquet as pq
-from io import BytesIO
 import torch
 import torchaudio
 from torch.nn.utils.rnn import pad_sequence
@@ -24,6 +25,60 @@ import pyworld as pw
 
 
 AUDIO_FORMAT_SETS = {'flac', 'mp3', 'm4a', 'ogg', 'opus', 'wav', 'wma'}
+
+class RandomQueue:
+    def __init__(self, max_size=10):
+        self._items = []
+        self.max_size = max_size
+
+    def is_empty(self):
+        return len(self._items) == 0
+
+    def enqueue(self, item):
+        if len(self) >= self.max_size:
+            self.dequeue()
+        self._items.append(item)
+
+    def dequeue(self):
+        if self.is_empty():
+            raise IndexError("dequeue from empty queue")
+        idx = random.randint(0, len(self._items) - 1)
+        # Swap the selected item with the last and pop for O(1) removal
+        self._items[idx], self._items[-1] = self._items[-1], self._items[idx]
+        return self._items.pop()
+
+    def sample(self):
+        if self.is_empty():
+            raise IndexError("sample from empty queue")
+        return random.choice(self._items)
+
+    def __len__(self):
+        return len(self._items)
+
+cache_spk2sample = defaultdict(RandomQueue)
+
+def extend_sample(data):
+    for sample in data:
+        spk_id = sample["spk_id"]
+        if spk_id in cache_spk2sample:
+            sample2 = cache_spk2sample[spk_id].dequeue()
+
+            sample["utt"] = sample["utt"] + "@" + sample2["utt"]
+            sample["text"] = sample["text"] + sample2["text"]
+            sample["audio_data"]
+
+            speech, sample_rate = torchaudio.load(BytesIO(sample['audio_data']))
+            speech2, sample_rate2 = torchaudio.load(BytesIO(sample2['audio_data']))
+            assert sample_rate == sample_rate2, f"{sample_rate} != {sample_rate2}"
+            assert speech.shape[0] == speech2.shape[0], f"{speech.shape[0]} != {speech2.shape[0]}"
+
+            sample["speech"] = torch.cat([speech, speech2], dim=1)
+            sample["sample_rate"] = sample_rate
+            sample['speech'] = sample['speech'].mean(dim=0, keepdim=True)
+            del sample['audio_data']
+
+        cache_spk2sample[spk_id].enqueue(sample)
+        yield sample
 
 
 def parquet_opener(data, mode='train', tts_data={}):
@@ -136,9 +191,9 @@ def filter_lt(data,
             Iterable[{key, wav, label, sample_rate}]
     """
     for sample in data:
-        sample['speech'], sample['sample_rate'] = torchaudio.load(BytesIO(sample['audio_data']))
-        sample['speech'] = sample['speech'].mean(dim=0, keepdim=True)
-        del sample['audio_data']
+        #sample['speech'], sample['sample_rate'] = torchaudio.load(BytesIO(sample['audio_data']))
+        #sample['speech'] = sample['speech'].mean(dim=0, keepdim=True)
+        #del sample['audio_data']
         # sample['wav'] is torch.Tensor, we have 100 frames every second
         num_frames = sample['speech'].size(1) / sample['sample_rate'] * 100
         if num_frames < min_length:

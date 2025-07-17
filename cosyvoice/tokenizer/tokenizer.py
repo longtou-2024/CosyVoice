@@ -267,7 +267,7 @@ class QwenTokenizer():
                 "<angry>", "</angry>",
                 "<normal>", "</normal>",
                 "<sport>", "</sport>",
-                "<anime>", "</anime>",
+                "<recite>", "</recite>",
                 "<whisper>", "</whisper>",
             ]
         }
