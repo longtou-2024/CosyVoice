@@ -15,6 +15,7 @@ import logging
 import random
 from io import BytesIO
 from collections import defaultdict
+from copy import deepcopy
 
 import pyarrow.parquet as pq
 import torch
@@ -27,7 +28,7 @@ import pyworld as pw
 AUDIO_FORMAT_SETS = {'flac', 'mp3', 'm4a', 'ogg', 'opus', 'wav', 'wma'}
 
 class RandomQueue:
-    def __init__(self, max_size=10):
+    def __init__(self, max_size=20):
         self._items = []
         self.max_size = max_size
 
@@ -55,31 +56,33 @@ class RandomQueue:
     def __len__(self):
         return len(self._items)
 
-cache_spk2sample = defaultdict(RandomQueue)
+class Spk2Sample(defaultdict):
+    def __init__(self, *args, **kwargs):
+        super().__init__(RandomQueue, *args, **kwargs)
 
-def extend_sample(data):
+def extend_sample(data, mode="train"):
+    cache = Spk2Sample()
     for sample in data:
         spk_id = sample["spk_id"]
-        if spk_id in cache_spk2sample:
-            sample2 = cache_spk2sample[spk_id].dequeue()
+        sample_copied = deepcopy(sample)
+        if spk_id in cache:
+            sample2 = cache[spk_id].dequeue()
 
             sample["utt"] = sample["utt"] + "@" + sample2["utt"]
-            sample["text"] = sample["text"] + sample2["text"]
-            sample["audio_data"]
+            sample["text"] = sample["text"] + "<|debug|>" + sample2["text"]
+            sample["text_token"] = sample["text_token"] + sample2["text_token"]
 
-            speech, sample_rate = torchaudio.load(BytesIO(sample['audio_data']))
-            speech2, sample_rate2 = torchaudio.load(BytesIO(sample2['audio_data']))
+            speech, sample_rate = sample["speech"], sample["sample_rate"]
+            speech2, sample_rate2 = sample2["speech"], sample2["sample_rate"]
             assert sample_rate == sample_rate2, f"{sample_rate} != {sample_rate2}"
             assert speech.shape[0] == speech2.shape[0], f"{speech.shape[0]} != {speech2.shape[0]}"
 
             sample["speech"] = torch.cat([speech, speech2], dim=1)
             sample["sample_rate"] = sample_rate
-            sample['speech'] = sample['speech'].mean(dim=0, keepdim=True)
-            del sample['audio_data']
 
-        cache_spk2sample[spk_id].enqueue(sample)
+        if spk_id != "unkown":
+            cache[spk_id].enqueue(sample_copied)
         yield sample
-
 
 def parquet_opener(data, mode='train', tts_data={}):
     """ Give url or local file, return file descriptor
@@ -191,9 +194,10 @@ def filter_lt(data,
             Iterable[{key, wav, label, sample_rate}]
     """
     for sample in data:
-        #sample['speech'], sample['sample_rate'] = torchaudio.load(BytesIO(sample['audio_data']))
-        #sample['speech'] = sample['speech'].mean(dim=0, keepdim=True)
-        #del sample['audio_data']
+        if "speech" not in sample:
+            sample['speech'], sample['sample_rate'] = torchaudio.load(BytesIO(sample['audio_data']))
+            sample['speech'] = sample['speech'].mean(dim=0, keepdim=True)
+            del sample['audio_data']
         # sample['wav'] is torch.Tensor, we have 100 frames every second
         num_frames = sample['speech'].size(1) / sample['sample_rate'] * 100
         if num_frames < min_length:

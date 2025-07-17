@@ -23,8 +23,8 @@ name2url = {
     "kaist_audiobook": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-0000{00..10}.tar",
     "kaist_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-00000{0..8}.tar",
     "aihub_news": "gs://prod-ai-lab-speech-bucket/longtou/db/aihub_news/wds_v2/shard-000{000..107}.tar",
-    "mediazen_adult": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/emilia_pipe/shard-0000{00..18}.tar",
-    "mediazen_teen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/emilia_pipe/shard-0000{00..11}.tar",
+    "mediazen_adult": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/emilia_pipe_v2/shard-000{000..010,100..110}.tar",
+    "mediazen_teen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/emilia_pipe_v2/shard-000{000..005,100..105}.tar",
     "saltlux_jeju": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_jeju/emilia_pipe/shard-00000{0..6}.tar",
     "saltlux_chungcheong": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_chungcheong/emilia_pipe/shard-0000{00..17}.tar",
     "saltlux_gyeongsang": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_gyeongsang/emilia_pipe/shard-0000{00..29}.tar",
@@ -76,7 +76,7 @@ def decode_azure(sample):
 
     #prompt = PROMPT_TEMPLATE(spk="azure", style=None, mask_probs=[0,0])
     transcript = "애저 화자" + ENDOFPROMPT + transcript
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown"}
 
 def decode_literature(sample, **kwargs):
     uttid = sample["__key__"]
@@ -85,7 +85,7 @@ def decode_literature(sample, **kwargs):
     transcript = json_data["transcript"].strip()
     gender = json_data["gender"] # (MALE|FEMALE)
     gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
-    spk_id = uttid.split('-')[2]
+    spk_id = f"lit_{uttid.split('-')[2]}"
 
     emotion = ""
     # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
@@ -225,7 +225,7 @@ def decode_commbooks(sample, **kwargs):
         transcript = text
     gender = json_data["gender"]
     gender = {"MALE": '남성', "FEMALE": '여성'}[gender]
-    spk_id = uttid.split('-')[3]
+    spk_id = f"cb_{uttid.split('-')[3]}"
 
     # emotion: {'기쁨', '무감정', '분노', '슬픔'}
     # intensity: {0, 1, 2, 3}
@@ -243,15 +243,14 @@ def decode_commbooks(sample, **kwargs):
         tag = "sport"
     elif style == "낭독체":
         tag = "recite"
-    elif int(intensity) >= 2:
-        tag = {"기쁨": "happy", "무감정": "normal", "분노": "angry", "슬픔": "sad"}[emotion]
+    elif int(intensity) >= 1:
+        tag = {"기쁨": "happy", "무감정": "neutral", "분노": "angry", "슬픔": "sad"}[emotion]
     else:
-        tag = None
+        tag = "neutral"
 
-    if tag:
-        transcript = f"<{tag}>{transcript}</{tag}>"
+    transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id}
 
 def decode_commbooks_speaking_rate(sample, **kwargs):
     uttid = sample["__key__"]
@@ -260,9 +259,28 @@ def decode_commbooks_speaking_rate(sample, **kwargs):
     transcript = json_data["text_tagged"].strip()
     gender = json_data["gender"]
     gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
-    spk_id = uttid.split('-')[3]
+    spk_id = f"cb_{uttid.split('-')[3]}"
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    json_style = json_data["style"]
+    emotion = json_style["emotion"]
+    intensity = json_style["intensity"]
+    style = json_style["style"]
+    sub_style = json_style["sub_style"]
+    #if int(intensity) >= 2:
+    #    emotion = this_emotion
+
+    if style == "중계체":
+        tag = "sport"
+    elif style == "낭독체":
+        tag = "recite"
+    elif int(intensity) >= 1:
+        tag = {"기쁨": "happy", "무감정": "neutral", "분노": "angry", "슬픔": "sad"}[emotion]
+    else:
+        tag = "neutral"
+
+    transcript = f"<{tag}>{transcript}</{tag}>"
+
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id}
 
 def decode_commbooks_tone(sample, **kwargs):
     uttid = sample["__key__"]
@@ -278,7 +296,7 @@ def decode_commbooks_tone(sample, **kwargs):
         transcript = text
     gender = json_data["gender"]
     gender = {"MALE": 'm', "FEMALE": 'f'}[gender]
-    spk_id = uttid.split('-')[3]
+    spk_id = f"cb_{uttid.split('-')[3]}"
     pitch = json_data["pitch"]
     tone = json_data["tone"]
 
@@ -292,7 +310,7 @@ def decode_commbooks_tone(sample, **kwargs):
     tag = f"{gender}_{style}"
     transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id}
 
 def decode_saltlux_jeju(sample):
     uttid = sample["__key__"]
@@ -364,32 +382,48 @@ def decode_mediazen_adult(sample):
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"]
+    spk_id = f"ma_{uttid.rsplit('_', maxsplit=1)[0]}"
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+    tag = "chat"
+    transcript = f"<{tag}>{transcript}</{tag}>"
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id}
 
 def decode_mediazen_adult_laugh(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["laughter.json"]))
     transcript = json_data["transcript"]
+    spk_id = f"ma_{uttid.rsplit('_', maxsplit=1)[0]}"
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+    tag = "chat"
+    transcript = f"<{tag}>{transcript}</{tag}>"
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id}
 
 def decode_mediazen_teen(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"]
+    spk_id = f"mt_{uttid.rsplit('_', maxsplit=1)[0]}"
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+    tag = "chat"
+    transcript = f"<{tag}>{transcript}</{tag}>"
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id}
 
 def decode_mediazen_teen_laugh(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["laughter.json"]))
     transcript = json_data["transcript"]
+    spk_id = f"mt_{uttid.rsplit('_', maxsplit=1)[0]}"
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+    tag = "chat"
+    transcript = f"<{tag}>{transcript}</{tag}>"
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id}
 
 def decode_aihub_news(sample):
     uttid = sample["__key__"]
@@ -448,7 +482,7 @@ def decode_whispering(sample):
     tag = f"whisper"
     transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown"}
 
 ### end of decoding function list ###
 
@@ -480,6 +514,7 @@ def build_wds(recipe_name, mode="train", cache_size=0, from_mount=False, from_pr
         repeat=False,
     )
 
+    dataset = dataset.shuffle(1000)
     dataset = dataset.map(_decode)
     return dataset
 

@@ -265,10 +265,11 @@ class QwenTokenizer():
                 "<happy>", "</happy",
                 "<sad>", "</sad>",
                 "<angry>", "</angry>",
-                "<normal>", "</normal>",
+                "<neutral>", "</neutral>",
                 "<sport>", "</sport>",
                 "<recite>", "</recite>",
                 "<whisper>", "</whisper>",
+                "<chat>", "</chat>",
             ]
         }
         # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
