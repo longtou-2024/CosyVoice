@@ -254,14 +254,8 @@ class QwenTokenizer():
                 "[hissing]", "[sigh]", "[vocalized-noise]",
                 "[lipsmack]", "[mn]",
                 "<fast>", "</fast>", "<slow>", "</slow>",
-                "<m_high>", "</m_high>",
-                "<m_low>", "</m_low>",
-                "<f_high>", "</f_high>",
-                "<f_low>", "</f_low>",
-                "<m_mono>", "</m_mono>",
-                "<m_dynamic>", "</m_dynamic>",
-                "<f_mono>", "</f_mono>",
-                "<f_dynamic>", "</f_dynamic>",
+                "<high>", "</high>", "<low>", "</low>",
+                "<dynamic>", "</dynamic>","<mono>", "</mono>",
                 "<happy>", "</happy",
                 "<sad>", "</sad>",
                 "<angry>", "</angry>",
@@ -270,6 +264,9 @@ class QwenTokenizer():
                 "<recite>", "</recite>",
                 "<whisper>", "</whisper>",
                 "<chat>", "</chat>",
+                "<embarrassed>", "</embarrassed>",
+                "<anxious>", "</anxious>",
+                "<hurt>", "</hurt>",
             ]
         }
         # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}

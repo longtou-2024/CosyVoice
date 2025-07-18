@@ -87,7 +87,7 @@ def decode_literature(sample, **kwargs):
     gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
     spk_id = f"lit_{uttid.split('-')[2]}"
 
-    emotion = ""
+    emotion = "무감정"
     # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
     emotion_style = json_data["emotion_style"]
     if len(emotion_style) > 0:
@@ -98,10 +98,10 @@ def decode_literature(sample, **kwargs):
         #    style_set.add(item["style"])
         emotion = emotion_style[0]["emotion"]
 
-    if emotion != "":
-        transcript =  emotion + ENDOFPROMPT+ transcript
+    tag = {"슬픔": "sad", "당황": "embarrassed", "무감정": "neutral", "불안": "anxious", "상처": "hurt", "기쁨": "happy", "분노": "angry"}[emotion]
+    transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
 def decode_literature_speaking_rate(sample, **kwargs):
     uttid = sample["__key__"]
@@ -110,9 +110,23 @@ def decode_literature_speaking_rate(sample, **kwargs):
     transcript = json_data["text_tagged"].strip()
     gender = json_data["gender"] # (MALE|FEMALE)
     gender = "남자" if gender == "MALE" else "여자"
-    spk_id = uttid.split('-')[2]
+    spk_id = f"lit_{uttid.split('-')[2]}"
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    emotion = "무감정"
+    # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
+    emotion_style = json_data["emotion_style"]
+    if len(emotion_style) > 0:
+        #emotion_set = set()
+        #style_set = set()
+        #for item in emotion_style:
+        #    emotion_set.add(item["emotion"])
+        #    style_set.add(item["style"])
+        emotion = emotion_style[0]["emotion"]
+
+    tag = {"슬픔": "sad", "당황": "embarrassed", "무감정": "neutral", "불안": "anxious", "상처": "hurt", "기쁨": "happy", "분노": "angry"}[emotion]
+    transcript = f"<{tag}>{transcript}</{tag}>"
+
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
 def decode_literature_tone(sample, **kwargs):
     uttid = sample["__key__"]
@@ -121,7 +135,8 @@ def decode_literature_tone(sample, **kwargs):
     transcript = json_data["transcript"].strip()
     gender = json_data["gender"] # (MALE|FEMALE)
     gender = {"MALE": 'm', "FEMALE": 'f'}[gender]
-    spk_id = uttid.split('-')[2]
+    spk_id = f"lit_{uttid.split('-')[2]}"
+
     pitch = json_data["pitch"]
     tone = json_data["tone"]
 
@@ -131,10 +146,10 @@ def decode_literature_tone(sample, **kwargs):
         style = pitch
     else:
         style = random.choice([pitch, tone])
-    tag = f"{gender}_{style}"
+    tag = f"{style}"
     transcript = f"<{tag}>{transcript}</{tag}>"
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
 def decode_mediazen(sample):
     uttid = sample["__key__"]
@@ -307,7 +322,7 @@ def decode_commbooks_tone(sample, **kwargs):
     else:
         style = random.choice([pitch, tone])
 
-    tag = f"{gender}_{style}"
+    tag = f"{style}"
     transcript = f"<{tag}>{transcript}</{tag}>"
 
     return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}

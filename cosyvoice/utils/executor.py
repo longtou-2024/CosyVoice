@@ -46,6 +46,7 @@ class Executor:
         # with uneven inputs across participating processes.
         model.train()
         #model_context = model.join if info_dict['train_engine'] == 'torch_ddp' else nullcontext
+        # NOTE(longtou): why use join? -> uneven dataset, recommend model.join context
         model_context = nullcontext
         with model_context():
             if self.rank == 0:
@@ -57,8 +58,8 @@ class Executor:
                 info_dict["step"] = self.step
                 info_dict["epoch"] = self.epoch
                 info_dict["batch_idx"] = batch_idx
-                if cosyvoice_join(group_join, info_dict):
-                    break
+                #if cosyvoice_join(group_join, info_dict):
+                #    break
 
                 # Disable gradient synchronizations across DDP processes.
                 # Within this context, gradients will be accumulated on module

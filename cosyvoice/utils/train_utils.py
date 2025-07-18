@@ -238,7 +238,9 @@ def cosyvoice_join(group_join, info_dict):
                          "Break current worker to manually join all workers, " +
                          "world_size {}, current rank {}, current local_rank {}\n".
                          format(world_size, rank, local_rank))
-            return True
+            #return True
+            # https://github.com/FunAudioLLM/CosyVoice/issues/180
+            return False
     else:
         return False
 
