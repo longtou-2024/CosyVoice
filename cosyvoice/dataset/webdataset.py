@@ -516,6 +516,7 @@ def build_wds(recipe_name, mode="train", cache_size=0, from_mount=False, from_pr
         cache_dir = f"wds_cache_{recipe_name}"
         Path(cache_dir).mkdir(parents=True, exist_ok=True)
     _decode = globals()[f"decode_{recipe_name}"]
+    # NOTE(longtou): if valid, avoid infinite loop
     resampled = True if mode == "train" else False
 
     dataset = wds.WebDataset(
