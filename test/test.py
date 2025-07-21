@@ -1,3 +1,89 @@
+#1년차 만렙 매니저
+texts_page_web=[
+    {'caption': {"age": 30, "gender": "FEMALE", "style": {"emotion": 'recite', "intensity": 0, "style": '구연체'}},
+     'script' : '<recite>붉은 오크색 틀에 담긴 사진에는, 강감찬 대표를 중심으로 직원들과 배우들이 한데 모여 웃고 있다.</recite>'
+     },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": 'sad', "intensity": 1, "style": '구연체'}},
+     'script' : '<anxious>"이때가 좋았지"</anxious>'
+    },
+    {
+        'script': '<sad>굴렁쇠 엔터는 배우의 인성을 중요시하고, 매니저와 배우가 한 가족처럼 지냈던 내 첫번쨰 직장. 하지만 이 사진을 찍은 지 삼년뒤, 내 첫직장인 <slow>굴렁쇠</slow> 엔터는 쇠락의 길을 걷는다.</sad>'
+    },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": 'anxious', "intensity": 1, "style": '구연체'}},
+     'script' : '<anxious>강감찬 대표가 뇌졸증으로 쓰러진 이후, <slow>김동수</slow> 배우 삼실장, 즉 현재의 탑 엔터테인먼트 대표가 직원과 연예인 팔십퍼센트를 데리고 회사를 쪼개버린 탓이다. 그리고 그때, 나 역시 김동수를 따라 나왔다. 그렇게 만들어진 게, 지금의 탑 엔터테인먼트였다.</anxious>'
+    },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": 'angry', "intensity": 1, "style": '구연체'}},
+     'script' : '<angry>하지만 탑 엔터테인먼트는, 스타 이전에 인간이 되자던 굴렁쇠 엔터와는 정반대, 연예인이 돈만 벌어다 준다며는 어떤 스캔들을 일으켜도 신경 쓰지 않기로 유명한 곳이다. 그 탓에 나 역시 부사장이 될 때까지, 배우의 인성 따윈 고려치 않고 돈만 보고 연예인을 키워야만 했다. 속을 곪아 가면서 말이다.</angry>'
+     },
+    {
+    'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": 'hurt', "intensity": 3, "style": '구연체'}},
+     'script' : '<hurt>옛 기억을 떠올리자, 명치 윗부분이 칼로 베듯 아파 왔다. 요즘 들어 조금만 스트레스를 받으면 이렇게 통증이 찾아오곤 한다.</hurt>'
+    },
+    ]
+
+texts_page_web2=[
+    {'caption': {"age": 30, "gender": "FEMALE", "style": {"emotion": 'happy', "intensity": 2, "style": '대화체'}},
+     'script' : '<happy>와~! 벌써 십층을 가네! <laughter>크크</laughter>, 소환수 날먹 개쩐다~! 레알 손가락 하나 까딱 안 하던데 <laughter>흐흐흐</laughter></happy>'
+     },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": 'chat', "intensity": 1, "style": '대화체'}},
+     'script' : '<recite>시청자들은 오층 부터 아무것도 안한 <slow>이강한을</slow> 보고는 <slow>날로</slow> 먹는다는 게 무슨 뜻인지 새삼 깨달았다. 특히, 나중에 유입된 시청자들은</recite>'
+    },
+    {
+        "script": '<chat>"이 사람 소환사에요?", "근데 어떻게 보스 몹 끌고 다님?", "아~ 몬스터 테이밍 하는건가? 특성이 적 길들이기임?", "보니까 저시기면 <slow>만마전</slow>? <slow>이라는</slow> 데로 간다는데"</chat>'
+    },
+    {
+        "script": '<recite>이강한을 소환사 혹은 테이머라고 착각하고 있었다.</recite>'
+    },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": 'chat', "intensity": 1, "style": '독백체'}},
+     'script' : '<chat><slow>천마천세</slow> <slow>만마앙복,</slow> 트리플 에스급 스킬인 이유가 있었네. 역시 맨 아래 있는 스킬을 택하는게 정답이었어</chat>'
+    },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": 'recite', "intensity": 1, "style": '독백체'}},
+     'script' : '<recite>이강한은 자신의 선택이 탁월 했음을 느끼곤 고블린 부대를 바라보았다. 고블린 족장의 지휘하에 오와열을 맞추고 있는 오십마리의 고블린, 그보다는 고블린 족장의 눈치를 보고 있는게 맞았지만 그래도 나름 든든한 부대였다.</recite>'
+    },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": '기쁨', "intensity": 1, "style": '대화체'}},
+     'script' : '<happy>"레벨이 알아서 올라 주는것도 좋았지!"</happy>'
+    },
+    {
+        "script": '<recite>고블린들이 서로 열심히 사투를 벌이면, 뒤에서 팔짱 끼고 있떤 이강한의 레벨이 올랐다. 물론 고블린이 너무 약해서 그런지 아니면 저 오십마리의 경험치를 못 먹어서 그런지 레벨은 팔에서 더 성장하지 않고 멈춰 있었지만</recite>'
+    },
+    {
+        "script": '<happy>"날로 먹었는데 이정도는 감안해야지~!"</happy>'
+    },
+    {
+        "script": '<recite>손하나 까딱 안하고 자동 사냥 했으니, 이 정도는 이해할 만했다.</recite>'
+    },
+    ]
+
+texts_little_prince=[
+    {'caption': {"age": 30, "gender": "FEMALE", "style": {"emotion": '무감정', "intensity": 0, "style": '낭독체'}},
+     'script' : '<mono>첫날 밤 나는 여느 주거지로부터 수천 마일 떨어진 모래 위에서 잠이 들었다.</mono>'
+     },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": '슬픔', "intensity": 2, "style": '낭독체'}},
+     'script' : '<embarrassed>나는 대양 한복판에 떠있는 뗏목 위의 난파선 선원보다 더 고립되어 있었던 것이다.</embarrassed>'
+    },
+    {
+        "script": '<sad>그러니 여러분은 동틀 무렵, 이상한 작은 목소리가 나를 깨웠을 때의 내 놀라움을 상상할 수 있을 것이다.</sad>'
+    },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": '기쁨', "intensity": 1, "style": '대화체'}},
+     'script' : '<mono>그는 말했다.</mono>'
+    },
+    {
+        "script": '<chat>"부탁인데요. <slow>내게</slow> <slow>양</slow> <slow>한마리만</slow> <slow>그려주세요~!</slow></chat>"'
+    },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": '무감정', "intensity": 0, "style": '대화체'}},
+     'script' : '<neutral>응~!</neutral>'
+    },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": '기쁨', "intensity": 1, "style": '대화체'}},
+     'script' : '<anxious>내게 양 한마리만 그려주세요.</anxious>'
+    },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": '기쁨', "intensity": 2, "style": '독백체'}},
+     'script' : '<dynamic>마치 나는 벼락이라도 맞은 듯이 벌떡 일어났다. 나는 눈을 문지르고 주의 깊게 바라보았다. 그리고 엄숙하게 나를 살펴보고 있는 매우 특이한 복장의 꼬마 한명을 보았다. 이것이 훗날, 내가 그를 성공적으로 그린 것 중에서 가장 나은 초상화이다.</dynamic>'
+    },
+    {'caption':{"age": 30, "gender": "FEMALE", "style": {"emotion": '슬픔', "intensity": 1, "style": '독백체'}},
+     'script' : '<hurt>하지만 내 그림은, 물론, 실제 모델보다 덜 매혹적이다. 그건 내 잘못이 아니다. 나는 어른들에 의해 화가라는 직업이 좌절된 여섯 살 이후, 보아뱀의 안과 밖을 제외하고는 어떤 것도 그리는 법을 배운 적이 없었기 때문이다.</hurt>'
+    }
+    ]
+
 import sys
 sys.path.append('third_party/Matcha-TTS')
 sys.path.append('.') # for cosyvoice
@@ -13,143 +99,30 @@ cosyvoice = CosyVoice2('/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrai
 
 outdir = "outdir"
 Path(outdir).mkdir(exist_ok=True)
-prompt_speech_16k = load_wav('./test/azure/azure-01.wav', 16000)
-#prompt_speech_16k = load_wav('./test/ke_kim/F-A3-D-005-0051.wav', 16000)
+#prompt_speech_16k = load_wav('./test/azure/azure-01.wav', 16000)
+prompt_speech_16k = load_wav('./test/ke_kim/F-A3-D-005-0051.wav', 16000)
 azure_sent = "그녀, 결혼전만 해도 밝고 긍정적이던 여자, 그랬던 아내가 요즘 부쩍 걱정이 많아졌다."
 lit_005_sent = "아빠 말씀에 엄마가 막내이모를 향해 화를 버럭 냈습니다."
 
-def pad_tag(text, tags):
-    split = text.split(' ')
-    tagged = []
-    for word in split:
-        tagged.append(tags[0] + word + tags[1])
-    return " ".join(tagged)
-#fout_names = ["base.wav", "fast.wav", "slow.wav"]
-#fout_names = ["base.wav", "mono.wav", "dynamic.wav"]
-#fout_names = ["base.wav", "low.wav", "high.wav"]
-#fout_names = ["base.wav", "high.wav", "low.wav", "dynamic.wav", "mono.wav",
-#              "happy.wav", "angry.wav", "sad.wav", "fast.wav", "slow.wav"]
-#fout_names = ["base.wav", "high.wav", "low.wav", "dynamic.wav", "mono.wav", "happy.wav", "angry.wav", "sad.wav", "fast.wav", "slow.wav", "whisper.wav", "laugh.wav"]
-#fout_names = ["fast.wav", "slow.wav", "base.wav", "fast_unk.wav", "slow_unk.wav", "base_unk.wav"]
-fout_names = ["base.wav", "whisper.wav", "laugh.wav", "fast.wav", "slow.wav", "high.wav", "low.wav", "dynamic.wav", "mono.wav"]
+for idx, line in enumerate(texts_page_web):
+    text = line["script"]
 
-#for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', "unkown 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[0]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', "unkown 화자. 속삭임 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[1]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, [laughter] 오늘 오전 날씨는 맑고 오후는 구름이 <laughter>조금 끼겠습니다.</laughter>', "unkown 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[2]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(pad_tag('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', ['<fast>', '</fast>']), "unkown 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[3]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(pad_tag('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', ['<slow>', '</slow>']), "unkown 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[4]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', "unkown 화자. 여자 높은음 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[5]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', "unkown 화자. 여자 낮은음 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[6]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', "unkown 화자. 여자 다이나믹톤 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[7]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', "unkown 화자. 여자 모노톤 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[8]}", j['tts_speech'], cosyvoice.sample_rate)
+    for i, j in enumerate(cosyvoice.inference_zero_shot(text, "<neutral>" + lit_005_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
+        torchaudio.save(f"{outdir}/script0_{idx}.wav", j['tts_speech'], cosyvoice.sample_rate)
 
-#fout_names = ["one.wav", "two.wav", "three.wav", "four.wav"]
-#for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', "azure 화자. 낭독체 분노 0 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[0]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', "azure 화자. 낭독체 분노 1 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[1]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', "azure 화자. 낭독체 분노 2 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[2]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', "azure 화자. 낭독체 분노 3 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[3]}", j['tts_speech'], cosyvoice.sample_rate)
+for idx, line in enumerate(texts_page_web2):
+    text = line["script"]
 
-#for i, j in enumerate(cosyvoice.inference_instruct2(pad_tag('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', ['<fast>', '</fast>']), "unkown 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[3]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(pad_tag('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', ['<slow>', '</slow>']), "unkown 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[4]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', "unkown 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[5]}", j['tts_speech'], cosyvoice.sample_rate)
+    for i, j in enumerate(cosyvoice.inference_zero_shot(text, "<neutral>" + lit_005_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
+        torchaudio.save(f"{outdir}/script1_{idx}.wav", j['tts_speech'], cosyvoice.sample_rate)
 
-fout_names = ["fast_zs.wav", "slow_zs.wav", "base_zs.wav", "laugh_zs.wav"]
-for i, j in enumerate(cosyvoice.inference_zero_shot(pad_tag('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', ['<fast>', '</fast>']), azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-    torchaudio.save(f"{outdir}/{fout_names[0]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot(pad_tag('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', ['<slow>', '</slow>']), azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-    torchaudio.save(f"{outdir}/{fout_names[1]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-    torchaudio.save(f"{outdir}/{fout_names[2]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot('안녕하십니까, [laughter] 오늘 오전 날씨는 맑고 오후는 구름이 <laughter>조금 끼겠습니다.</laughter>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-    torchaudio.save(f"{outdir}/{fout_names[3]}", j['tts_speech'], cosyvoice.sample_rate)
+for idx, line in enumerate(texts_little_prince):
+    text = line["script"]
 
-#for i, j in enumerate(cosyvoice.inference_zero_shot('안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[2]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_zero_shot('<low>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</low>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[2]}", j['tts_speech'], cosyvoice.sample_rate)
+    for i, j in enumerate(cosyvoice.inference_zero_shot(text, "<neutral>" + lit_005_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
+        torchaudio.save(f"{outdir}/script2_{idx}.wav", j['tts_speech'], cosyvoice.sample_rate)
 
-#for i, j in enumerate(cosyvoice.inference_zero_shot('<dynamic>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</dynamic>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[3]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_zero_shot('<mono>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</mono>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[4]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_zero_shot('<기쁨>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</기쁨>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[5]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_zero_shot('<분노>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</분노>', azure_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[6]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_zero_shot('<슬픔>안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.</슬픔>', azure_sent, prompt_speech_16k, stream=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[7]}", j['tts_speech'], cosyvoice.sample_rate)
+#
+#for i, j in enumerate(cosyvoice.inference_zero_shot('<chat><slow>천마천세</slow> <slow>만마앙복,</slow> 트리플 에스급 스킬인 이유가 있었네. 역시 맨 아래 있는 스킬을 택하는게 정답이었어</chat>', "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
+#    torchaudio.save(f"{outdir}/debug.wav", j['tts_speech'], cosyvoice.sample_rate)
 
-
-
-this_text = '지금 상황에서 제일감은 역시 여기, 삼삼침투입니다.'
-spk = "azure"
-chat_style = "낭독체"
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"{spk} 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[0]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"{spk} 화자. 여자 높은음 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[1]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"{spk} 화자. 여자 낮은음 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[2]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"{spk} 화자. 여자 다이나믹톤 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[3]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"{spk} 화자. 여자 모노톤 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[4]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"{spk} 화자. {chat_style} 기쁨 3 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[5]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"{spk} 화자. {chat_style} 분노 3 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[6]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"{spk} 화자. {chat_style} 슬픔 3 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[7]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(pad_tag(this_text, ("<fast>", "</fast>")), f"{spk} 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[8]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(pad_tag(this_text, ("<slow>", "</slow>")), f"{spk} 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[9]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"{spk} 화자. 속삭임 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[10]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2("<laughter>푸하하하</laughter> 지금 상황에서 [laughter] 제일감은 역시 여기, <laughter>삼삼침투입니다.</laughter>", f"{spk} 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[11]}", j['tts_speech'], cosyvoice.sample_rate)
-
-
-this_text = '지금 상황에서 제일감은 역시 여기, 삼삼침투입니다.'
-chat_style = "낭독체"
-#fout_names = ["debug.wav"]
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, "", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[0]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, "여자 높은음 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[1]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, "여자 낮은음 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[2]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, "여자 다이나믹톤 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[3]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, "여자 모노톤 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[4]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"{chat_style} 기쁨 3 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[5]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"{chat_style} 분노 3 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[6]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, f"{chat_style} 슬픔 3 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[7]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(pad_tag(this_text, ("<fast>", "</fast>")), "unkown 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[8]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(pad_tag(this_text, ("<slow>", "</slow>")), "unkown 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[9]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2(this_text, "unkown 화자. 속삭임 스타일.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[10]}", j['tts_speech'], cosyvoice.sample_rate)
-#for i, j in enumerate(cosyvoice.inference_instruct2("<laughter>푸하하하</laughter> 지금 상황에서 [laughter] 제일감은 역시 여기, <laughter>삼삼침투입니다.</laughter>", "unkown 화자.", prompt_speech_16k, stream=False, text_frontend=False)):
-#    torchaudio.save(f"{outdir}/{fout_names[11]}", j['tts_speech'], cosyvoice.sample_rate)

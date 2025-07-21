@@ -171,16 +171,21 @@ def decode_skt_emotion_large(sample):
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"]
+    spk_id = f"skt_{uttid.split('_')[0]}"
 
-    if random.random() < PROB_INSTRUCTED:
-        # build instructed dataset if possible
-        # e.g. style_main) {'SURPRISE', 'JOY', 'NEUTRAL', 'ANXIOUS', 'DOUBT', 'ANGRY', 'FEAR', 'KIND', 'SAD', 'HURRY', 'SERIOUS', 'DRY', 'SHY', 'UNPLEASURE', 'HESITATE', 'TEASE'}
-        style_main = json_data["style_main"]
-        #style_sub = json_data["style_sub"]
-        prompt = style_main
-        transcript = prompt + SPECIAL_TOKEN + transcript
+    style_main_set = {'SURPRISE', 'JOY', 'NEUTRAL', 'ANXIOUS', 'DOUBT', 'ANGRY', 'FEAR', 'KIND', 'SAD', 'HURRY', 'SERIOUS', 'DRY', 'SHY', 'UNPLEASURE', 'HESITATE', 'TEASE'}
+    style_main = json_data["style_main"]
+    #style_sub = json_data["style_sub"]
+    # NOTE(longtou): fix typo
+    fix_typo = {"SY": "SHY", "ESITATE": "HESITATE", "NEUTRA": "NEUTRAL", "URRY": "HURRY", "UNPEASURE": "UNPLEASURE"}
+    if style_main in fix_typo:
+        style_main = fix_typo[style_main]
+    assert style_main in style_main_set
+    tag = style_main.lower()
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    transcript = f"<{tag}>{transcript}</{tag}>"
+
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
 def decode_skt_emotion_small(sample):
     uttid = sample["__key__"]
@@ -494,10 +499,11 @@ def decode_whispering(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"].strip()
 
-    tag = f"whisper"
-    transcript = f"<{tag}>{transcript}</{tag}>"
+    #tag = f"whisper"
+    #transcript = f"<{tag}>{transcript}</{tag}>"
+    transcript = "속삭임" + ENDOFPROMPT + transcript
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": tag}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": ""}
 
 ### end of decoding function list ###
 
