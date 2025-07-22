@@ -61,31 +61,43 @@ class Spk2Sample(defaultdict):
     def __init__(self, *args, **kwargs):
         super().__init__(lambda: defaultdict(RandomQueue), *args, **kwargs)
 
+def cache_hit(sample, cache):
+    spk_id = sample["spk_id"]
+    #tag = sample["tag"]
+    if spk_id in cache:
+        tags = list(cache[spk_id].keys())
+        selected_tag = random.choice(tags) # randomly sample from avalialbe tag
+        sample2 = cache[spk_id][selected_tag].sample()
+
+        sample["utt"] = sample["utt"] + "@" + sample2["utt"]
+        sample["text"] = sample["text"] + sample2["text"]
+        sample["text_token"] = sample["text_token"] + sample2["text_token"]
+
+        speech, sample_rate = sample["speech"], sample["sample_rate"]
+        speech2, sample_rate2 = sample2["speech"], sample2["sample_rate"]
+        assert sample_rate == sample_rate2, f"{sample_rate} != {sample_rate2}"
+        assert speech.shape[0] == speech2.shape[0], f"{speech.shape[0]} != {speech2.shape[0]}"
+
+        sample["speech"] = torch.cat([speech, speech2], dim=1)
+        sample["sample_rate"] = sample_rate
+    return sample
+
+def cache_enqueue(sample, cache):
+    spk_id = sample["spk_id"]
+    tag = sample["tag"]
+    if spk_id != "unkown" and tag != "unkown":
+        cache[spk_id][tag].enqueue(sample)
+
 def extend_sample(data, mode="train"):
     cache = Spk2Sample()
     for sample in data:
-        spk_id = sample["spk_id"]
-        tag = sample["tag"]
-        sample_copied = deepcopy(sample)
-        if spk_id in cache:
-            tags = list(cache[spk_id].keys())
-            selected_tag = random.choice(tags) # randomly sample from avalialbe tag
-            sample2 = cache[spk_id][selected_tag].sample()
-
-            sample["utt"] = sample["utt"] + "@" + sample2["utt"]
-            sample["text"] = sample["text"] + "<|debug|>" + sample2["text"]
-            sample["text_token"] = sample["text_token"] + sample2["text_token"]
-
-            speech, sample_rate = sample["speech"], sample["sample_rate"]
-            speech2, sample_rate2 = sample2["speech"], sample2["sample_rate"]
-            assert sample_rate == sample_rate2, f"{sample_rate} != {sample_rate2}"
-            assert speech.shape[0] == speech2.shape[0], f"{speech.shape[0]} != {speech2.shape[0]}"
-
-            sample["speech"] = torch.cat([speech, speech2], dim=1)
-            sample["sample_rate"] = sample_rate
-
-        if spk_id != "unkown" and tag != "":
-            cache[spk_id][tag].enqueue(sample_copied)
+        if sample["spk_id"] != "unkown":
+            sample_origin = deepcopy(sample)
+            if random.random() < 0.8:
+                sample = cache_hit(sample, cache)
+                if random.random() < 0.25:
+                    sample = cache_hit(sample, cache)
+            cache_enqueue(sample_origin, cache)
         yield sample
 
 def parquet_opener(data, mode='train', tts_data={}):

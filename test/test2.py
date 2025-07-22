@@ -6,7 +6,11 @@ from cosyvoice.utils.file_utils import load_wav
 import torchaudio
 from pathlib import Path
 
-#from cosyvoice.dataset.webdataset import PROMPT_TEMPLATE
+### 
+# 중계체, 낭독체, 대화체, 애니체, 친절체, 독백체, 구연체
+# happy, sad, angry
+# embarrassed, neutral, anxious, hurt
+###
 
 llm_path="/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt"
 cosyvoice = CosyVoice2('/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False, llm_path=llm_path)
