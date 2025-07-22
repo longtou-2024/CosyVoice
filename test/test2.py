@@ -8,8 +8,12 @@ from pathlib import Path
 
 ### 
 # 중계체, 낭독체, 대화체, 애니체, 친절체, 독백체, 구연체
-# happy, sad, angry
+# happy 3, sad 3, angry 3
+# 
 # embarrassed, neutral, anxious, hurt
+# surprise, joy, doubt, fear, kind, hurry, serious, dry, shy, unpleasure, hesitate, tease
+# chat teen, chat adult, laugh
+# 속삭임, fast, slow, high, low, dynamic, mono
 ###
 
 llm_path="/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt"

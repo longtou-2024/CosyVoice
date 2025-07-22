@@ -14,12 +14,12 @@ from kfp import kubernetes
 from kfp.dsl import PipelineTask
 from kfp.kubernetes import common
 
-IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v8.3"
+IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v9.0"
 N_GPU = 4
 N_CPU = "40"
 MEM_SIZE = "400Gi"
 MOUNT_PATH = "/home/longtou.2024/mount"
-MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250721"
+MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250722"
 CONFIG = f"{MODEL_DIR}/cosyvoice2_lt.yaml"
 TB_DIR = f"{MODEL_DIR}/tensorboard"
 #CKPT = f"{MODEL_DIR}/torch_ddp/epoch_0_step_7000.pt"
@@ -27,7 +27,7 @@ TB_DIR = f"{MODEL_DIR}/tensorboard"
 SHELL_COMMAND = f''' \
 export CUDA_VISIBLE_DEVICES="0,1,2,3" \
 && . ../../../activate_python.sh \
-&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --from_mount true --from_prod true --train_data "gs://commbooks commbooks_speaking_rate commbooks_tone literature literature_speaking_rate literature_tone mediazen_teen mediazen_adult mediazen_teen_laugh mediazen_adult_laugh whispering azure skt_emotion_large"
+&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --from_mount true --from_prod true --train_data "gs://commbooks commbooks_speaking_rate commbooks_tone literature literature_speaking_rate literature_tone mediazen_teen mediazen_adult mediazen_teen_laugh mediazen_adult_laugh whispering azure skt_emotion_large ke_youtube ke_youtube2 ke_youtube3"
 '''
 
 def add_pod_annotation(
