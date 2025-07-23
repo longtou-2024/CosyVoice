@@ -39,65 +39,65 @@ def pad_tag(text, tags):
 this_text = '안녕하십니까, 오늘 오전 날씨는 맑고 오후는 구름이 조금 끼겠습니다.'
 
 
-for i, j in enumerate(cosyvoice.inference_zero_shot("<neutral>" + this_text + "</neutral>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<neutral>" + this_text + "</neutral>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[0]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<high>" + this_text + "</high>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<high>" + this_text + "</high>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[1]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<low>" + this_text + "</low>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<low>" + this_text + "</low>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[2]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<dynamic>" + this_text + "</dynamic>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<dynamic>" + this_text + "</dynamic>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[3]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<mono>" + this_text + "</mono>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<mono>" + this_text + "</mono>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[4]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<happy>" + this_text + "</happy>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<happy>" + this_text + "</happy>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[5]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<angry>" + this_text + "</angry>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<angry>" + this_text + "</angry>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[6]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<sad>" + this_text + "</sad>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<sad>" + this_text + "</sad>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[7]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<chat>" + pad_tag(this_text, ("<fast>", "</fast>")) + "</chat>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<chat>" + pad_tag(this_text, ("<fast>", "</fast>")) + "</chat>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[8]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<chat>" + pad_tag(this_text, ("<slow>", "</slow>")) + "</chat>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<chat>" + pad_tag(this_text, ("<slow>", "</slow>")) + "</chat>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[9]}", j['tts_speech'], cosyvoice.sample_rate)
 for i, j in enumerate(cosyvoice.inference_instruct2(this_text, "속삭임", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[10]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<sport>" + this_text + "</sport>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<sport>" + this_text + "</sport>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[11]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<recite>" + this_text + "</recite>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<recite>" + this_text + "</recite>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[12]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<chat>" + this_text + "</chat>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<chat>" + this_text + "</chat>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[13]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<chat>안녕하십니까, [laughter] 오늘 오전 날씨는 맑고 오후는 <laughter>구름이 조금 끼겠습니다.</laughter></chat>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<chat>안녕하십니까, [laughter] 오늘 오전 날씨는 맑고 오후는 <laughter>구름이 조금 끼겠습니다.</laughter></chat>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[14]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<embarrassed>" + this_text + "</embarrassed>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<embarrassed>" + this_text + "</embarrassed>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[15]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<anxious>" + this_text + "</anxious>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<anxious>" + this_text + "</anxious>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[16]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<hurt>" + this_text + "</hurt>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<hurt>" + this_text + "</hurt>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[17]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<surprise>" + this_text + "</surprise>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<surprise>" + this_text + "</surprise>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[18]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<joy>" + this_text + "</joy>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<joy>" + this_text + "</joy>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[19]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<doubt>" + this_text + "</doubt>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<doubt>" + this_text + "</doubt>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[20]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<fear>" + this_text + "</fear>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<fear>" + this_text + "</fear>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[21]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<kind>" + this_text + "</kind>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<kind>" + this_text + "</kind>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[22]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<hurry>" + this_text + "</hurry>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<hurry>" + this_text + "</hurry>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[23]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<serious>" + this_text + "</serious>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<serious>" + this_text + "</serious>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[24]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<dry>" + this_text + "</dry>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<dry>" + this_text + "</dry>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[25]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<shy>" + this_text + "</shy>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<shy>" + this_text + "</shy>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[26]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<unpleasure>" + this_text + "</unpleasure>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<unpleasure>" + this_text + "</unpleasure>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[27]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<hesitate>" + this_text + "</hesitate>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<hesitate>" + this_text + "</hesitate>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[28]}", j['tts_speech'], cosyvoice.sample_rate)
-for i, j in enumerate(cosyvoice.inference_zero_shot("<tease>" + this_text + "</tease>", "<chat>" + azure_sent + "</chat>", prompt_speech_16k, stream=False, text_frontend=False)):
+for i, j in enumerate(cosyvoice.inference_zero_shot("<tease>" + this_text + "</tease>", "<neutral>" + azure_sent + "</neutral>", prompt_speech_16k, stream=False, text_frontend=False)):
     torchaudio.save(f"{outdir}/{fout_names[29]}", j['tts_speech'], cosyvoice.sample_rate)
 
 
