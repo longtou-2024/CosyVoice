@@ -22,12 +22,11 @@ MOUNT_PATH = "/home/longtou.2024/mount"
 MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250722"
 CONFIG = f"{MODEL_DIR}/cosyvoice2_lt.yaml"
 TB_DIR = f"{MODEL_DIR}/tensorboard"
-#CKPT = f"{MODEL_DIR}/torch_ddp/epoch_0_step_7000.pt"
-#--checkpoint {CKPT}
+CKPT = f"{MODEL_DIR}/torch_ddp/epoch_0_step_38000.pt"
 SHELL_COMMAND = f''' \
 export CUDA_VISIBLE_DEVICES="0,1,2,3" \
 && . ../../../activate_python.sh \
-&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --from_mount true --from_prod true --train_data "gs://commbooks commbooks_speaking_rate commbooks_tone literature literature_speaking_rate literature_tone mediazen_teen mediazen_adult mediazen_teen_laugh mediazen_adult_laugh whispering azure skt_emotion_large ke_youtube ke_youtube2 ke_youtube3"
+&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --from_mount true --from_prod true --train_data "gs://commbooks commbooks_speaking_rate commbooks_tone literature literature_speaking_rate literature_tone mediazen_teen mediazen_adult mediazen_teen_laugh mediazen_adult_laugh whispering azure skt_emotion_large ke_youtube ke_youtube2 ke_youtube3" --checkpoint {CKPT}
 '''
 
 def add_pod_annotation(
