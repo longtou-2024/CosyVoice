@@ -203,29 +203,25 @@ class WebDataList(IterableDataset):
         #ds_base = wds.RoundRobin(ds_base, longest=True)
         #dataset = wds.RandomMix([ds_caption, ds_base], probs=[0.8, 0.2], longest=False)
         # 3) custome
-        ds1, ds2, ds3, ds4 = [],[],[],[]
+        ds1,ds4, ds5 = [],[],[]
         for name in recipe_names:
-            if name in ("commbooks", "commbooks_speaking_rate", "commbooks_tone", "literature", "literature_speaking_rate", "literature_tone", "skt_emotion_large"):
+            if name in ("commbooks", "commbooks_speaking_rate", "commbooks_tone", "literature", "literature_speaking_rate", "literature_tone", "skt_emotion_large", "mediazen_teen", "mediazen_adult", "mediazen_teen_laugh", "mediazen_adult_laugh", "whispering", "azure"):
                 ds1.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
 
-            elif name in ("mediazen_teen", "mediazen_adult", "mediazen_teen_laugh", "mediazen_adult_laugh"):
-                ds2.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-
-            elif name in ("whispering", "azure"):
-                ds3.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-            elif name in ("ke_youtube", "ke_youtube2", "ke_youtube3", "mediazen"):
+            elif name in ("ke_youtube", "ke_youtube2", "ke_youtube3"):
                 ds4.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
+            elif name in ("mediazen", "emilia_ko", "emilia_yodas_ko", "saltlux_jeju", "saltlux_chungcheong", "saltlux_gyeongsang", "saltlux_jeolla", "saltlux_gangwon"):
+                ds5.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
             else:
                 raise Exception(name)
-        if len(ds1 + ds2 + ds3 + ds4) == 1:
+        if len(ds1 + ds4 + ds5) == 1:
             # cv_data
-            dataset = wds.RoundRobin(ds1+ds2+ds3+ds4)
+            dataset = wds.RoundRobin(ds1+ds4+ds5)
         else:
-            ds1 = wds.RandomMix(ds1, probs=[3,1,1,3,1,1,3], longest=True)
-            ds2 = wds.RandomMix(ds2, probs=[1,1,1,1], longest=True)
-            ds3 = wds.RandomMix(ds3, probs=[1,1], longest=True)
-            ds4 = wds.RandomMix(ds4, probs=[1,1,1,3], longest=True)
-            dataset = wds.RandomMix([ds1, ds2, ds3, ds4], probs=[9,2,1,18], longest=True) # total 30
+            ds1 = wds.RandomMix(ds1, probs=[100,5,5,50,3,3,25,20,10,1,1,1,5], longest=True)
+            ds4 = wds.RandomMix(ds4, probs=[1,1,1], longest=True)
+            ds5 = wds.RandomMix(ds5, probs=[1000,20,700,50,100,200,150,100], longest=True)
+            dataset = wds.RandomMix([ds1, ds4, ds5], probs=[20,10,70], longest=True) # total 100
         # 4) default
         #dataset = []
         #for name in recipe_names:

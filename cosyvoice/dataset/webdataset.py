@@ -325,66 +325,41 @@ def decode_saltlux_jeju(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["text"]
+    transcript = json_data["text"].strip()
 
-    if random.random() < PROB_INSTRUCTED:
-        # build instructed dataset if possible
-        prompt = "제주도 방언"
-        transcript = prompt + SPECIAL_TOKEN + transcript
-
-    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 def decode_saltlux_jeolla(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["text"]
+    transcript = json_data["text"].strip()
 
-    if random.random() < PROB_INSTRUCTED:
-        # build instructed dataset if possible
-        prompt = "전라도 방언"
-        transcript = prompt + SPECIAL_TOKEN + transcript
-
-    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 def decode_saltlux_chungcheong(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["text"]
+    transcript = json_data["text"].strip()
 
-    if random.random() < PROB_INSTRUCTED:
-        # build instructed dataset if possible
-        prompt = "충청도 방언"
-        transcript = prompt + SPECIAL_TOKEN + transcript
-
-    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 def decode_saltlux_gangwon(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["text"]
+    transcript = json_data["text"].strip()
 
-    if random.random() < PROB_INSTRUCTED:
-        # build instructed dataset if possible
-        prompt = "강원도 방언"
-        transcript = prompt + SPECIAL_TOKEN + transcript
-
-    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 def decode_saltlux_gyeongsang(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["text"]
+    transcript = json_data["text"].strip()
 
-    if random.random() < PROB_INSTRUCTED:
-        # build instructed dataset if possible
-        prompt = "경상도 방언"
-        transcript = prompt + SPECIAL_TOKEN + transcript
-
-    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 def decode_mediazen_adult(sample):
     uttid = sample["__key__"]
@@ -484,7 +459,7 @@ def decode_emilia_ko(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"].strip()
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 def decode_emilia_yodas_ko(sample):
     uttid = sample["__key__"]
@@ -492,7 +467,7 @@ def decode_emilia_yodas_ko(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"].strip()
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 def decode_whispering(sample):
     uttid = sample["__key__"]

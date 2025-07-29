@@ -72,26 +72,29 @@ outdir = "outdir"
 Path(outdir).mkdir(exist_ok=True)
 
 prompt_spk_speech_16k = dict()
-for audio_path in Path("test/kast_emo").glob("*.wav"):
+for audio_path in Path("test/tmp").glob("*.wav"):
     uttid = audio_path.stem
     prompt_spk_speech_16k[uttid] = load_wav(audio_path, 16000)
 
 prompt_spk_sent = dict()
-for line in open("test/kast_emo/text", 'r').readlines():
+for line in open("test/tmp/text", 'r').readlines():
     uttid, transcript = line.split(' ', maxsplit=1)
     prompt_spk_sent[uttid] = transcript
 
 
 
-for spk_id in prompt_spk_sent:
+for d_idx, spk_id in enumerate(prompt_spk_sent):
     prompt_sent = prompt_spk_sent[spk_id]
     prompt_speech_16k = prompt_spk_speech_16k[spk_id]
     for t_idx, item in enumerate(celect_script):
         tag = item["tag"]
+        #tag = "독백체"
         this_text = item["text"]
         #for i, j in enumerate(cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prefix_tag("neutral", prompt_sent), prompt_speech_16k, stream=False, text_frontend=False)):
         for i, j in enumerate(cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prompt_sent, prompt_speech_16k, stream=False, text_frontend=False)):
+        #for i, j in enumerate(cosyvoice.inference_zero_shot(f" {this_text}", prompt_sent, prompt_speech_16k, stream=False, text_frontend=False)):
             torchaudio.save(f"{outdir}/{spk_id}_{t_idx}.wav", j['tts_speech'], cosyvoice.sample_rate)
 
-    #break
+    #if d_idx == 2:
+    #    break
 
