@@ -63,22 +63,21 @@ class Spk2Sample(defaultdict):
 
 def cache_hit(sample, cache):
     spk_id = sample["spk_id"]
-    #tag = sample["tag"]
     if spk_id in cache:
         tags = list(cache[spk_id].keys())
         selected_tag = random.choice(tags) # randomly sample from avalialbe tag
         sample2 = cache[spk_id][selected_tag].sample()
 
-        sample["utt"] = sample["utt"] + "@" + sample2["utt"]
-        sample["text"] = sample["text"] + sample2["text"]
-        sample["text_token"] = sample["text_token"] + sample2["text_token"]
+        sample["utt"] = sample2["utt"] + "@" + sample["utt"]
+        sample["text"] = sample2["text"] + sample['tag'] + sample["text"]
+        sample["text_token"] = sample2["text_token"] + sample["tag_token"] + sample["text_token"]
 
         speech, sample_rate = sample["speech"], sample["sample_rate"]
         speech2, sample_rate2 = sample2["speech"], sample2["sample_rate"]
         assert sample_rate == sample_rate2, f"{sample_rate} != {sample_rate2}"
         assert speech.shape[0] == speech2.shape[0], f"{speech.shape[0]} != {speech2.shape[0]}"
 
-        sample["speech"] = torch.cat([speech, speech2], dim=1)
+        sample["speech"] = torch.cat([speech2, speech], dim=1)
         sample["sample_rate"] = sample_rate
     return sample
 
@@ -93,10 +92,7 @@ def extend_sample(data, mode="train"):
     for sample in data:
         if sample["spk_id"] != "unkown":
             sample_origin = deepcopy(sample)
-            if random.random() < 0.8:
-                sample = cache_hit(sample, cache)
-                if random.random() < 0.25:
-                    sample = cache_hit(sample, cache)
+            sample = cache_hit(sample, cache)
             cache_enqueue(sample_origin, cache)
         yield sample
 
@@ -389,6 +385,8 @@ def tokenize(data, get_tokenizer, allowed_special, mode='train'):
     for sample in data:
         assert 'text' in sample
         sample['text_token'] = tokenizer.encode(sample['text'], allowed_special=allowed_special)
+        if "tag" in sample:
+            sample["tag_token"] = tokenizer.encode(sample['tag'], allowed_special=allowed_special)
         if mode == 'inference':
             sample['tts_text_token'] = tokenizer.encode(sample['tts_text'], allowed_special=allowed_special)
         yield sample

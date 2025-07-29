@@ -81,7 +81,8 @@ def decode_literature(sample, **kwargs):
         emotion = emotion_style[0]["emotion"]
 
     tag = {"슬픔": "sad", "당황": "embarrassed", "무감정": "neutral", "불안": "anxious", "상처": "hurt", "기쁨": "happy", "분노": "angry"}[emotion]
-    transcript = TAG_START + tag + TAG_END + transcript
+    #transcript = TAG_START + tag + TAG_END + transcript
+    tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
@@ -105,13 +106,14 @@ def decode_literature_speaking_rate(sample, **kwargs):
         #    style_set.add(item["style"])
         emotion = emotion_style[0]["emotion"]
 
-    if random.random() < 0.3:
+    if random.random() < 0.5:
         # without tagging
         tag = "unkown"
         spk_id = "unkown"
     else:
         tag = {"슬픔": "sad", "당황": "embarrassed", "무감정": "neutral", "불안": "anxious", "상처": "hurt", "기쁨": "happy", "분노": "angry"}[emotion]
-        transcript = TAG_START + tag + TAG_END + transcript
+        #transcript = TAG_START + tag + TAG_END + transcript
+        tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
@@ -134,7 +136,8 @@ def decode_literature_tone(sample, **kwargs):
     else:
         style = random.choice([pitch, tone])
     tag = f"{style}"
-    transcript = TAG_START + tag + TAG_END + transcript
+    #transcript = TAG_START + tag + TAG_END + transcript
+    tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
@@ -142,16 +145,13 @@ def decode_mediazen(sample):
     uttid = sample["__key__"]
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["전사정보"]["OrgLabelText"]
+    transcript = json_data["전사정보"]["OrgLabelText"].strip()
 
     spk_info = json_data["화자정보"]
     gender = spk_info["Gender"] # [Female|
 
-    #if random.random() < 0.1:
-    #    prompt = PROMPT_TEMPLATE(spk="unkown", style=None, mask_probs=[0,0])
-    #    transcript = prompt + transcript
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 def decode_skt_emotion_large(sample):
     uttid = sample["__key__"]
@@ -170,7 +170,8 @@ def decode_skt_emotion_large(sample):
     assert style_main in style_main_set
     tag = style_main.lower()
 
-    transcript = TAG_START + tag + TAG_END + transcript
+    #transcript = TAG_START + tag + TAG_END + transcript
+    tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
@@ -252,7 +253,8 @@ def decode_commbooks(sample, **kwargs):
         tag = {"기쁨": "happy", "분노": "angry", "슬픔": "sad"}[emotion]
         tag = f"{tag} {intensity}"
 
-    transcript = TAG_START + tag + TAG_END + transcript
+    #transcript = TAG_START + tag + TAG_END + transcript
+    tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
@@ -273,7 +275,7 @@ def decode_commbooks_speaking_rate(sample, **kwargs):
     #if int(intensity) >= 2:
     #    emotion = this_emotion
 
-    if random.random() < 0.3:
+    if random.random() < 0.5:
         # without tagging
         tag = "unkown"
         spk_id = "unkown"
@@ -283,7 +285,8 @@ def decode_commbooks_speaking_rate(sample, **kwargs):
         else:
             tag = {"기쁨": "happy", "분노": "angry", "슬픔": "sad"}[emotion]
             tag = f"{tag} {intensity}"
-        transcript = TAG_START + tag + TAG_END + transcript
+        #transcript = TAG_START + tag + TAG_END + transcript
+        tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
@@ -313,7 +316,8 @@ def decode_commbooks_tone(sample, **kwargs):
         style = random.choice([pitch, tone])
 
     tag = f"{style}"
-    transcript = TAG_START + tag + TAG_END + transcript
+    #transcript = TAG_START + tag + TAG_END + transcript
+    tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
 
@@ -390,7 +394,8 @@ def decode_mediazen_adult(sample):
     spk_id = f"ma_{uttid.rsplit('_', maxsplit=1)[0]}"
 
     tag = "chat adult"
-    transcript = TAG_START + tag + TAG_END + transcript
+    #transcript = TAG_START + tag + TAG_END + transcript
+    tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
 
@@ -401,12 +406,13 @@ def decode_mediazen_adult_laugh(sample):
     transcript = json_data["transcript"]
     spk_id = f"ma_{uttid.rsplit('_', maxsplit=1)[0]}"
 
-    if random.random() < 0.3:
+    if random.random() < 0.5:
         tag = "unkown"
         spk_id = "unkown"
     else:
         tag = "chat adult"
-        transcript = TAG_START + tag + TAG_END + transcript
+        #transcript = TAG_START + tag + TAG_END + transcript
+        tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
 
@@ -418,7 +424,8 @@ def decode_mediazen_teen(sample):
     spk_id = f"mt_{uttid.rsplit('_', maxsplit=1)[0]}"
 
     tag = "chat teen"
-    transcript = TAG_START + tag + TAG_END + transcript
+    #transcript = TAG_START + tag + TAG_END + transcript
+    tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
 
@@ -429,12 +436,13 @@ def decode_mediazen_teen_laugh(sample):
     transcript = json_data["transcript"]
     spk_id = f"mt_{uttid.rsplit('_', maxsplit=1)[0]}"
 
-    if random.random() < 0.3:
+    if random.random() < 0.5:
         tag = "unkown"
         spk_id = "unkown"
     else:
         tag = "chat teen"
-        transcript = TAG_START + tag + TAG_END + transcript
+        #transcript = TAG_START + tag + TAG_END + transcript
+        tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
 
@@ -500,7 +508,7 @@ def decode_ke_youtube(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["text"]
+    transcript = json_data["text"].strip()
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
@@ -508,7 +516,7 @@ def decode_ke_youtube2(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["text"]
+    transcript = json_data["text"].strip()
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
@@ -516,7 +524,7 @@ def decode_ke_youtube3(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["text"]
+    transcript = json_data["text"].strip()
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 

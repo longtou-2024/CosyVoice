@@ -213,7 +213,7 @@ class WebDataList(IterableDataset):
 
             elif name in ("whispering", "azure"):
                 ds3.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-            elif name in ("ke_youtube", "ke_youtube2", "ke_youtube3"):
+            elif name in ("ke_youtube", "ke_youtube2", "ke_youtube3", "mediazen"):
                 ds4.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
             else:
                 raise Exception(name)
@@ -224,8 +224,8 @@ class WebDataList(IterableDataset):
             ds1 = wds.RandomMix(ds1, probs=[3,1,1,3,1,1,3], longest=True)
             ds2 = wds.RandomMix(ds2, probs=[1,1,1,1], longest=True)
             ds3 = wds.RandomMix(ds3, probs=[1,1], longest=True)
-            ds4 = wds.RandomMix(ds4, probs=[1,1,1], longest=True)
-            dataset = wds.RandomMix([ds1, ds2, ds3, ds4], probs=[20,3,1,6], longest=True) # total 30
+            ds4 = wds.RandomMix(ds4, probs=[1,1,1,3], longest=True)
+            dataset = wds.RandomMix([ds1, ds2, ds3, ds4], probs=[9,2,1,18], longest=True) # total 30
         # 4) default
         #dataset = []
         #for name in recipe_names:
