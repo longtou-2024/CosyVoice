@@ -28,7 +28,7 @@ import pyworld as pw
 AUDIO_FORMAT_SETS = {'flac', 'mp3', 'm4a', 'ogg', 'opus', 'wav', 'wma'}
 
 class RandomQueue:
-    def __init__(self, max_size=5):
+    def __init__(self, max_size=2):
         self._items = []
         self.max_size = max_size
 

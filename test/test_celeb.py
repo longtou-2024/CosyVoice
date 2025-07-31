@@ -72,12 +72,12 @@ outdir = "outdir"
 Path(outdir).mkdir(exist_ok=True)
 
 prompt_spk_speech_16k = dict()
-for audio_path in Path("test/tmp").glob("*.wav"):
+for audio_path in Path("test/kast_emo").glob("*.wav"):
     uttid = audio_path.stem
     prompt_spk_speech_16k[uttid] = load_wav(audio_path, 16000)
 
 prompt_spk_sent = dict()
-for line in open("test/tmp/text", 'r').readlines():
+for line in open("test/kast_emo/text", 'r').readlines():
     uttid, transcript = line.split(' ', maxsplit=1)
     prompt_spk_sent[uttid] = transcript
 
