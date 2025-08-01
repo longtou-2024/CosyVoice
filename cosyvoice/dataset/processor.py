@@ -28,7 +28,7 @@ import pyworld as pw
 AUDIO_FORMAT_SETS = {'flac', 'mp3', 'm4a', 'ogg', 'opus', 'wav', 'wma'}
 
 class RandomQueue:
-    def __init__(self, max_size=2):
+    def __init__(self, max_size=3):
         self._items = []
         self.max_size = max_size
 
@@ -87,13 +87,32 @@ def cache_enqueue(sample, cache):
     if spk_id != "unkown" and tag != "unkown":
         cache[spk_id][tag].enqueue(sample)
 
+def diet_cache(cache, max_n_spk):
+    # commbooks: 89, literature: 46, skt: 8,500
+    n_spk = len(cache)
+    if n_spk > max_n_spk:
+        spk_ids = list(cache.keys())
+        # mediazen_teen, mediazen_adult
+        mt_ma_spk_ids = [x for x in spk_ids if x.startswith("mt_") or x.startswith("ma_")]
+        for spk_id in mt_ma_spk_ids:
+            del cache[spk_id]
+
+        n_exceed =  (n_spk - len(mt_ma_spk_ids)) - max_n_spk
+        if n_exceed > 0:
+            spk_ids = list(cache.keys())
+            for i in range(n_exceed):
+                del cache[spk_ids[i]]
+
 def extend_sample(data, mode="train"):
     cache = Spk2Sample()
+    max_n_spk = 300
     for sample in data:
         if sample["spk_id"] != "unkown":
             sample_origin = deepcopy(sample)
             sample = cache_hit(sample, cache)
             cache_enqueue(sample_origin, cache)
+            if len(cache) > max_n_spk:
+                diet_cache(cache, max_n_spk)
         yield sample
 
 def parquet_opener(data, mode='train', tts_data={}):

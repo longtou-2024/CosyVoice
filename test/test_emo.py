@@ -31,12 +31,12 @@ cosyvoice = CosyVoice2('/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrai
 
 outdir = "outdir"
 Path(outdir).mkdir(exist_ok=True)
-#prompt_speech_16k = load_wav('./test/azure/azure-01.wav', 16000)
-prompt_speech_16k = load_wav('./test/ke_kim/F-A3-D-005-0051.wav', 16000)
+prompt_speech_16k = load_wav('./test/azure/azure-01.wav', 16000)
+#prompt_speech_16k = load_wav('./test/ke_kim/F-A3-D-005-0051.wav', 16000)
 #spk_id="azure"
 azure_sent = "그녀, 결혼전만 해도 밝고 긍정적이던 여자, 그랬던 아내가 요즘 부쩍 걱정이 많아졌다."
 lit_005_sent = "아빠 말씀에 엄마가 막내이모를 향해 화를 버럭 냈습니다."
-prompt_sent = lit_005_sent
+prompt_sent = azure_sent
 prompt_tag = "neutral"
 
 fout_names = ["base.wav", "happy.wav", "happy1.wav", "happy2.wav", "happy3.wav",
