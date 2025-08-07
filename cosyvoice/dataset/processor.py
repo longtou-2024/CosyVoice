@@ -28,7 +28,7 @@ import pyworld as pw
 AUDIO_FORMAT_SETS = {'flac', 'mp3', 'm4a', 'ogg', 'opus', 'wav', 'wma'}
 
 class RandomQueue:
-    def __init__(self, max_size=5):
+    def __init__(self, max_size=3):
         self._items = []
         self.max_size = max_size
 
@@ -61,31 +61,58 @@ class Spk2Sample(defaultdict):
     def __init__(self, *args, **kwargs):
         super().__init__(lambda: defaultdict(RandomQueue), *args, **kwargs)
 
+def cache_hit(sample, cache):
+    spk_id = sample["spk_id"]
+    if spk_id in cache:
+        tags = list(cache[spk_id].keys())
+        selected_tag = random.choice(tags) # randomly sample from avalialbe tag
+        sample2 = cache[spk_id][selected_tag].sample()
+
+        sample["utt"] = sample2["utt"] + "@" + sample["utt"]
+        sample["text"] = sample2["text"] + sample['tag'] + sample["text"]
+        sample["text_token"] = sample2["text_token"] + sample["tag_token"] + sample["text_token"]
+
+        speech, sample_rate = sample["speech"], sample["sample_rate"]
+        speech2, sample_rate2 = sample2["speech"], sample2["sample_rate"]
+        assert sample_rate == sample_rate2, f"{sample_rate} != {sample_rate2}"
+        assert speech.shape[0] == speech2.shape[0], f"{speech.shape[0]} != {speech2.shape[0]}"
+
+        sample["speech"] = torch.cat([speech2, speech], dim=1)
+        sample["sample_rate"] = sample_rate
+    return sample
+
+def cache_enqueue(sample, cache):
+    spk_id = sample["spk_id"]
+    tag = sample["tag"]
+    if spk_id != "unkown" and tag != "unkown":
+        cache[spk_id][tag].enqueue(sample)
+
+def diet_cache(cache, max_n_spk):
+    # commbooks: 89, literature: 46, skt: 8,500
+    n_spk = len(cache)
+    if n_spk > max_n_spk:
+        spk_ids = list(cache.keys())
+        # mediazen_teen, mediazen_adult
+        mt_ma_spk_ids = [x for x in spk_ids if x.startswith("mt_") or x.startswith("ma_")]
+        for spk_id in mt_ma_spk_ids:
+            del cache[spk_id]
+
+        n_exceed =  (n_spk - len(mt_ma_spk_ids)) - max_n_spk
+        if n_exceed > 0:
+            spk_ids = list(cache.keys())
+            for i in range(n_exceed):
+                del cache[spk_ids[i]]
+
 def extend_sample(data, mode="train"):
     cache = Spk2Sample()
+    max_n_spk = 300
     for sample in data:
-        spk_id = sample["spk_id"]
-        tag = sample["tag"]
-        sample_copied = deepcopy(sample)
-        if spk_id in cache:
-            tags = list(cache[spk_id].keys())
-            selected_tag = random.choice(tags) # randomly sample from avalialbe tag
-            sample2 = cache[spk_id][selected_tag].sample()
-
-            sample["utt"] = sample["utt"] + "@" + sample2["utt"]
-            sample["text"] = sample["text"] + "<|debug|>" + sample2["text"]
-            sample["text_token"] = sample["text_token"] + sample2["text_token"]
-
-            speech, sample_rate = sample["speech"], sample["sample_rate"]
-            speech2, sample_rate2 = sample2["speech"], sample2["sample_rate"]
-            assert sample_rate == sample_rate2, f"{sample_rate} != {sample_rate2}"
-            assert speech.shape[0] == speech2.shape[0], f"{speech.shape[0]} != {speech2.shape[0]}"
-
-            sample["speech"] = torch.cat([speech, speech2], dim=1)
-            sample["sample_rate"] = sample_rate
-
-        if spk_id != "unkown" and tag != "":
-            cache[spk_id][tag].enqueue(sample_copied)
+        if sample["spk_id"] != "unkown":
+            sample_origin = deepcopy(sample)
+            sample = cache_hit(sample, cache)
+            cache_enqueue(sample_origin, cache)
+            if len(cache) > max_n_spk:
+                diet_cache(cache, max_n_spk)
         yield sample
 
 def parquet_opener(data, mode='train', tts_data={}):
@@ -377,6 +404,8 @@ def tokenize(data, get_tokenizer, allowed_special, mode='train'):
     for sample in data:
         assert 'text' in sample
         sample['text_token'] = tokenizer.encode(sample['text'], allowed_special=allowed_special)
+        if "tag" in sample:
+            sample["tag_token"] = tokenizer.encode(sample['tag'], allowed_special=allowed_special)
         if mode == 'inference':
             sample['tts_text_token'] = tokenizer.encode(sample['tts_text'], allowed_special=allowed_special)
         yield sample

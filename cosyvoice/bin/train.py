@@ -131,7 +131,7 @@ def main():
     #f_log = open(f"log{local_rank}.txt", 'w')
     #for _i, sample in tqdm(enumerate(train_dataset)):
     #    #if _i > 1000:
-    #    import pdb; pdb.set_trace()
+    #        import pdb; pdb.set_trace()
     #for sample in tqdm(cv_dataset):
     #    for x in sample["utts"]:
     #        print(x)
