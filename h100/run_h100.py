@@ -14,7 +14,7 @@ from kfp import kubernetes
 from kfp.dsl import PipelineTask
 from kfp.kubernetes import common
 
-IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v10.3"
+IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v10.4"
 N_GPU = 4
 N_CPU = "40"
 MEM_SIZE = "400Gi"
@@ -22,7 +22,7 @@ MOUNT_PATH = "/home/longtou.2024/mount"
 MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250730"
 CONFIG = f"{MODEL_DIR}/cosyvoice2_lt.yaml"
 TB_DIR = f"{MODEL_DIR}/tensorboard"
-CKPT = f"{MODEL_DIR}/torch_ddp/epoch_3_step_68000.pt"
+CKPT = f"{MODEL_DIR}/torch_ddp/epoch_4_step_68000.pt"
 SHELL_COMMAND = f''' \
 export CUDA_VISIBLE_DEVICES="0,1,2,3" \
 && export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
