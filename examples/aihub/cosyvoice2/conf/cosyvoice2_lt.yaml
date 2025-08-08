@@ -145,7 +145,7 @@ filter: !name:cosyvoice.dataset.processor.filter
     token_max_length: 200
     token_min_length: 1
 filter_lt: !name:cosyvoice.dataset.processor.filter_lt
-    max_length: 6000 # 60s, speech_tokenizer limit < 30s
+    max_length: 3000 # 30s, speech_tokenizer limit < 30s
     min_length: 300 # 3s
     token_max_length: 400
     token_min_length: 1
