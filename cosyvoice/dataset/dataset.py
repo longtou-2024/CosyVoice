@@ -192,10 +192,14 @@ class WebDataList(IterableDataset):
         #    dataset = dataset_ko
         # 2) pretrain
         ds = []
+        ds_en = []
         for name in recipe_names:
             if name in ("emilia_yodas_ko", "mediazen", "saltlux_jeju", "saltlux_chungcheong", "saltlux_gyeongsang", "saltlux_jeolla", "saltlux_gangwon"):
                 ds.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-        dataset = wds.RandomMix(ds, probs=[7,9,0.5,1.2,2,1.4,0.9], longest=True)
+            elif name in ("emilia_yodas_en",):
+                ds.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
+        ds = wds.RandomMix(ds, probs=[7,9,0.5,1.2,2,1.4,0.9], longest=True)
+        dataset = wds.RandomMix([ds, ds_en], probs=[1,1], longest=True)
         # 3) custome
         #ds1,ds4, ds5 = [],[],[]
         #for name in recipe_names:

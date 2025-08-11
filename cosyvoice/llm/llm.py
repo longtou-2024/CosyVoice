@@ -461,11 +461,19 @@ class Qwen2LM(TransformerLM):
             prompt_speech_token_emb = self.speech_embedding(prompt_speech_token)
         else:
             prompt_speech_token_emb = torch.zeros(1, 0, self.llm_input_size, dtype=text.dtype).to(device)
+        ### compensate sgm 
+        n_over_frames = prompt_speech_token_emb.size(1) % self.sgm_size
+        if n_over_frames != 0:
+            prompt_speech_token_emb = prompt_speech_token_emb[:,:-n_over_frames,:]
+        B,T,C = prompt_speech_token_emb.size()
+        prompt_speech_token_emb = prompt_speech_token_emb.reshape(B,T//self.sgm_size, self.sgm_size, C)
+        prompt_speech_token_emb = prompt_speech_token_emb.mean(dim=2, keepdim=False)
+        ###
         lm_input = torch.concat([sos_eos_emb, text, task_id_emb, prompt_speech_token_emb], dim=1)
 
         # 4. cal min/max_length
-        min_len = int((text_len - prompt_text_len) * min_token_text_ratio)
-        max_len = int((text_len - prompt_text_len) * max_token_text_ratio)
+        min_len = int((text_len - prompt_text_len) * min_token_text_ratio) // self.sgm_size
+        max_len = int((text_len - prompt_text_len) * max_token_text_ratio) // self.sgm_size
 
         # 5. step by step decode
         for token in self.inference_wrapper_sgm(lm_input, sampling, min_len, max_len, uuid):
