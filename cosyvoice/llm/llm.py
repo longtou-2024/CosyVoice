@@ -27,6 +27,7 @@ from cosyvoice.transformer.label_smoothing_loss import LabelSmoothingLoss
 from cosyvoice.utils.common import th_accuracy
 from cosyvoice.utils.file_utils import logging
 from cosyvoice.utils.mask import make_pad_mask
+from collections import deque
 
 
 class TransformerLM(torch.nn.Module):
@@ -305,6 +306,16 @@ class Qwen2LM(TransformerLM):
         # NOTE(longtou): speech token for on the fly
         self.speech_tokenizer = None
 
+        phns_token_size = 358
+        self.phns_embedding = torch.nn.Embedding(phns_token_size + 3, llm_input_size)
+        self.llm_decoder_phns = nn.Linear(llm_output_size, phns_token_size + 3)
+        self.criterion_ce_phns = LabelSmoothingLoss(
+            size=phns_token_size + 3,
+            padding_idx=IGNORE_ID,
+            smoothing=0,
+            normalize_length=True,
+        )
+
     def prepare_lm_input_target(self, text_token, text_token_emb, text_token_len, speech_token, speech_token_emb, speech_token_len):
         lm_target, lm_input = [], []
         text_token = unpad_sequence(text_token, text_token_len.cpu(), batch_first=True)
@@ -349,6 +360,31 @@ class Qwen2LM(TransformerLM):
         lm_target = pad_sequence(lm_target, batch_first=True, padding_value=IGNORE_ID)
         return lm_target, lm_input, lm_input_len
 
+    def prepare_lm_input_target_lt(self, text_token, text_token_emb, text_token_len, speech_token, speech_token_emb, speech_token_len, phns_token, phns_token_emb):
+        lm_target, lm_input, lm_target_phns = [], [], []
+        text_token = unpad_sequence(text_token, text_token_len.cpu(), batch_first=True)
+        speech_token = unpad_sequence(speech_token, speech_token_len.cpu(), batch_first=True)
+        phns_token = unpad_sequence(phns_token, speech_token_len.cpu(), batch_first=True)
+        text_token_emb = unpad_sequence(text_token_emb, text_token_len.cpu(), batch_first=True)
+        speech_token_emb = unpad_sequence(speech_token_emb, speech_token_len.cpu(), batch_first=True)
+        phns_token_emb = unpad_sequence(phns_token_emb, speech_token_len.cpu(), batch_first=True)
+        for i in range(len(text_token)):
+            phns_speech_token_emb = torch.stack([speech_token_emb[i], phns_token_emb[i]], dim=0).mean(dim=0)
+            this_lm_target = torch.tensor([IGNORE_ID] * (1 + text_token_len[i]) + speech_token[i].tolist() + [self.speech_token_size])
+            this_lm_target_phns = torch.tensor([IGNORE_ID] * (1 + text_token_len[i]) + phns_token[i].tolist() + [0])
+            #this_lm_input = torch.concat([self.llm_embedding.weight[self.sos_eos].reshape(1, -1), text_token_emb[i],
+            #                              self.llm_embedding.weight[self.task_id].reshape(1, -1), speech_token_emb[i]], dim=0)
+            this_lm_input = torch.concat([self.llm_embedding.weight[self.sos_eos].reshape(1, -1), text_token_emb[i],
+                                          self.llm_embedding.weight[self.task_id].reshape(1, -1), phns_speech_token_emb], dim=0)
+            lm_target.append(this_lm_target)
+            lm_target_phns.append(this_lm_target_phns)
+            lm_input.append(this_lm_input)
+        lm_input_len = torch.tensor([i.size(0) for i in lm_input], dtype=torch.int32)
+        lm_input = pad_sequence(lm_input, batch_first=True, padding_value=IGNORE_ID)
+        lm_target = pad_sequence(lm_target, batch_first=True, padding_value=IGNORE_ID)
+        lm_target_phns = pad_sequence(lm_target_phns, batch_first=True, padding_value=IGNORE_ID)
+        return lm_target, lm_input, lm_input_len, lm_target_phns
+
     def forward(
             self,
             batch: dict,
@@ -382,20 +418,31 @@ class Qwen2LM(TransformerLM):
             speech_token = batch['speech_token'].to(device)
             speech_token_len = batch['speech_token_len'].to(device)
 
+        # NOTE(longtou): pad phns with <pad> token until speech_token_len
+        phns_token = batch['phns_token'].to(device) # (B,T_phns)
+        T_pad = speech_token.size(1) - phns_token.size(1)
+        phns_token = F.pad(phns_token, (0, T_pad), "constant", 0)
+        #phns_token_len = batch['phns_token_len'].to(device)
+
         # 1. encode text_token
         text_token_emb = self.llm.model.model.embed_tokens(text_token)
 
         # 2. encode speech_token
         speech_token_emb = self.speech_embedding(speech_token)
 
+        phns_token_emb = self.phns_embedding(phns_token)
+
         # 3. prepare llm_input/target
-        lm_target, lm_input, lm_input_len = self.prepare_lm_input_target(text_token, text_token_emb, text_token_len, speech_token, speech_token_emb, speech_token_len)
+        lm_target, lm_input, lm_input_len, lm_target_phns = self.prepare_lm_input_target_lt(text_token, text_token_emb, text_token_len, speech_token, speech_token_emb, speech_token_len, phns_token, phns_token_emb)
         lm_target = lm_target.to(device)
 
         # 4. run lm forward
         lm_output, lm_output_mask = self.llm(lm_input, lm_input_len.to(device))
         logits = self.llm_decoder(lm_output)
         loss = self.criterion_ce(logits, lm_target.to(device))
+        logits_phns = self.llm_decoder_phns(lm_output)
+        loss_phns = self.criterion_ce_phns(logits_phns, lm_target_phns.to(device))
+        loss = loss + loss_phns
         acc = th_accuracy(logits.view(-1, self.speech_token_size + 3), lm_target, ignore_label=IGNORE_ID)
         return {'loss': loss, 'acc': acc}
 
@@ -413,11 +460,30 @@ class Qwen2LM(TransformerLM):
             max_token_text_ratio: float = 20,
             min_token_text_ratio: float = 2,
             uuid: str = '',
+            phns: str = None,
+            phns_token: List[int] = None,
     ) -> Generator[torch.Tensor, None, None]:
         device = text.device
         text = torch.concat([prompt_text, text], dim=1)
         text_len += prompt_text_len
         text = self.llm.model.model.embed_tokens(text)
+
+        #phns_token = phns_token.unsqueeze(0)
+        #T_pad = prompt_speech_token.size(1) - phns_token.size(1)
+        T_pad = prompt_speech_token.size(1) - len(phns_token)
+        if T_pad < 0:
+            #phns_token_remain = phns_token[:, T_pad:]
+            #phns_token = phns_token[:, :T_pad]
+            phns_token_remain = deque(phns_token[T_pad:])
+            phns_token = torch.tensor(phns_token[:T_pad], dtype=torch.int32).to(device).unsqueeze(0)
+        else:
+            #phns_token_remain = torch.zeros((1,1), device=phns_token.device, dtype=phns_token.dtype)
+            #phns_token = F.pad(phns_token, (0, T_pad), "constant", 0)
+            phns_token_remain = deque([])
+            phns_token = phns_token + [0] * T_pad
+            phns_token = torch.tensor(phns_token[:T_pad], dtype=torch.int32).to(device).unsqueeze(0)
+        phns_token_emb = self.phns_embedding(phns_token) # (B,T,C)
+        #phns_token_emb_remain = self.phns_embedding(phns_token_remain) # (B,T,C)
 
         # 3. concat llm_input
         sos_eos_emb = self.llm_embedding.weight[self.sos_eos].reshape(1, 1, -1)
@@ -426,18 +492,20 @@ class Qwen2LM(TransformerLM):
             prompt_speech_token_emb = self.speech_embedding(prompt_speech_token)
         else:
             prompt_speech_token_emb = torch.zeros(1, 0, self.llm_input_size, dtype=text.dtype).to(device)
-        lm_input = torch.concat([sos_eos_emb, text, task_id_emb, prompt_speech_token_emb], dim=1)
+        prompt_phns_speech_token_emb = torch.stack([prompt_speech_token_emb, phns_token_emb], dim=0).mean(dim=0)
+        #lm_input = torch.concat([sos_eos_emb, text, task_id_emb, prompt_speech_token_emb], dim=1)
+        lm_input = torch.concat([sos_eos_emb, text, task_id_emb, prompt_phns_speech_token_emb], dim=1)
 
         # 4. cal min/max_length
         min_len = int((text_len - prompt_text_len) * min_token_text_ratio)
         max_len = int((text_len - prompt_text_len) * max_token_text_ratio)
 
         # 5. step by step decode
-        for token in self.inference_wrapper(lm_input, sampling, min_len, max_len, uuid):
+        for token in self.inference_wrapper(lm_input, sampling, min_len, max_len, uuid, phns_token_remain):
             yield token
 
     @torch.inference_mode()
-    def inference_wrapper(self, lm_input, sampling, min_len, max_len, uuid):
+    def inference_wrapper(self, lm_input, sampling, min_len, max_len, uuid, phns_token_remain):
         if hasattr(self, 'vllm'):
             from vllm import SamplingParams, RequestOutput
             sampling_params = SamplingParams(top_k=sampling,
@@ -484,6 +552,11 @@ class Qwen2LM(TransformerLM):
                 yield top_ids
                 out_tokens.append(top_ids)
                 lm_input = self.speech_embedding.weight[top_ids].reshape(1, 1, -1)
+                if len(phns_token_remain) > 0:
+                    phns_idx = phns_token_remain.popleft()
+                else:
+                    phns_idx = 0
+                lm_input = torch.stack([lm_input, self.phns_embedding.weight[phns_idx].reshape(1, 1, -1)], dim=0).mean(dim=0)
 
     @torch.inference_mode()
     def inference_bistream(

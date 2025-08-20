@@ -35,17 +35,21 @@ except ImportError:
 from cosyvoice.utils.file_utils import logging
 from cosyvoice.utils.frontend_utils import contains_chinese, replace_blank, replace_corner_mark, remove_bracket, spell_out_number, split_paragraph, is_only_punctuation
 
+from cosyvoice.tokenizer.tokenizer import get_espeak_phonemizer
+
 
 class CosyVoiceFrontEnd:
 
     def __init__(self,
                  get_tokenizer: Callable,
+                 get_phonemizer: Callable,
                  feat_extractor: Callable,
                  campplus_model: str,
                  speech_tokenizer_model: str,
                  spk2info: str = '',
                  allowed_special: str = 'all'):
         self.tokenizer = get_tokenizer()
+        self.phonemizer = get_phonemizer()
         self.feat_extractor = feat_extractor
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         option = onnxruntime.SessionOptions()
@@ -155,6 +159,8 @@ class CosyVoiceFrontEnd:
         return model_input
 
     def frontend_zero_shot(self, tts_text, prompt_text, prompt_speech_16k, resample_rate, zero_shot_spk_id):
+        phns, phns_token = self.phonemizer(prompt_text + tts_text)
+        #phns_token = torch.tensor(phns_token, dtype=torch.int32).to(self.device)
         tts_text_token, tts_text_token_len = self._extract_text_token(tts_text)
         if zero_shot_spk_id == '':
             prompt_text_token, prompt_text_token_len = self._extract_text_token(prompt_text)
@@ -176,6 +182,8 @@ class CosyVoiceFrontEnd:
             model_input = self.spk2info[zero_shot_spk_id]
         model_input['text'] = tts_text_token
         model_input['text_len'] = tts_text_token_len
+        model_input['phns'] = phns
+        model_input['phns_token'] = phns_token
         return model_input
 
     def frontend_cross_lingual(self, tts_text, prompt_speech_16k, resample_rate, zero_shot_spk_id):

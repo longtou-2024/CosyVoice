@@ -410,6 +410,30 @@ def tokenize(data, get_tokenizer, allowed_special, mode='train'):
             sample['tts_text_token'] = tokenizer.encode(sample['tts_text'], allowed_special=allowed_special)
         yield sample
 
+def tokenize_lt(data, get_tokenizer, allowed_special, get_phonemizer, mode='train'):
+    """ Decode text to chars or BPE
+        Inplace operation
+
+        Args:
+            data: Iterable[{key, wav, txt, sample_rate}]
+
+        Returns:
+            Iterable[{key, wav, txt, tokens, label, sample_rate}]
+    """
+    tokenizer = get_tokenizer()
+    phonemizer = get_phonemizer()
+    for sample in data:
+        assert 'text' in sample
+        sample['text_token'] = tokenizer.encode(sample['text'], allowed_special=allowed_special)
+        phns, phns_token = phonemizer(sample['text'])
+        sample["phns"] = phns
+        sample["phns_token"] = phns_token
+        if "tag" in sample:
+            sample["tag_token"] = tokenizer.encode(sample['tag'], allowed_special=allowed_special)
+        if mode == 'inference':
+            sample['tts_text_token'] = tokenizer.encode(sample['tts_text'], allowed_special=allowed_special)
+        yield sample
+
 
 def shuffle(data, shuffle_size=10000, mode='train'):
     """ Local shuffle the data
@@ -639,6 +663,11 @@ def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
         text_token = [torch.tensor(sample[i]['text_token']) for i in order]
         text_token_len = torch.tensor([i.size(0) for i in text_token], dtype=torch.int32)
         text_token = pad_sequence(text_token, batch_first=True, padding_value=0)
+
+        phns = [sample[i]['phns'] for i in order]
+        phns_token = [torch.tensor(sample[i]['phns_token']) for i in order]
+        phns_token_len = torch.tensor([i.size(0) for i in phns_token], dtype=torch.int32)
+        phns_token = pad_sequence(phns_token, batch_first=True, padding_value=0)
         batch = {
             "utts": utts,
             "speech": speech,
@@ -648,6 +677,9 @@ def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
             "text": text,
             "text_token": text_token,
             "text_token_len": text_token_len,
+            "phns": phns,
+            "phns_token": phns_token,
+            "phns_token_len": phns_token_len,
         }
 
         if "utt_embedding" in sample[0]:

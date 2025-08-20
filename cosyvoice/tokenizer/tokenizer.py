@@ -5,8 +5,10 @@ from typing import Optional
 import torch
 from transformers import AutoTokenizer
 from whisper.tokenizer import Tokenizer
+import json
 
 import tiktoken
+from espnet2.text.phoneme_tokenizer import Phonemizer
 
 LANGUAGES = {
     "en": "english",
@@ -280,3 +282,31 @@ def get_qwen_tokenizer(
     skip_special_tokens: bool
 ) -> QwenTokenizer:
     return QwenTokenizer(token_path=token_path, skip_special_tokens=skip_special_tokens)
+
+class KENTPhonemizer:
+    def __init__(self, vocab_path, word_sep="<sp>", lang="ko"):
+        super().__init__()
+        self.g2p = Phonemizer(language=lang, backend="espeak", with_stress=False, preserve_punctuation=False, word_separator=f" {word_sep} ")
+        self.vocab = json.load(open(vocab_path, 'r'))
+        # NOTE(longtou): extend vocab
+        self.pad = "<pad>"
+        self.word_sep = word_sep
+        self.unk = "<unk>"
+        self.vocab = {k: v+3 for k, v in self.vocab.items()}
+        self.vocab[self.pad] = 0
+        self.vocab[word_sep] = 1
+        self.vocab[self.unk] = 2
+
+    def __call__(self, text):
+        phns = self.g2p(text)
+        phns_token = []
+        for p in phns:
+            if p not in self.vocab:
+                p = self.unk
+            phns_token.append(self.vocab[p])
+
+        return ' '.join(phns), phns_token
+
+@lru_cache(maxsize=None)
+def get_espeak_phonemizer(vocab_path, word_sep="<sp>", lang="ko"):
+    return KENTPhonemizer(vocab_path, word_sep, lang)

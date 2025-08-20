@@ -3,6 +3,8 @@
 . ./path.sh || exit 1;
 
 export OMP_NUM_THREADS=1
+export PATH=../../../espeak-ng/bin:"${PATH:-}"
+export LD_LIBRARY_PATH=../../../espeak-ng/lib:"${LD_LIBRARY_PATH:-}"
 stage=1
 stop_stage=5
 pretrained_model_dir=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B

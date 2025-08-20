@@ -41,3 +41,4 @@ wget==3.2
 
 webdataset
 s3tokenizer
+phonemizer==3.0

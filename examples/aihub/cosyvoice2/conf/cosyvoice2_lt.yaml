@@ -135,10 +135,16 @@ parquet_opener: !name:cosyvoice.dataset.processor.parquet_opener
 get_tokenizer: !name:cosyvoice.tokenizer.tokenizer.get_qwen_tokenizer
     token_path: !ref <qwen_pretrain_path>
     skip_special_tokens: True
+get_phonemizer: !name:cosyvoice.tokenizer.tokenizer.get_espeak_phonemizer
+    vocab_path: '/home/longtou.2024/mount/longtou/db/commbooks/mfa/espeak/phone.json'
 allowed_special: 'all'
 tokenize: !name:cosyvoice.dataset.processor.tokenize
     get_tokenizer: !ref <get_tokenizer>
     allowed_special: !ref <allowed_special>
+tokenize_lt: !name:cosyvoice.dataset.processor.tokenize_lt
+    get_tokenizer: !ref <get_tokenizer>
+    allowed_special: !ref <allowed_special>
+    get_phonemizer: !ref <get_phonemizer>
 filter: !name:cosyvoice.dataset.processor.filter
     max_length: 40960
     min_length: 100
@@ -187,7 +193,7 @@ padding_lt: !name:cosyvoice.dataset.processor.padding_lt
 # dataset processor pipeline
 data_pipeline: [
     #!ref <parquet_opener>,
-    !ref <tokenize>,
+    !ref <tokenize_lt>,
     !ref <filter_lt>,
     !ref <resample>,
     !ref <extend_sample>,
