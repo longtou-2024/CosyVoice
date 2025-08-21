@@ -14,20 +14,22 @@ from kfp import kubernetes
 from kfp.dsl import PipelineTask
 from kfp.kubernetes import common
 
-IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v10.4"
+IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v12.1"
 N_GPU = 4
 N_CPU = "40"
 MEM_SIZE = "400Gi"
 MOUNT_PATH = "/home/longtou.2024/mount"
-MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250730"
+MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250821_2"
 CONFIG = f"{MODEL_DIR}/cosyvoice2_lt.yaml"
 TB_DIR = f"{MODEL_DIR}/tensorboard"
 CKPT = f"{MODEL_DIR}/torch_ddp/epoch_4_step_68000.pt"
+#--checkpoint {CKPT}
 SHELL_COMMAND = f''' \
 export CUDA_VISIBLE_DEVICES="0,1,2,3" \
 && export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
 && . ../../../activate_python.sh \
-&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --from_mount true --from_prod true --train_data "gs://commbooks commbooks_speaking_rate commbooks_tone literature literature_speaking_rate literature_tone mediazen_teen mediazen_adult mediazen_teen_laugh mediazen_adult_laugh whispering azure skt_emotion_large ke_youtube ke_youtube2 ke_youtube3 mediazen emilia_ko emilia_yodas_ko saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon" --checkpoint {CKPT}
+&& python -c "from espnet2.text.phoneme_tokenizer import Phonemizer" \
+&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --from_mount true --from_prod true --train_data "gs://commbooks commbooks_speaking_rate commbooks_tone literature literature_speaking_rate literature_tone mediazen_teen mediazen_adult mediazen_teen_laugh mediazen_adult_laugh azure skt_emotion_large mediazen emilia_yodas_ko saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon"
 '''
 
 def add_pod_annotation(
@@ -89,6 +91,8 @@ def cosyvoice_pipe(
     task_1.set_cpu_request(N_CPU)
     #task_1.set_cpu_limit(N_CPU)
     task_1.set_memory_request(MEM_SIZE)
+    # dns setting suggested from kale
+    task_1.set_env_variable(name="GCE_METADATA_HOST", value="169.254.169.254")
 
     #kubernetes.mount_pvc(
     #    task_1,
