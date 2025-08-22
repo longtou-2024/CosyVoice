@@ -509,6 +509,36 @@ def static_batch(data, batch_size=16):
 
 # NOTE(longtou): matcha mel 24000/480 = 50 frames per second
 # : whisper mel 16000/160 = 100 frames per second
+def dynamic_batch_lt(data, max_frame_square_in_batch=12000, mode='train'):
+    """ Dynamic batch the data until the total frames in batch
+        reach `max_frames_in_batch`
+
+        Args:
+            data: Iterable[{key, feat, label}]
+            max_frames_in_batch: max_frames in one batch
+
+        Returns:
+            Iterable[List[{key, feat, label}]]
+    """
+    buf = []
+    longest_frames = 0
+    for sample in data:
+        assert 'speech_feat' in sample
+        assert isinstance(sample['speech_feat'], torch.Tensor)
+        new_sample_frames = sample['speech_feat'].size(0)
+        longest_frames = max(longest_frames, new_sample_frames)
+        frames_after_padding = longest_frames * longest_frames * (len(buf) + 1)
+        if frames_after_padding > max_frame_square_in_batch:
+            yield buf
+            buf = [sample]
+            longest_frames = new_sample_frames
+        else:
+            buf.append(sample)
+    if len(buf) > 0:
+        yield buf
+
+# NOTE(longtou): matcha mel 24000/480 = 50 frames per second
+# : whisper mel 16000/160 = 100 frames per second
 def dynamic_batch(data, max_frames_in_batch=12000, mode='train'):
     """ Dynamic batch the data until the total frames in batch
         reach `max_frames_in_batch`
@@ -548,6 +578,8 @@ def batch(data, batch_type='static', batch_size=16, max_frames_in_batch=12000, m
             return static_batch(data, batch_size)
         elif batch_type == 'dynamic':
             return dynamic_batch(data, max_frames_in_batch)
+        elif batch_type == "dynamic_lt":
+            return dynamic_batch_lt(data, max_frames_in_batch)
         else:
             logging.fatal('Unsupported batch type {}'.format(batch_type))
 
