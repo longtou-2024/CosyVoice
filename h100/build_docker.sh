@@ -1,4 +1,5 @@
-docker build -t longtou/cosyvoice:aihub .
+#docker build -t longtou/cosyvoice:aihub .
+docker build -t longtou/cosyvoice:aihub -f Dockerfile.lite .
 docker tag longtou/cosyvoice:aihub us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:aihub
 
 #docker run -it --runtime=nvidia longtou/cosyvoice:aihub /bin/bash
