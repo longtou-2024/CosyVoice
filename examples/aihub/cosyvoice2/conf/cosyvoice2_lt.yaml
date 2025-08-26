@@ -145,10 +145,11 @@ filter: !name:cosyvoice.dataset.processor.filter
     token_max_length: 200
     token_min_length: 1
 filter_lt: !name:cosyvoice.dataset.processor.filter_lt
-    max_length: 6000 # 60s, speech_tokenizer limit < 30s
+    max_length: 4000 # 40s, speech_tokenizer limit < 30s
     min_length: 300 # 3s
-    token_max_length: 400
-    token_min_length: 1
+    token_max_length: 200
+    token_min_length: 3
+    max_output_input_ratio: 0.5
 resample: !name:cosyvoice.dataset.processor.resample
     resample_rate: 16000 # 16kHz for speech_tokenizer
 truncate: !name:cosyvoice.dataset.processor.truncate

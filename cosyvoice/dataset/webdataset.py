@@ -381,13 +381,15 @@ def decode_mediazen_adult_laugh(sample):
     transcript = json_data["transcript"]
     spk_id = f"ma_{uttid.rsplit('_', maxsplit=1)[0]}"
 
-    if random.random() < 0.5:
-        tag = "unkown"
-        spk_id = "unkown"
-    else:
-        tag = "chat adult"
-        #transcript = TAG_START + tag + TAG_END + transcript
-        tag = TAG_START + tag + TAG_END
+    #if random.random() < 0.5:
+    #    tag = "unkown"
+    #    spk_id = "unkown"
+    #else:
+    #    tag = "chat adult"
+    #    #transcript = TAG_START + tag + TAG_END + transcript
+    #    tag = TAG_START + tag + TAG_END
+    tag = "unkown"
+    spk_id = "unkown"
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
 
@@ -411,13 +413,15 @@ def decode_mediazen_teen_laugh(sample):
     transcript = json_data["transcript"]
     spk_id = f"mt_{uttid.rsplit('_', maxsplit=1)[0]}"
 
-    if random.random() < 0.5:
-        tag = "unkown"
-        spk_id = "unkown"
-    else:
-        tag = "chat teen"
-        #transcript = TAG_START + tag + TAG_END + transcript
-        tag = TAG_START + tag + TAG_END
+    #if random.random() < 0.5:
+    #    tag = "unkown"
+    #    spk_id = "unkown"
+    #else:
+    #    tag = "chat teen"
+    #    #transcript = TAG_START + tag + TAG_END + transcript
+    #    tag = TAG_START + tag + TAG_END
+    tag = "unkown"
+    spk_id = "unkown"
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
 
