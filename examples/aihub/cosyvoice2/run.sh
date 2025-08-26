@@ -6,7 +6,7 @@ export OMP_NUM_THREADS=1
 stage=1
 stop_stage=5
 pretrained_model_dir=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B
-num_workers=1
+num_workers=2
 prefetch=100
 cache_size=0
 from_mount=true # use gcsfuse
@@ -64,13 +64,13 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --ddp.dist_backend $dist_backend \
     --num_workers ${num_workers} \
     --prefetch ${prefetch} \
+    --use_amp \
     --pin_memory \
     --deepspeed_config ${deepspeed_config} \
     --deepspeed.save_states model+optimizer \
     --cache_size ${cache_size} \
     ${_opts}
 fi
-  #--use_amp \ # infinity grad norm error?
 #--checkpoint $pretrained_model_dir/$model.pt \
 
 # average model
