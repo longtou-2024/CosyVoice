@@ -16,6 +16,7 @@ import random
 from io import BytesIO
 from collections import defaultdict
 from copy import deepcopy
+from time import time
 
 import pyarrow.parquet as pq
 import torch
@@ -228,7 +229,7 @@ def filter_lt(data,
         if "speech" not in sample:
             sample['speech'], sample['sample_rate'] = torchaudio.load(BytesIO(sample['audio_data']))
             sample['speech'] = sample['speech'].mean(dim=0, keepdim=True)
-            del sample['audio_data']
+            #del sample['audio_data']
         # sample['wav'] is torch.Tensor, we have 100 frames every second
         num_frames = sample['speech'].size(1) / sample['sample_rate'] * 100
         if num_frames < min_length:
@@ -410,6 +411,21 @@ def tokenize(data, get_tokenizer, allowed_special, mode='train'):
             sample['tts_text_token'] = tokenizer.encode(sample['tts_text'], allowed_special=allowed_special)
         yield sample
 
+def forced_align(data, get_aligner, mode='train'):
+    mfa = get_aligner()
+    for sample in data:
+        assert 'text' in sample
+        assert 'audio_data' in sample
+        audio_buf = BytesIO(sample["audio_data"])
+        audio_buf.seek(0)
+        audio_format = sample["fmt"]
+        #s = time()
+        json_align = mfa(audio_buf, audio_format, sample["text"])
+        #print(f"{len(json_align)}: {time()-s}")
+        if len(json_align) == 0:
+            continue
+        del sample["audio_data"]
+        yield sample
 
 def shuffle(data, shuffle_size=10000, mode='train'):
     """ Local shuffle the data

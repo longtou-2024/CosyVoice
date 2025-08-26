@@ -8,6 +8,9 @@ from whisper.tokenizer import Tokenizer
 
 import tiktoken
 
+from montreal_forced_aligner.lt_mfa2 import setup_mfa, align_one
+from montreal_forced_aligner.exceptions import AlignerError
+
 LANGUAGES = {
     "en": "english",
     "zh": "chinese",
@@ -280,3 +283,47 @@ def get_qwen_tokenizer(
     skip_special_tokens: bool
 ) -> QwenTokenizer:
     return QwenTokenizer(token_path=token_path, skip_special_tokens=skip_special_tokens)
+
+class MontrealForcedAligner:
+    def __init__(self, dict_path, am_path, g2p_path, temp_dir=None, **kwargs):
+        super().__init__()
+        acoustic_model, g2p_model, lexicon_compiler, tokenizer, conf = setup_mfa(dict_path, am_path, g2p_path, temp_dir)
+
+        if "beam" in kwargs:
+            conf["beam"] = int(kwargs["beam"])
+        if "retry_beam" in kwargs:
+            conf["retry_beam"] = int(kwargs["retry_beam"])
+
+        self.acoustic_model = acoustic_model
+        self.g2p_model = g2p_model
+        self.lexicon_compiler = lexicon_compiler
+        self.tokenizer = tokenizer
+        self.conf = conf
+
+    def __call__(self, audio_buf, audio_format, transcript):
+        try:
+            json_align = align_one(
+                audio_buf,
+                audio_format,
+                transcript,
+                "json",
+                self.acoustic_model,
+                self.g2p_model,
+                self.lexicon_compiler,
+                self.tokenizer,
+                self.conf
+            )
+        except AlignerError as e:
+            json_align = {}
+
+        return json_align
+
+@lru_cache(maxsize=None)
+def get_mfa(
+    dict_path,
+    am_path,
+    g2p_path,
+    temp_dir=None,
+    **kwargs,
+):
+    return MontrealForcedAligner(dict_path, am_path, g2p_path, temp_dir, **kwargs)

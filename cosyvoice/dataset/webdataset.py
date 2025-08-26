@@ -58,7 +58,7 @@ def decode_azure(sample):
 
     #prompt = PROMPT_TEMPLATE(spk="azure", style=None, mask_probs=[0,0])
     transcript = "애저 화자" + ENDOFPROMPT + transcript
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown", "fmt": "wav"}
 
 def decode_literature(sample, **kwargs):
     uttid = sample["__key__"]
@@ -84,7 +84,7 @@ def decode_literature(sample, **kwargs):
     #transcript = TAG_START + tag + TAG_END + transcript
     tag = TAG_START + tag + TAG_END
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag, "fmt": "wav"}
 
 def decode_literature_speaking_rate(sample, **kwargs):
     uttid = sample["__key__"]
@@ -151,7 +151,7 @@ def decode_mediazen(sample):
     gender = spk_info["Gender"] # [Female|
 
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown", "fmt": "wav"}
 
 def decode_skt_emotion_large(sample):
     uttid = sample["__key__"]
@@ -173,7 +173,7 @@ def decode_skt_emotion_large(sample):
     #transcript = TAG_START + tag + TAG_END + transcript
     tag = TAG_START + tag + TAG_END
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag, "fmt": "wav"}
 
 def decode_skt_emotion_small(sample):
     uttid = sample["__key__"]
@@ -256,7 +256,7 @@ def decode_commbooks(sample, **kwargs):
     #transcript = TAG_START + tag + TAG_END + transcript
     tag = TAG_START + tag + TAG_END
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag, "fmt": "wav"}
 
 def decode_commbooks_speaking_rate(sample, **kwargs):
     uttid = sample["__key__"]
@@ -391,7 +391,7 @@ def decode_mediazen_adult_laugh(sample):
     tag = "unkown"
     spk_id = "unkown"
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag, "fmt": "mp3"}
 
 def decode_mediazen_teen(sample):
     uttid = sample["__key__"]
@@ -423,7 +423,7 @@ def decode_mediazen_teen_laugh(sample):
     tag = "unkown"
     spk_id = "unkown"
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag, "fmt": "mp3"}
 
 def decode_aihub_news(sample):
     uttid = sample["__key__"]
