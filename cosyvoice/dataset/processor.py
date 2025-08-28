@@ -124,9 +124,10 @@ def filter_mfa(data, max_sil_dur, mode='train'):
                 continue
             entries = mfa["tiers"]["words"]["entries"]
             sil_info = [x for x in entries if x[2] == '<eps>']
-            sil_dur = [x[1] - x[0] for x in sil_info]
-            if max(sil_dur) > max_sil_dur:
-                continue
+            if len(sil_info) != 0:
+                sil_dur = [x[1] - x[0] for x in sil_info]
+                if max(sil_dur) > max_sil_dur:
+                    continue
 
         yield sample
 
