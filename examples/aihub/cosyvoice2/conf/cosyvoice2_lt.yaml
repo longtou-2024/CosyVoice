@@ -150,6 +150,8 @@ filter_lt: !name:cosyvoice.dataset.processor.filter_lt
     token_max_length: 200
     token_min_length: 3
     max_output_input_ratio: 0.5
+filter_mfa: !name:cosyvoice.dataset.processor.filter_mfa
+    max_sil_dur: 1.5 # in seconds
 resample: !name:cosyvoice.dataset.processor.resample
     resample_rate: 16000 # 16kHz for speech_tokenizer
 truncate: !name:cosyvoice.dataset.processor.truncate
@@ -189,6 +191,7 @@ padding_lt: !name:cosyvoice.dataset.processor.padding_lt
 data_pipeline: [
     #!ref <parquet_opener>,
     !ref <tokenize>,
+    !ref <filter_mfa>,
     !ref <filter_lt>,
     !ref <resample>,
     !ref <extend_sample>,

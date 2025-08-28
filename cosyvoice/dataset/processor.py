@@ -115,6 +115,21 @@ def extend_sample(data, mode="train"):
                 diet_cache(cache, max_n_spk)
         yield sample
 
+def filter_mfa(data, max_sil_dur, mode='train'):
+    for sample in data:
+        mfa = sample.get("mfa", None)
+        if mfa is not None:
+            if len(mfa) == 0:
+                # align fail
+                continue
+            entries = mfa["tiers"]["words"]["entries"]
+            sil_info = [x for x in entries if x[2] == '<eps>']
+            sil_dur = [x[1] - x[0] for x in sil_info]
+            if max(sil_dur) > max_sil_dur:
+                continue
+
+        yield sample
+
 def parquet_opener(data, mode='train', tts_data={}):
     """ Give url or local file, return file descriptor
         Inplace operation.

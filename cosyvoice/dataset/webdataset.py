@@ -16,12 +16,12 @@ TAG_END = "<|tag_end|>"
 
 name2url = {
     "azure": "gs://prod-ai-lab-speech-bucket/longtou/db/azure/wds_v2/shard-00000{0..7}.tar",
-    "literature": "gs://prod-ai-lab-speech-bucket/longtou/db/literature/wds_v2/shard-0000{00..46}.tar",
-    "skt_emotion_large": "gs://prod-ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2/large/shard-0000{00..24}.tar",
+    "literature": "gs://prod-ai-lab-speech-bucket/longtou/db/literature/wds_v2_mfa/shard-0000{00..46}.tar",
+    "skt_emotion_large": "gs://prod-ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2_mfa/large/shard-0000{00..24}.tar",
     "skt_emotion_small": "gs://prod-ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2/large/shard-0000{00..14}.tar",
     "mediazen_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_emotion/wds_v2/shard-000{000..110}.tar",
-    "mediazen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen/wds_v2/shard-00{0000..1055}.tar",
-    "commbooks": "gs://prod-ai-lab-speech-bucket/longtou/db/commbooks/wds_v2/shard-000{000..104}.tar",
+    "mediazen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen/wds_v2_mfa/shard-00{0000..1055}.tar",
+    "commbooks": "gs://prod-ai-lab-speech-bucket/longtou/db/commbooks/wds_v2_mfa/shard-000{000..104}.tar",
     "kaist_audiobook": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-0000{00..10}.tar",
     "kaist_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-00000{0..8}.tar",
     "aihub_news": "gs://prod-ai-lab-speech-bucket/longtou/db/aihub_news/wds_v2/shard-000{000..107}.tar",
@@ -68,6 +68,7 @@ def decode_literature(sample, **kwargs):
     gender = json_data["gender"] # (MALE|FEMALE)
     gender = {"MALE": 'M', "FEMALE": 'F'}[gender]
     spk_id = f"lit_{uttid.split('-')[2]}"
+    mfa = json_data["mfa"]
 
     emotion = "무감정"
     # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
@@ -84,7 +85,7 @@ def decode_literature(sample, **kwargs):
     #transcript = TAG_START + tag + TAG_END + transcript
     tag = TAG_START + tag + TAG_END
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag, "mfa": mfa}
 
 def decode_literature_speaking_rate(sample, **kwargs):
     uttid = sample["__key__"]
@@ -149,9 +150,9 @@ def decode_mediazen(sample):
 
     spk_info = json_data["화자정보"]
     gender = spk_info["Gender"] # [Female|
+    mfa = json_data["mfa"]
 
-
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_skt_emotion_large(sample):
     uttid = sample["__key__"]
@@ -159,6 +160,7 @@ def decode_skt_emotion_large(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"]
     spk_id = f"skt_{uttid.split('_')[0]}"
+    mfa = json_data["mfa"]
 
     style_main_set = {'SURPRISE', 'JOY', 'NEUTRAL', 'ANXIOUS', 'DOUBT', 'ANGRY', 'FEAR', 'KIND', 'SAD', 'HURRY', 'SERIOUS', 'DRY', 'SHY', 'UNPLEASURE', 'HESITATE', 'TEASE'}
     style_main = json_data["style_main"]
@@ -173,7 +175,7 @@ def decode_skt_emotion_large(sample):
     #transcript = TAG_START + tag + TAG_END + transcript
     tag = TAG_START + tag + TAG_END
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag, "mfa": mfa}
 
 def decode_skt_emotion_small(sample):
     uttid = sample["__key__"]
@@ -234,6 +236,7 @@ def decode_commbooks(sample, **kwargs):
     gender = json_data["gender"]
     gender = {"MALE": '남성', "FEMALE": '여성'}[gender]
     spk_id = f"cb_{uttid.split('-')[3]}"
+    mfa = json_data["mfa"]
 
     # emotion: {'기쁨', '무감정', '분노', '슬픔'}
     # intensity: {0, 1, 2, 3}
@@ -256,7 +259,7 @@ def decode_commbooks(sample, **kwargs):
     #transcript = TAG_START + tag + TAG_END + transcript
     tag = TAG_START + tag + TAG_END
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag, "mfa": mfa}
 
 def decode_commbooks_speaking_rate(sample, **kwargs):
     uttid = sample["__key__"]
