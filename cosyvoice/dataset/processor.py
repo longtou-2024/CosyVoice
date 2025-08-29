@@ -23,6 +23,8 @@ import torchaudio
 from torch.nn.utils.rnn import pad_sequence
 import torch.nn.functional as F
 import pyworld as pw
+import torchaudio.compliance.kaldi as kaldi
+from cosyvoice.tokenizer.tokenizer import get_campplus_model
 
 
 AUDIO_FORMAT_SETS = {'flac', 'mp3', 'm4a', 'ogg', 'opus', 'wav', 'wma'}
@@ -331,12 +333,24 @@ def compute_fbank(data,
         assert 'text_token' in sample
         waveform = sample['speech']
         feat = feat_extractor(waveform).squeeze(dim=0).transpose(0, 1)
-        if token_mel_ratio != 0:
-            # trim to align speech_token and speech_feat
-            token_len = int(min(feat.shape[0] / token_mel_ratio, sample["speech_token"].shape[0]))
-            feat = feat[:token_mel_ratio * token_len]
-            sample["speech_token"] = sample["speech_token"][:token_len]
+        # NOTE(longtou): delegate at flow.forward
+        #if token_mel_ratio != 0:
+        #    # trim to align speech_token and speech_feat
+        #    token_len = int(min(feat.shape[0] / token_mel_ratio, sample["speech_token"].shape[0]))
+        #    feat = feat[:token_mel_ratio * token_len]
+        #    sample["speech_token"] = sample["speech_token"][:token_len]
         sample['speech_feat'] = feat
+        yield sample
+
+def compute_fbank_emb(data, mode='train'):
+    for sample in data:
+        speech = sample["speech"]
+        feat = kaldi.fbank(speech,
+                           num_mel_bins=80,
+                           dither=0,
+                           sample_frequency=16000)
+        feat = feat - feat.mean(dim=0, keepdim=True)
+        sample["speech_feat_emb"] = feat
         yield sample
 
 def compute_fbank_lt(data,
@@ -359,7 +373,7 @@ def compute_fbank_lt(data,
         waveform = sample['speech'] # [C,T]
         # feat_extractor := s3tokenizer.log_mel_spectrogram
         feat = feat_extractor(waveform[0]).transpose(0, 1) # [T,C]
-        sample['speech_feat'] = feat
+        sample['speech_feat_lt'] = feat
         yield sample
 
 
@@ -405,6 +419,39 @@ def parse_embedding(data, normalize, mode='train'):
             sample['spk_embedding'] = F.normalize(sample['spk_embedding'], dim=0)
         yield sample
 
+# deprecated
+#def compute_embedding(data, get_campplus_session, normalize, mode='train'):
+#    session = get_campplus_session()
+#    for sample in data:
+#        speech = sample["speech"]
+#        feat = kaldi.fbank(speech,
+#                           num_mel_bins=80,
+#                           dither=0,
+#                           sample_frequency=16000)
+#        feat = feat - feat.mean(dim=0, keepdim=True)
+#        embedding = session.run(None, {session.get_inputs()[0].name: feat.unsqueeze(dim=0).cpu().numpy()})[0].flatten().tolist()
+#        sample['utt_embedding'] = torch.tensor(embedding, dtype=torch.float32)
+#        if normalize:
+#            sample['utt_embedding'] = F.normalize(sample['utt_embedding'], dim=0)
+#        yield sample
+
+def compute_embedding(data, normalize, mode='train'):
+    model = get_campplus_model()
+    for sample in data:
+        speech = sample["speech"]
+        feat = kaldi.fbank(speech,
+                           num_mel_bins=80,
+                           dither=0,
+                           sample_frequency=16000)
+        feat = feat - feat.mean(dim=0, keepdim=True)
+        feat = feat.unsqueeze(0)
+        embedding = model(feat).squeeze(0).to(torch.float32)
+
+        #sample['utt_embedding'] = torch.tensor(embedding, dtype=torch.float32)
+        sample['utt_embedding'] = embedding
+        if normalize:
+            sample['utt_embedding'] = F.normalize(sample['utt_embedding'], dim=0)
+        yield sample
 
 def tokenize(data, get_tokenizer, allowed_special, mode='train'):
     """ Decode text to chars or BPE
@@ -651,6 +698,16 @@ def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
         speech_feat = pad_sequence(speech_feat,
                                    batch_first=True,
                                    padding_value=0)
+        speech_feat_lt = [sample[i]['speech_feat_lt'] for i in order]
+        speech_feat_lt_len = torch.tensor([i.size(0) for i in speech_feat_lt], dtype=torch.int32)
+        speech_feat_lt = pad_sequence(speech_feat_lt,
+                                   batch_first=True,
+                                   padding_value=0)
+        speech_feat_emb = [sample[i]['speech_feat_emb'] for i in order]
+        speech_feat_emb_len = torch.tensor([i.size(0) for i in speech_feat_emb], dtype=torch.int32)
+        speech_feat_emb = pad_sequence(speech_feat_emb,
+                                   batch_first=True,
+                                   padding_value=0)
         text = [sample[i]['text'] for i in order]
         text_token = [torch.tensor(sample[i]['text_token']) for i in order]
         text_token_len = torch.tensor([i.size(0) for i in text_token], dtype=torch.int32)
@@ -661,6 +718,10 @@ def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
             "speech_len": speech_len,
             "speech_feat": speech_feat,
             "speech_feat_len": speech_feat_len,
+            "speech_feat_lt": speech_feat_lt,
+            "speech_feat_lt_len": speech_feat_lt_len,
+            "speech_feat_emb": speech_feat_emb,
+            "speech_feat_emb_len": speech_feat_emb_len,
             "text": text,
             "text_token": text_token,
             "text_token_len": text_token_len,

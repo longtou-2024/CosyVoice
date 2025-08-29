@@ -5,3 +5,6 @@
 	path = Montreal-Forced-Aligner
 	url = https://github.com/longtou-2024/Montreal-Forced-Aligner.git
 	branch = feature-lt
+[submodule "3D-Speaker"]
+	path = 3D-Speaker
+	url = https://github.com/modelscope/3D-Speaker.git

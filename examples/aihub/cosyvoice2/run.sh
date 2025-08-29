@@ -12,21 +12,21 @@ cache_size=0
 from_mount=true # use gcsfuse
 from_prod=true # bucket from prod instead of dev
 conf=conf/cosyvoice2_lt.yaml # DO NOT USE 'CONFIG', its var name is used in 'parse_options.sh'
-train_data="gs://literature commbooks skt_emotion_large mediazen_teen_laugh mediazen_adult_laugh mediazen"
+train_data="gs://literature commbooks skt_emotion_large skt_emotion_small mediazen_emotion"
 #train_data="gs://commbooks commbooks_speaking_rate commbooks_tone literature literature_speaking_rate literature_tone mediazen_teen mediazen_adult mediazen_teen_laugh mediazen_adult_laugh skt_emotion_large mediazen emilia_yodas_ko saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon"
 #train_data="gs://azure"
 cv_data="gs://azure"
 train_engine=torch_ddp
-model_dir=`pwd`/exp/cosyvoice2/llm
-tensorboard_dir=`pwd`/tensorboard/cosyvoice2/llm
+model_dir=`pwd`/exp/cosyvoice2/flow
+tensorboard_dir=`pwd`/tensorboard/cosyvoice2/flow
 deepspeed_config=./conf/ds_stage2.json
-checkpoint=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B/llm.pt # llm checkpoint for resume training
+checkpoint=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B/flow.pt # llm checkpoint for resume training
 
 . parse_options.sh
 
 model_dir=$model_dir/$train_engine
 tensorboard_dir=$tensorboard_dir/$train_engine
-decode_checkpoint=$model_dir/llm_avg.pt
+decode_checkpoint=$model_dir/flow_avg.pt
 src_path=$model_dir/tobe_averaged
 
 _opts=
@@ -40,13 +40,13 @@ if [ "${from_prod}" = true ]; then
   _opts+=" --from_prod"
 fi
 
-# train llm
+# train flow
 #export CUDA_VISIBLE_DEVICES="0,1"
 num_gpus=$(echo $CUDA_VISIBLE_DEVICES | awk -F "," '{print NF}')
 job_id=1986
 dist_backend="nccl"
 if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
-  echo "Run train. We only support llm traning for now. If your want to train from scratch, please use conf/cosyvoice.fromscratch.yaml"
+  echo "Run train. We only support flow traning for now. If your want to train from scratch, please use conf/cosyvoice.fromscratch.yaml"
   if [ $train_engine == 'deepspeed' ]; then
     echo "Notice deepspeed has its own optimizer config. Modify conf/ds_stage2.json if necessary"
   fi
@@ -58,7 +58,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --train_data "${train_data}" \
     --cv_data "${cv_data}" \
     --qwen_pretrain_path $pretrained_model_dir/CosyVoice-BlankEN \
-    --model llm \
+    --model flow \
     --model_dir ${model_dir} \
     --tensorboard_dir ${tensorboard_dir} \
     --ddp.dist_backend $dist_backend \

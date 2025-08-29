@@ -175,27 +175,19 @@ class WebDataList(IterableDataset):
         #self.sampler = DistributedSampler(shuffle, partition)
         self.epoch = None
 
-        ds0, ds1,ds2, ds3 = [],[],[],[]
+        ds0, ds1 = [],[]
         for name in recipe_names:
             if name == "azure":
                 ds0.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-            elif name in ("literature", "commbooks", "skt_emotion_large"):
+            elif name in ("literature", "commbooks", "skt_emotion_large" ,"skt_emotion_small", "mediazen_emotion"):
                 ds1.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-
-            elif name in ("mediazen_teen_laugh", "mediazen_adult_laugh"):
-                ds2.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-            elif name in ("mediazen",):
-                ds3.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
             else:
                 raise Exception(name)
-        if len(ds0 + ds1 + ds2 + ds3) == 1:
+        if len(ds0) == 1:
             # cv_data
-            dataset = wds.RoundRobin(ds0+ds1+ds2+ds3)
+            dataset = wds.RoundRobin(ds0)
         else:
-            ds1 = wds.RandomMix(ds1, probs=[436,988,204], longest=True)
-            ds2 = wds.RandomMix(ds2, probs=[1,1], longest=True)
-            ds3 = wds.RandomMix(ds3, probs=[1], longest=True)
-            dataset = wds.RandomMix([ds1, ds2, ds3], probs=[20,1,80], longest=True)
+            dataset = wds.RandomMix(ds1, probs=[46, 104, 24, 14, 110], longest=True)
 
         self.dataset = dataset
 

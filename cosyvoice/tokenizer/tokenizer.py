@@ -5,8 +5,10 @@ from typing import Optional
 import torch
 from transformers import AutoTokenizer
 from whisper.tokenizer import Tokenizer
+import onnxruntime
 
 import tiktoken
+
 
 LANGUAGES = {
     "en": "english",
@@ -280,3 +282,55 @@ def get_qwen_tokenizer(
     skip_special_tokens: bool
 ) -> QwenTokenizer:
     return QwenTokenizer(token_path=token_path, skip_special_tokens=skip_special_tokens)
+
+@lru_cache(maxsize=None)
+def get_campplus_session(
+    onnx_path
+):
+    option = onnxruntime.SessionOptions()
+    option.graph_optimization_level = onnxruntime.GraphOptimizationLevel.ORT_ENABLE_ALL
+    option.intra_op_num_threads = 1
+    providers = ["CPUExecutionProvider"]
+    ort_session = onnxruntime.InferenceSession(onnx_path, sess_options=option, providers=providers)
+    return ort_session
+
+
+CAMPPLUS_COMMON = {
+    'obj': 'speakerlab.models.campplus.DTDNN.CAMPPlus',
+    'args': {
+        'feat_dim': 80,
+        'embedding_size': 192,
+    },
+}
+
+supports = {
+    # CAM++ trained on 200k labeled speakers
+    'iic/speech_campplus_sv_zh-cn_16k-common': {
+        'revision': 'v1.0.0', 
+        'model': CAMPPLUS_COMMON,
+        'model_pt': 'campplus_cn_common.bin',
+    },
+}
+
+@lru_cache(maxsize=None)
+def get_campplus_model(
+):
+    #import sys
+    #sys.path.append('3D-Speaker')
+    from speakerlab.utils.builder import dynamic_import
+    conf = supports['iic/speech_campplus_sv_zh-cn_16k-common']
+    #cache_dir = snapshot_download(
+    #            args.model_id,
+    #            revision=conf['revision'],
+    #            )
+    #cache_dir = pathlib.Path(cache_dir)
+    cache_dir = "/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/speech_campplus_sv_zh-cn_16k-common"
+    pretrained_model = f"{cache_dir}/{conf['model_pt']}"
+    pretrained_state = torch.load(pretrained_model, map_location='cpu')
+
+    model = conf['model']
+    embedding_model = dynamic_import(model['obj'])(**model['args'])
+    embedding_model.load_state_dict(pretrained_state)
+    embedding_model.to(torch.device("cpu"))
+    embedding_model.eval()
+    return embedding_model

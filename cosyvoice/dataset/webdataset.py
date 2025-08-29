@@ -196,28 +196,28 @@ def decode_mediazen_emotion(sample):
     # speech_style: {'뉴스체', '구연체', '대화체', '중계체', '낭독체', 'N/A'}
     # character: {'N/A', '아동', '일반', '노년'}
     # character emotion: {'N/A', '밝은', '어두운', '중립'}
-    if random.random() < PROB_INSTRUCTED:
-        # build instructed dataset if possible
-        spk_info = json_data["spk_info"]
-        emotion = spk_info["Emotion"]
-        #_ = spk_info["Sensitivity"]
-        speech_style = spk_info["SpeechStyle"]
-        character = spk_info["Character"]
-        character_emotion = spk_info["CharacterEmotion"]
-        prompt = None
-        if character in ('아동', '노년'):
-            prompt = character
-            if character_emotion in ('밝은', '어두운'):
-                prompt = character_emotion + ' ' + prompt
-        elif emotion in ('Happy', 'Sad', 'Anxious', 'Neutrality', 'Angry', 'Hurt', 'Embarrassed'):
-            prompt = emotion
-            if speech_style in ('뉴스체', '구연체', '대화체', '중계체', '낭독체'):
-                prompt = prompt + " " + speech_style
-        elif speech_style in ('뉴스체', '구연체', '대화체', '중계체', '낭독체'):
-            prompt = speech_style
+    #if random.random() < PROB_INSTRUCTED:
+    #    # build instructed dataset if possible
+    #    spk_info = json_data["spk_info"]
+    #    emotion = spk_info["Emotion"]
+    #    #_ = spk_info["Sensitivity"]
+    #    speech_style = spk_info["SpeechStyle"]
+    #    character = spk_info["Character"]
+    #    character_emotion = spk_info["CharacterEmotion"]
+    #    prompt = None
+    #    if character in ('아동', '노년'):
+    #        prompt = character
+    #        if character_emotion in ('밝은', '어두운'):
+    #            prompt = character_emotion + ' ' + prompt
+    #    elif emotion in ('Happy', 'Sad', 'Anxious', 'Neutrality', 'Angry', 'Hurt', 'Embarrassed'):
+    #        prompt = emotion
+    #        if speech_style in ('뉴스체', '구연체', '대화체', '중계체', '낭독체'):
+    #            prompt = prompt + " " + speech_style
+    #    elif speech_style in ('뉴스체', '구연체', '대화체', '중계체', '낭독체'):
+    #        prompt = speech_style
 
-        if prompt is not None:
-            transcript = prompt + SPECIAL_TOKEN + transcript
+    #    if prompt is not None:
+    #        transcript = prompt + SPECIAL_TOKEN + transcript
 
     return {"utt": uttid, "audio_data": wav, "text": transcript}
 

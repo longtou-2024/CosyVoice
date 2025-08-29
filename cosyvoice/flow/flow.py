@@ -19,6 +19,7 @@ import torch.nn as nn
 from torch.nn import functional as F
 from omegaconf import DictConfig
 from cosyvoice.utils.mask import make_pad_mask
+import numpy as np
 
 
 class MaskedDiffWithXvec(torch.nn.Module):
@@ -186,16 +187,111 @@ class CausalMaskedDiffWithXvec(torch.nn.Module):
         self.token_mel_ratio = token_mel_ratio
         self.pre_lookahead_len = pre_lookahead_len
 
+        # NOTE(longtou): speech token for on the fly
+        self.speech_tokenizer = None
+
+        self.campplus_model = None
+
     def forward(
             self,
             batch: dict,
             device: torch.device,
     ) -> Dict[str, Optional[torch.Tensor]]:
-        token = batch['speech_token'].to(device)
-        token_len = batch['speech_token_len'].to(device)
+
+        if 'speech_token' not in batch:
+            if self.speech_tokenizer is None:
+                import s3tokenizer
+                self.speech_tokenizer = s3tokenizer.load_model("/home/longtou.2024/mount/longtou/saved/cosyvoice/speech_tokenizer_v2.onnx").to(device)
+                self.speech_tokenizer.freeze()
+            speech_feat_lt = batch["speech_feat_lt"].transpose(1,2).to(device)
+            speech_feat_lt_len = batch["speech_feat_lt_len"].to(device)
+            with torch.cuda.amp.autocast(enabled=False):
+                speech_token, speech_token_len = self.speech_tokenizer.quantize(speech_feat_lt, speech_feat_lt_len)
+                speech_token = speech_token.clone() # for backward compatbility
+                speech_token_len = speech_token_len.clone() # for backward compatbility
+            del speech_feat_lt
+            del speech_feat_lt_len
+            del batch["speech_feat_lt"]
+            del batch["speech_feat_lt_len"]
+            # NOTE(longtou): speech_feat vs speech_token ; token_mel_ratio
+            for b in range(speech_token.size(0)):
+                token_len = int(min(batch["speech_feat_len"][b] / self.token_mel_ratio, speech_token_len[b].item()))
+                #batch["speech_feat"][b] = batch["speech_feat"][b][:self.token_mel_ratio * token_len]
+                #speech_token[b] = speech_token[b][:token_len]
+                batch["speech_feat_len"][b] = self.token_mel_ratio * token_len
+                speech_token_len[b] = token_len
+            batch["speech_feat"] = batch["speech_feat"][:, :batch["speech_feat_len"].max().item(), :].clone()
+            speech_token = speech_token[:, :speech_token_len.max().item()].clone()
+            #breakpoint()
+        else:
+            speech_token = batch['speech_token'].to(device)
+            speech_token_len = batch['speech_token_len'].to(device)
+
+        if 'embedding' not in batch:
+            if self.campplus_model is None:
+                CAMPPLUS_COMMON = {
+                    'obj': 'speakerlab.models.campplus.DTDNN.CAMPPlus',
+                    'args': {
+                        'feat_dim': 80,
+                        'embedding_size': 192,
+                    },
+                }
+
+                supports = {
+                    # CAM++ trained on 200k labeled speakers
+                    'iic/speech_campplus_sv_zh-cn_16k-common': {
+                        'revision': 'v1.0.0', 
+                        'model': CAMPPLUS_COMMON,
+                        'model_pt': 'campplus_cn_common.bin',
+                    },
+                }
+                from speakerlab.utils.builder import dynamic_import
+                conf = supports['iic/speech_campplus_sv_zh-cn_16k-common']
+                cache_dir = "/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/speech_campplus_sv_zh-cn_16k-common"
+                pretrained_model = f"{cache_dir}/{conf['model_pt']}"
+                pretrained_state = torch.load(pretrained_model, map_location='cpu')
+
+                model = conf['model']
+                embedding_model = dynamic_import(model['obj'])(**model['args'])
+                embedding_model.load_state_dict(pretrained_state)
+                embedding_model.to(device)
+                embedding_model.eval()
+                self.campplus_model = embedding_model
+            speech_feat_emb, speech_feat_emb_len = batch["speech_feat_emb"], batch["speech_feat_emb_len"]
+            def circle_pad(wav, object_len):
+                wav_len = wav.shape[0]
+                n = int(np.ceil(object_len/wav_len))
+                wav = [wav for i in range(n)]
+                wav = torch.cat(wav, dim=0)
+                return wav[:object_len]
+            T = speech_feat_emb.size(1)
+            for b in range(speech_feat_emb.size(0)):
+                speech_feat_emb[b] = circle_pad(speech_feat_emb[b], T)
+
+            with torch.cuda.amp.autocast(enabled=False):
+                with torch.no_grad():
+                    embeddings = self.campplus_model(speech_feat_emb.to(device))
+            batch['embedding'] = embeddings.detach().clone()
+            del speech_feat_emb
+            del speech_feat_emb_len
+            del batch["speech_feat_emb"]
+            del batch["speech_feat_emb_len"]
+            #breakpoint()
+
+        token = speech_token
+        token_len = speech_token_len
+        #token = batch['speech_token'].to(device)
+        #token_len = batch['speech_token_len'].to(device)
         feat = batch['speech_feat'].to(device)
         feat_len = batch['speech_feat_len'].to(device)
         embedding = batch['embedding'].to(device)
+
+        ###
+        #speech_token = torch.zeros_like(speech_token)
+        #feat = torch.zeros_like(batch['speech_feat'].to(device))
+        ##embedding = torch.zeros_like(batch['embedding'].to(device))
+        #embedding = torch.zeros((feat.size(0), 192), dtype=torch.float32).to(device)
+        ###
 
         # NOTE unified training, static_chunk_size > 0 or = 0
         streaming = True if random.random() < 0.5 else False
