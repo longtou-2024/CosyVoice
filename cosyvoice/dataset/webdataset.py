@@ -24,7 +24,7 @@ name2url = {
     "commbooks": "gs://prod-ai-lab-speech-bucket/longtou/db/commbooks/wds_v2_mfa/shard-000{000..104}.tar",
     "kaist_audiobook": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-0000{00..10}.tar",
     "kaist_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-00000{0..8}.tar",
-    "aihub_news": "gs://prod-ai-lab-speech-bucket/longtou/db/aihub_news/wds_v2/shard-000{000..107}.tar",
+    "aihub_news": "gs://prod-ai-lab-speech-bucket/longtou/db/aihub_news/wds_v2_mfa/shard-000{000..107}.tar",
     "mediazen_adult": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/emilia_pipe_v2/shard-000{{000..010},{100..110}}.tar",
     "mediazen_teen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/emilia_pipe_v2/shard-000{{000..005},{100..105}}.tar",
     "saltlux_jeju": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_jeju/emilia_pipe/shard-00000{0..6}.tar",
@@ -438,13 +438,14 @@ def decode_aihub_news(sample):
     normalized = json_data["script"]["normalized"]
     if random.random() < 0.5:
         transcript = normalized
+    mfa = json_data["mfa"]
 
     #if random.random() < PROB_INSTRUCTED:
     #    # build instructed dataset if possible
     #    prompt = "아나운서"
     #    transcript = prompt + SPECIAL_TOKEN + transcript
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_emilia_en(sample):
     uttid = sample["__key__"]
