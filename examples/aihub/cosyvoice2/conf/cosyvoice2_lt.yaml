@@ -6,8 +6,8 @@ __set_seed4: !apply:torch.cuda.manual_seed_all [1986]
 
 # fixed params
 sample_rate: 24000
-llm_input_size: 896
-llm_output_size: 896
+llm_input_size: 2048
+llm_output_size: 2048
 spk_embed_dim: 192
 qwen_pretrain_path: ''
 token_frame_rate: 25
@@ -27,7 +27,7 @@ llm: !new:cosyvoice.llm.llm.Qwen2LM
     length_normalized_loss: True
     lsm_weight: 0
     mix_ratio: [5, 15]
-    llm: !new:cosyvoice.llm.llm.Qwen2Encoder
+    llm: !new:cosyvoice.llm.llm.Qwen3Encoder
         pretrain_path: !ref <qwen_pretrain_path>
     sampling: !name:cosyvoice.utils.common.ras_sampling
         top_p: 0.8
@@ -145,7 +145,7 @@ filter: !name:cosyvoice.dataset.processor.filter
     token_max_length: 200
     token_min_length: 1
 filter_lt: !name:cosyvoice.dataset.processor.filter_lt
-    max_length: 4000 # 40s, speech_tokenizer limit < 30s
+    max_length: 1000 # 10s, speech_tokenizer limit < 30s
     min_length: 300 # 3s
     token_max_length: 200
     token_min_length: 3
@@ -181,7 +181,7 @@ sort: !name:cosyvoice.dataset.processor.sort
     sort_size: 500  # sort_size should be less than shuffle_size
 batch: !name:cosyvoice.dataset.processor.batch
     batch_type: 'dynamic'
-    max_frames_in_batch: 2400 # whisper_mel 100Hz
+    max_frames_in_batch: 400 # whisper_mel 100Hz
 padding: !name:cosyvoice.dataset.processor.padding
     use_spk_embedding: True # change to True during sft
 padding_lt: !name:cosyvoice.dataset.processor.padding_lt
@@ -189,15 +189,13 @@ padding_lt: !name:cosyvoice.dataset.processor.padding_lt
 
 # dataset processor pipeline
 data_pipeline: [
-    #!ref <parquet_opener>,
     !ref <tokenize>,
     !ref <filter_mfa>,
     !ref <filter_lt>,
     !ref <resample>,
-    !ref <extend_sample>,
-    !ref <filter_lt>,
+    #!ref <extend_sample>,
+    #!ref <filter_lt>,
     !ref <compute_fbank_lt>,
-    #!ref <parse_embedding>,
     !ref <shuffle>,
     !ref <sort>,
     !ref <batch>,

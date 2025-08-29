@@ -175,27 +175,23 @@ class WebDataList(IterableDataset):
         #self.sampler = DistributedSampler(shuffle, partition)
         self.epoch = None
 
-        ds0, ds1,ds2, ds3 = [],[],[],[]
+        ds0, ds1, ds2 = [], [], []
         for name in recipe_names:
             if name == "azure":
                 ds0.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-            elif name in ("literature", "commbooks", "skt_emotion_large"):
+            elif name in ("mediazen", "mediazen_emotion", "literature", "commbooks", "skt_emotion_large", "skt_emotion_small", "aihub_news", "mediazen_adult", "mediazen_teen", "saltlux_jeju", "saltlux_chungcheong", "saltlux_gyeongsang", "saltlux_jeolla", "saltlux_gangwon", "emilia_yodas_ko"):
                 ds1.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-
-            elif name in ("mediazen_teen_laugh", "mediazen_adult_laugh"):
+            elif name in ("emilia_yodas_en",):
                 ds2.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-            elif name in ("mediazen",):
-                ds3.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
             else:
                 raise Exception(name)
-        if len(ds0 + ds1 + ds2 + ds3) == 1:
+        if len(ds1) == 0:
             # cv_data
-            dataset = wds.RoundRobin(ds0+ds1+ds2+ds3)
+            dataset = wds.RoundRobin(ds0)
         else:
-            ds1 = wds.RandomMix(ds1, probs=[436,988,204], longest=True)
-            ds2 = wds.RandomMix(ds2, probs=[1,1], longest=True)
-            ds3 = wds.RandomMix(ds3, probs=[1], longest=True)
-            dataset = wds.RandomMix([ds1, ds2, ds3], probs=[20,1,80], longest=True)
+            ds1 = wds.RandomMix(ds1, probs=[1055, 110, 46, 104, 24, 14, 107, 20*3, 10*3, 6*3, 17*3, 29*3, 20*3, 12*3, 207*3], longest=True)
+            ds2 = wds.RoundRobin(ds2, longest=True)
+            dataset = wds.RandomMix([ds1, ds2], probs=[60,40], longest=True)
 
         self.dataset = dataset
 

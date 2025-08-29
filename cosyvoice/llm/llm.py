@@ -21,6 +21,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from transformers import Qwen2ForCausalLM
+from transformers import Qwen3ForCausalLM
 from torch.nn.utils.rnn import pad_sequence, unpad_sequence
 from cosyvoice.utils.common import IGNORE_ID
 from cosyvoice.transformer.label_smoothing_loss import LabelSmoothingLoss
@@ -232,6 +233,36 @@ class Qwen2Encoder(torch.nn.Module):
     def __init__(self, pretrain_path):
         super().__init__()
         self.model = Qwen2ForCausalLM.from_pretrained(pretrain_path)
+
+    def forward(self, xs: torch.Tensor, xs_lens: torch.Tensor):
+        T = xs.size(1)
+        masks = ~make_pad_mask(xs_lens, T)
+        outs = self.model(
+            inputs_embeds=xs,
+            attention_mask=masks,
+            output_hidden_states=True,
+            return_dict=True,
+        )
+        return outs.hidden_states[-1], masks.unsqueeze(1)
+
+    def forward_one_step(self, xs, masks, cache=None):
+        input_masks = masks[:, -1, :]
+        outs = self.model(
+            inputs_embeds=xs,
+            attention_mask=input_masks,
+            output_hidden_states=True,
+            return_dict=True,
+            use_cache=True,
+            past_key_values=cache,
+        )
+        xs = outs.hidden_states[-1]
+        new_cache = outs.past_key_values
+        return xs, new_cache
+
+class Qwen3Encoder(torch.nn.Module):
+    def __init__(self, pretrain_path):
+        super().__init__()
+        self.model = Qwen3ForCausalLM.from_pretrained(pretrain_path)
 
     def forward(self, xs: torch.Tensor, xs_lens: torch.Tensor):
         T = xs.size(1)

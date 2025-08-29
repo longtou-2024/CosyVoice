@@ -19,7 +19,7 @@ name2url = {
     "literature": "gs://prod-ai-lab-speech-bucket/longtou/db/literature/wds_v2_mfa/shard-0000{00..46}.tar",
     "skt_emotion_large": "gs://prod-ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2_mfa/large/shard-0000{00..24}.tar",
     "skt_emotion_small": "gs://prod-ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2/large/shard-0000{00..14}.tar",
-    "mediazen_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_emotion/wds_v2/shard-000{000..110}.tar",
+    "mediazen_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_emotion/wds_v2_mfa/shard-000{000..110}.tar",
     "mediazen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen/wds_v2_mfa/shard-00{0000..1055}.tar",
     "commbooks": "gs://prod-ai-lab-speech-bucket/longtou/db/commbooks/wds_v2_mfa/shard-000{000..104}.tar",
     "kaist_audiobook": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-0000{00..10}.tar",
@@ -36,6 +36,7 @@ name2url = {
     "emilia_zh": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/zh/shard-00{0000..1194}.tar",
     "emilia_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/ko/shard-00000{0..4}.tar",
     "emilia_yodas_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia_yodas/wds/ko/shard-000{000..207}.tar",
+    "emilia_yodas_en": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia_yodas/wds/en/shard-00{0000..1361}.tar",
     "whispering": "gs://prod-ai-lab-speech-bucket/longtou/db/whispering/emilia_pipe/shard-000000.tar",
     "mediazen_teen_laugh": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/wds_laughter_tag/shard-000000.tar",
     "mediazen_adult_laugh": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/wds_laughter_tag/shard-000000.tar",
@@ -158,7 +159,7 @@ def decode_skt_emotion_large(sample):
     uttid = sample["__key__"]
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["transcript"]
+    transcript = json_data["transcript"].strip()
     spk_id = f"skt_{uttid.split('_')[0]}"
     mfa = json_data["mfa"]
 
@@ -181,45 +182,46 @@ def decode_skt_emotion_small(sample):
     uttid = sample["__key__"]
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["transcript"]
+    transcript = json_data["transcript"].strip()
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 def decode_mediazen_emotion(sample):
     uttid = sample["__key__"]
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text_info"]["OrgLabelText"]
+    mfa = json_data["mfa"]
 
     # emotion: {'Happy', 'Sad', 'Anxious', 'Neutrality', 'Angry', 'Hurt', 'N/A', 'Embarrassed'}
     # sensitivity: {'자랑스럽다', '흐뭇하다', '섭섭하다', '아찔하다', ...
     # speech_style: {'뉴스체', '구연체', '대화체', '중계체', '낭독체', 'N/A'}
     # character: {'N/A', '아동', '일반', '노년'}
     # character emotion: {'N/A', '밝은', '어두운', '중립'}
-    if random.random() < PROB_INSTRUCTED:
-        # build instructed dataset if possible
-        spk_info = json_data["spk_info"]
-        emotion = spk_info["Emotion"]
-        #_ = spk_info["Sensitivity"]
-        speech_style = spk_info["SpeechStyle"]
-        character = spk_info["Character"]
-        character_emotion = spk_info["CharacterEmotion"]
-        prompt = None
-        if character in ('아동', '노년'):
-            prompt = character
-            if character_emotion in ('밝은', '어두운'):
-                prompt = character_emotion + ' ' + prompt
-        elif emotion in ('Happy', 'Sad', 'Anxious', 'Neutrality', 'Angry', 'Hurt', 'Embarrassed'):
-            prompt = emotion
-            if speech_style in ('뉴스체', '구연체', '대화체', '중계체', '낭독체'):
-                prompt = prompt + " " + speech_style
-        elif speech_style in ('뉴스체', '구연체', '대화체', '중계체', '낭독체'):
-            prompt = speech_style
+    #if random.random() < PROB_INSTRUCTED:
+    #    # build instructed dataset if possible
+    #    spk_info = json_data["spk_info"]
+    #    emotion = spk_info["Emotion"]
+    #    #_ = spk_info["Sensitivity"]
+    #    speech_style = spk_info["SpeechStyle"]
+    #    character = spk_info["Character"]
+    #    character_emotion = spk_info["CharacterEmotion"]
+    #    prompt = None
+    #    if character in ('아동', '노년'):
+    #        prompt = character
+    #        if character_emotion in ('밝은', '어두운'):
+    #            prompt = character_emotion + ' ' + prompt
+    #    elif emotion in ('Happy', 'Sad', 'Anxious', 'Neutrality', 'Angry', 'Hurt', 'Embarrassed'):
+    #        prompt = emotion
+    #        if speech_style in ('뉴스체', '구연체', '대화체', '중계체', '낭독체'):
+    #            prompt = prompt + " " + speech_style
+    #    elif speech_style in ('뉴스체', '구연체', '대화체', '중계체', '낭독체'):
+    #        prompt = speech_style
 
-        if prompt is not None:
-            transcript = prompt + SPECIAL_TOKEN + transcript
+    #    if prompt is not None:
+    #        transcript = prompt + SPECIAL_TOKEN + transcript
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "mfa": mfa}
 
 def decode_commbooks(sample, **kwargs):
     uttid = sample["__key__"]
@@ -437,12 +439,12 @@ def decode_aihub_news(sample):
     if random.random() < 0.5:
         transcript = normalized
 
-    if random.random() < PROB_INSTRUCTED:
-        # build instructed dataset if possible
-        prompt = "아나운서"
-        transcript = prompt + SPECIAL_TOKEN + transcript
+    #if random.random() < PROB_INSTRUCTED:
+    #    # build instructed dataset if possible
+    #    prompt = "아나운서"
+    #    transcript = prompt + SPECIAL_TOKEN + transcript
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 def decode_emilia_en(sample):
     uttid = sample["__key__"]
@@ -469,6 +471,14 @@ def decode_emilia_ko(sample):
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 def decode_emilia_yodas_ko(sample):
+    uttid = sample["__key__"]
+    mp3 = sample["mp3"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["text"].strip()
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+
+def decode_emilia_yodas_en(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))

@@ -5,22 +5,23 @@
 export OMP_NUM_THREADS=1
 stage=1
 stop_stage=5
-pretrained_model_dir=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B
+#pretrained_model_dir=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B
+pretrained_model_dir=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models
 num_workers=2
 prefetch=100
 cache_size=0
 from_mount=true # use gcsfuse
 from_prod=true # bucket from prod instead of dev
 conf=conf/cosyvoice2_lt.yaml # DO NOT USE 'CONFIG', its var name is used in 'parse_options.sh'
-train_data="gs://literature commbooks skt_emotion_large mediazen_teen_laugh mediazen_adult_laugh mediazen"
-#train_data="gs://commbooks commbooks_speaking_rate commbooks_tone literature literature_speaking_rate literature_tone mediazen_teen mediazen_adult mediazen_teen_laugh mediazen_adult_laugh skt_emotion_large mediazen emilia_yodas_ko saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon"
-#train_data="gs://azure"
+#train_data="gs://literature commbooks skt_emotion_large mediazen_teen_laugh mediazen_adult_laugh mediazen"
+train_data="gs://mediazen mediazen_emotion literature commbooks skt_emotion_large skt_emotion_small aihub_news mediazen_adult mediazen_teen saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon emilia_yodas_ko emilia_yodas_en"
 cv_data="gs://azure"
 train_engine=torch_ddp
 model_dir=`pwd`/exp/cosyvoice2/llm
 tensorboard_dir=`pwd`/tensorboard/cosyvoice2/llm
 deepspeed_config=./conf/ds_stage2.json
-checkpoint=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B/llm.pt # llm checkpoint for resume training
+#checkpoint=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B/llm.pt # llm checkpoint for resume training
+checkpoint=
 
 . parse_options.sh
 
@@ -57,7 +58,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --config ${conf} \
     --train_data "${train_data}" \
     --cv_data "${cv_data}" \
-    --qwen_pretrain_path $pretrained_model_dir/CosyVoice-BlankEN \
+    --qwen_pretrain_path $pretrained_model_dir/Qwen3-1.7B \
     --model llm \
     --model_dir ${model_dir} \
     --tensorboard_dir ${tensorboard_dir} \
