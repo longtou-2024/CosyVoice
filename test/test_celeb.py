@@ -92,8 +92,8 @@ for d_idx, spk_id in enumerate(prompt_spk_sent):
         #tag = "독백체"
         this_text = item["text"]
         #for i, j in enumerate(cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prefix_tag("neutral", prompt_sent), prompt_speech_16k, stream=False, text_frontend=False)):
-        for i, j in enumerate(cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prompt_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-        #for i, j in enumerate(cosyvoice.inference_zero_shot(f" {this_text}", prompt_sent, prompt_speech_16k, stream=False, text_frontend=False)):
+        #for i, j in enumerate(cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prompt_sent, prompt_speech_16k, stream=False, text_frontend=False)):
+        for i, j in enumerate(cosyvoice.inference_zero_shot(f" {this_text}", prompt_sent, prompt_speech_16k, stream=False, text_frontend=False)):
             torchaudio.save(f"{outdir}/{spk_id}_{t_idx}.wav", j['tts_speech'], cosyvoice.sample_rate)
 
     #if d_idx == 2:

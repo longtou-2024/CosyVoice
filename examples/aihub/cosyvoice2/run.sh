@@ -58,7 +58,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --config ${conf} \
     --train_data "${train_data}" \
     --cv_data "${cv_data}" \
-    --qwen_pretrain_path $pretrained_model_dir/Qwen3-1.7B \
+    --qwen_pretrain_path $pretrained_model_dir/Qwen3-1.7B-Base \
     --model llm \
     --model_dir ${model_dir} \
     --tensorboard_dir ${tensorboard_dir} \
