@@ -21,6 +21,7 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 from transformers import Qwen2ForCausalLM
+#from transformers import AutoModelForCausalLM
 from transformers import Qwen3ForCausalLM
 from torch.nn.utils.rnn import pad_sequence, unpad_sequence
 from cosyvoice.utils.common import IGNORE_ID
@@ -263,6 +264,7 @@ class Qwen3Encoder(torch.nn.Module):
     def __init__(self, pretrain_path):
         super().__init__()
         self.model = Qwen3ForCausalLM.from_pretrained(pretrain_path)
+        #self.model = AutoModelForCausalLM.from_pretrained(pretrain_path)
 
     def forward(self, xs: torch.Tensor, xs_lens: torch.Tensor):
         T = xs.size(1)
