@@ -14,7 +14,7 @@ from kfp import kubernetes
 from kfp.dsl import PipelineTask
 from kfp.kubernetes import common
 
-IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v13.5"
+IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v15.0"
 N_GPU = 4
 N_CPU = "40"
 MEM_SIZE = "400Gi"
