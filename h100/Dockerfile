@@ -6,7 +6,13 @@ WORKDIR /root
 ADD CosyVoice /root/CosyVoice
 WORKDIR /root/CosyVoice
 RUN ./setup_miniforge.sh conda cosyvoice 3.10
+
+# install speakerlab for campplus
+RUN touch 3D-Speaker/speakerlab/__init__.py
+RUN . ./activate_python.sh && pip install -e 3D-Speaker
+
 RUN  . ./activate_python.sh  && pip install -r requirements.txt
+
 WORKDIR /root/CosyVoice/examples/aihub/cosyvoice2
 
 CMD ["/bin/bash"]
