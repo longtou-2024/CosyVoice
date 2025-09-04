@@ -258,15 +258,15 @@ class CausalMaskedDiffWithXvec(torch.nn.Module):
                 embedding_model.eval()
                 self.campplus_model = embedding_model
             speech_feat_emb, speech_feat_emb_len = batch["speech_feat_emb"], batch["speech_feat_emb_len"]
-            def circle_pad(wav, object_len):
-                wav_len = wav.shape[0]
-                n = int(np.ceil(object_len/wav_len))
-                wav = [wav for i in range(n)]
-                wav = torch.cat(wav, dim=0)
-                return wav[:object_len]
-            T = speech_feat_emb.size(1)
-            for b in range(speech_feat_emb.size(0)):
-                speech_feat_emb[b] = circle_pad(speech_feat_emb[b], T)
+            #def circle_pad(wav, object_len):
+            #    wav_len = wav.shape[0]
+            #    n = int(np.ceil(object_len/wav_len))
+            #    wav = [wav for i in range(n)]
+            #    wav = torch.cat(wav, dim=0)
+            #    return wav[:object_len]
+            #T = speech_feat_emb.size(1)
+            #for b in range(speech_feat_emb.size(0)):
+            #    speech_feat_emb[b] = circle_pad(speech_feat_emb[b], T)
 
             with torch.cuda.amp.autocast(enabled=False):
                 with torch.no_grad():

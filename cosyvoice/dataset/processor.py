@@ -16,6 +16,7 @@ import random
 from io import BytesIO
 from collections import defaultdict
 from copy import deepcopy
+import numpy as np
 
 import pyarrow.parquet as pq
 import torch
@@ -708,6 +709,18 @@ def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
         speech_feat_emb = pad_sequence(speech_feat_emb,
                                    batch_first=True,
                                    padding_value=0)
+        ###NOTE(longtou): circle_pad
+        def circle_pad(wav, object_len):
+            wav_len = wav.shape[0]
+            n = int(np.ceil(object_len/wav_len))
+            wav = [wav for i in range(n)]
+            wav = torch.cat(wav, dim=0)
+            return wav[:object_len]
+        T = speech_feat_emb.size(1)
+        for b in range(speech_feat_emb.size(0)):
+            speech_feat_emb[b] = circle_pad(speech_feat_emb[b][:speech_feat_emb_len[b]], T)
+
+        ###
         text = [sample[i]['text'] for i in order]
         text_token = [torch.tensor(sample[i]['text_token']) for i in order]
         text_token_len = torch.tensor([i.size(0) for i in text_token], dtype=torch.int32)
