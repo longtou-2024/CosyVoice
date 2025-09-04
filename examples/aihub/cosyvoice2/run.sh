@@ -64,13 +64,13 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --ddp.dist_backend $dist_backend \
     --num_workers ${num_workers} \
     --prefetch ${prefetch} \
+    --use_amp \
     --pin_memory \
     --deepspeed_config ${deepspeed_config} \
     --deepspeed.save_states model+optimizer \
     --cache_size ${cache_size} \
     ${_opts}
 fi
-    #--use_amp \
 #--checkpoint $pretrained_model_dir/$model.pt \
 
 # average model
