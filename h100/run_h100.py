@@ -14,18 +14,18 @@ from kfp import kubernetes
 from kfp.dsl import PipelineTask
 from kfp.kubernetes import common
 
-IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v15.2"
-N_GPU = 1
-N_CPU = "8"
+IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v15.5"
+N_GPU = 2
+N_CPU = "10"
 MEM_SIZE = "200Gi"
 MOUNT_PATH = "/home/longtou.2024/mount"
-MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250903"
+MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250903_2"
 CONFIG = f"{MODEL_DIR}/cosyvoice2_lt.yaml"
 TB_DIR = f"{MODEL_DIR}/tensorboard"
 CKPT = f"{MODEL_DIR}/torch_ddp/epoch_2_step_7000.pt"
 #--checkpoint {CKPT}
 SHELL_COMMAND = f''' \
-export CUDA_VISIBLE_DEVICES="0" \
+export CUDA_VISIBLE_DEVICES="0,1" \
 && export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
 && . ../../../activate_python.sh \
 && ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --from_mount true --from_prod true --train_data "gs://literature commbooks skt_emotion_large skt_emotion_small mediazen_emotion"
