@@ -198,7 +198,7 @@ padding_lt: !name:cosyvoice.dataset.processor.padding_lt
 # dataset processor pipeline
 data_pipeline: [
     !ref <tokenize>,
-    !ref <filter_mfa>,
+    #!ref <filter_mfa>,
     !ref <filter_lt>,
     !ref <resample>,
     #!ref <compute_embedding>,

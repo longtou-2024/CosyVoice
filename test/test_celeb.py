@@ -84,7 +84,7 @@ for line in open("test/kast_emo/text", 'r').readlines():
 
 
 for d_idx, spk_id in enumerate(prompt_spk_sent):
-    if spk_id != "pororo": continue
+    #if spk_id != "pororo": continue
     prompt_sent = prompt_spk_sent[spk_id]
     prompt_speech_16k = prompt_spk_speech_16k[spk_id]
     for t_idx, item in enumerate(celect_script):

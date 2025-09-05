@@ -18,24 +18,25 @@ name2url = {
     "azure": "gs://prod-ai-lab-speech-bucket/longtou/db/azure/wds_v2/shard-00000{0..7}.tar",
     "literature": "gs://prod-ai-lab-speech-bucket/longtou/db/literature/wds_v2_mfa/shard-0000{00..46}.tar",
     "skt_emotion_large": "gs://prod-ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2_mfa/large/shard-0000{00..24}.tar",
-    "skt_emotion_small": "gs://prod-ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2/large/shard-0000{00..14}.tar",
-    "mediazen_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_emotion/wds_v2/shard-000{000..110}.tar",
+    "skt_emotion_small": "gs://prod-ai-lab-speech-bucket/longtou/db/skt_emotion/wds_v2_mfa/small/shard-0000{00..14}.tar",
+    "mediazen_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_emotion/wds_v2_mfa/shard-000{000..110}.tar",
     "mediazen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen/wds_v2_mfa/shard-00{0000..1055}.tar",
     "commbooks": "gs://prod-ai-lab-speech-bucket/longtou/db/commbooks/wds_v2_mfa/shard-000{000..104}.tar",
     "kaist_audiobook": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-0000{00..10}.tar",
     "kaist_emotion": "gs://prod-ai-lab-speech-bucket/longtou/db/kaist_audiobook/wds_v2/shard-00000{0..8}.tar",
-    "aihub_news": "gs://prod-ai-lab-speech-bucket/longtou/db/aihub_news/wds_v2/shard-000{000..107}.tar",
-    "mediazen_adult": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/emilia_pipe_v2/shard-000{{000..010},{100..110}}.tar",
-    "mediazen_teen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/emilia_pipe_v2/shard-000{{000..005},{100..105}}.tar",
-    "saltlux_jeju": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_jeju/emilia_pipe/shard-00000{0..6}.tar",
-    "saltlux_chungcheong": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_chungcheong/emilia_pipe/shard-0000{00..17}.tar",
-    "saltlux_gyeongsang": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_gyeongsang/emilia_pipe/shard-0000{00..29}.tar",
-    "saltlux_jeolla": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_jeolla/emilia_pipe/shard-0000{00..20}.tar",
-    "saltlux_gangwon": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_gangwon/emilia_pipe/shard-0000{00..12}.tar",
+    "aihub_news": "gs://prod-ai-lab-speech-bucket/longtou/db/aihub_news/wds_v2_mfa/shard-000{000..107}.tar",
+    "mediazen_adult": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/emilia_pipe_v2_mfa/shard-000{{000..010},{100..110}}.tar",
+    "mediazen_teen": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/emilia_pipe_v2_mfa/shard-000{{000..005},{100..105}}.tar",
+    "saltlux_jeju": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_jeju/emilia_pipe_mfa/shard-00000{0..6}.tar",
+    "saltlux_chungcheong": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_chungcheong/emilia_pipe_mfa/shard-0000{00..17}.tar",
+    "saltlux_gyeongsang": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_gyeongsang/emilia_pipe_mfa/shard-0000{00..29}.tar",
+    "saltlux_jeolla": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_jeolla/emilia_pipe_mfa/shard-0000{00..20}.tar",
+    "saltlux_gangwon": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_gangwon/emilia_pipe_mfa/shard-0000{00..12}.tar",
+    "saltlux_expert": "gs://prod-ai-lab-speech-bucket/longtou/db/saltlux_expert/emilia_pipe_mfa/shard-000{{000..006},{100..107}}.tar",
     "emilia_en": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/en/shard-00{0000..1092}.tar",
     "emilia_zh": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/zh/shard-00{0000..1194}.tar",
     "emilia_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/ko/shard-00000{0..4}.tar",
-    "emilia_yodas_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia_yodas/wds/ko/shard-000{000..207}.tar",
+    "emilia_yodas_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia_yodas/wds_mfa/ko/shard-000{000..207}.tar",
     "whispering": "gs://prod-ai-lab-speech-bucket/longtou/db/whispering/emilia_pipe/shard-000000.tar",
     "mediazen_teen_laugh": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/wds_laughter_tag/shard-000000.tar",
     "mediazen_adult_laugh": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/wds_laughter_tag/shard-000000.tar",
@@ -46,6 +47,9 @@ name2url = {
     "ke_youtube": "gs://prod-ai-lab-speech-bucket/longtou/db/ke_youtube/emilia_pipe/shard-0000{00..25}.tar",
     "ke_youtube2": "gs://prod-ai-lab-speech-bucket/longtou/db/ke_youtube2/emilia_pipe/shard-0000{00..19}.tar",
     "ke_youtube3": "gs://prod-ai-lab-speech-bucket/longtou/db/ke_youtube3/emilia_pipe/shard-000{{000..031},{100..129}}.tar",
+    "solugate": "gs://prod-ai-lab-speech-bucket/longtou/db/solugate/emilia_pipe_lite_mfa/shard-000{{000..028},{100..125}}.tar",
+    "speechlabs": "gs://prod-ai-lab-speech-bucket/longtou/db/speechlabs/emilia_pipe_lite_mfa/shard-000{{000..028},{100..127}}.tar",
+    "ku_old": "gs://prod-ai-lab-speech-bucket/longtou/db/ku_old/emilia_pipe_mfa/shard-00{{0000..0024},{1000..1024}}.tar",
 }
 
 ### implement decoding function for each dataset ###
@@ -56,8 +60,6 @@ def decode_azure(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["transcript"].strip()
 
-    #prompt = PROMPT_TEMPLATE(spk="azure", style=None, mask_probs=[0,0])
-    transcript = "애저 화자" + ENDOFPROMPT + transcript
     return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 def decode_literature(sample, **kwargs):
@@ -158,7 +160,7 @@ def decode_skt_emotion_large(sample):
     uttid = sample["__key__"]
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["transcript"]
+    transcript = json_data["transcript"].strip()
     spk_id = f"skt_{uttid.split('_')[0]}"
     mfa = json_data["mfa"]
 
@@ -181,15 +183,17 @@ def decode_skt_emotion_small(sample):
     uttid = sample["__key__"]
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
-    transcript = json_data["transcript"]
+    transcript = json_data["transcript"].strip()
+    mfa = json_data["mfa"]
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_mediazen_emotion(sample):
     uttid = sample["__key__"]
     wav = sample["wav"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text_info"]["OrgLabelText"]
+    mfa = json_data["mfa"]
 
     # emotion: {'Happy', 'Sad', 'Anxious', 'Neutrality', 'Angry', 'Hurt', 'N/A', 'Embarrassed'}
     # sensitivity: {'자랑스럽다', '흐뭇하다', '섭섭하다', '아찔하다', ...
@@ -219,7 +223,7 @@ def decode_mediazen_emotion(sample):
     #    if prompt is not None:
     #        transcript = prompt + SPECIAL_TOKEN + transcript
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_commbooks(sample, **kwargs):
     uttid = sample["__key__"]
@@ -329,40 +333,54 @@ def decode_saltlux_jeju(sample):
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"].strip()
+    mfa = json_data["mfa"]
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_saltlux_jeolla(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"].strip()
+    mfa = json_data["mfa"]
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_saltlux_chungcheong(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"].strip()
+    mfa = json_data["mfa"]
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_saltlux_gangwon(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"].strip()
+    mfa = json_data["mfa"]
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_saltlux_gyeongsang(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"].strip()
+    mfa = json_data["mfa"]
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
+
+def decode_saltlux_expert(sample):
+    uttid = sample["__key__"]
+    mp3 = sample["mp3"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["text"].strip()
+    mfa = json_data["mfa"]
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_mediazen_adult(sample):
     uttid = sample["__key__"]
@@ -370,12 +388,13 @@ def decode_mediazen_adult(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"]
     spk_id = f"ma_{uttid.rsplit('_', maxsplit=1)[0]}"
+    mfa = json_data["mfa"]
 
-    tag = "chat adult"
+    #tag = "chat adult"
     #transcript = TAG_START + tag + TAG_END + transcript
-    tag = TAG_START + tag + TAG_END
+    #tag = TAG_START + tag + TAG_END
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_mediazen_adult_laugh(sample):
     uttid = sample["__key__"]
@@ -402,12 +421,13 @@ def decode_mediazen_teen(sample):
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"]
     spk_id = f"mt_{uttid.rsplit('_', maxsplit=1)[0]}"
+    mfa = json_data["mfa"]
 
-    tag = "chat teen"
+    #tag = "chat teen"
     #transcript = TAG_START + tag + TAG_END + transcript
-    tag = TAG_START + tag + TAG_END
+    #tag = TAG_START + tag + TAG_END
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": spk_id, "tag": tag}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_mediazen_teen_laugh(sample):
     uttid = sample["__key__"]
@@ -436,13 +456,9 @@ def decode_aihub_news(sample):
     normalized = json_data["script"]["normalized"]
     if random.random() < 0.5:
         transcript = normalized
+    mfa = json_data["mfa"]
 
-    if random.random() < PROB_INSTRUCTED:
-        # build instructed dataset if possible
-        prompt = "아나운서"
-        transcript = prompt + SPECIAL_TOKEN + transcript
-
-    return {"utt": uttid, "audio_data": wav, "text": transcript}
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_emilia_en(sample):
     uttid = sample["__key__"]
@@ -473,8 +489,9 @@ def decode_emilia_yodas_ko(sample):
     mp3 = sample["mp3"]
     json_data = json.load(io.BytesIO(sample["json"]))
     transcript = json_data["text"].strip()
+    mfa = json_data["mfa"]
 
-    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 def decode_whispering(sample):
     uttid = sample["__key__"]
@@ -509,6 +526,33 @@ def decode_ke_youtube3(sample):
     transcript = json_data["text"].strip()
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+
+def decode_solugate(sample):
+    uttid = sample["__key__"]
+    mp3 = sample["mp3"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["emilia_pipe"]["text"].strip()
+    mfa = json_data["mfa"]
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
+
+def decode_speechlabs(sample):
+    uttid = sample["__key__"]
+    mp3 = sample["mp3"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["emilia_pipe"]["text"].strip()
+    mfa = json_data["mfa"]
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
+
+def decode_ku_old(sample):
+    uttid = sample["__key__"]
+    mp3 = sample["mp3"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["text"].strip()
+    mfa = json_data["mfa"]
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 ### end of decoding function list ###
 

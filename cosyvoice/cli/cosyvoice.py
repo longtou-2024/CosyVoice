@@ -168,7 +168,7 @@ class CosyVoice2(CosyVoice):
         if llm_path is None:
             llm_path = '{}/llm.pt'.format(model_dir)
         self.model.load(llm_path,
-                        "/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250905/torch_ddp/epoch_0_step_7000.pt",
+                        "/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250905_3/torch_ddp/epoch_0_step_6000.pt",
                         '{}/hift.pt'.format(model_dir))
                         #'{}/flow.pt'.format(model_dir),
         if load_vllm:
