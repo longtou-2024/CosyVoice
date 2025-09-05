@@ -47,6 +47,9 @@ name2url = {
     "ke_youtube": "gs://prod-ai-lab-speech-bucket/longtou/db/ke_youtube/emilia_pipe/shard-0000{00..25}.tar",
     "ke_youtube2": "gs://prod-ai-lab-speech-bucket/longtou/db/ke_youtube2/emilia_pipe/shard-0000{00..19}.tar",
     "ke_youtube3": "gs://prod-ai-lab-speech-bucket/longtou/db/ke_youtube3/emilia_pipe/shard-000{{000..031},{100..129}}.tar",
+    "solugate": "gs://prod-ai-lab-speech-bucket/longtou/db/solugate/emilia_pipe_lite_mfa/shard-000{{000..028},{100..125}}.tar",
+    "speechlabs": "gs://prod-ai-lab-speech-bucket/longtou/db/speechlabs/emilia_pipe_lite_mfa/shard-000{{000..028},{100..127}}.tar",
+    "ku_old": "gs://prod-ai-lab-speech-bucket/longtou/db/ku_old/emilia_pipe_mfa/shard-00{{0000..0024},{1000..1024}}.tar",
 }
 
 ### implement decoding function for each dataset ###
@@ -523,6 +526,33 @@ def decode_ke_youtube3(sample):
     transcript = json_data["text"].strip()
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+
+def decode_solugate(sample):
+    uttid = sample["__key__"]
+    mp3 = sample["mp3"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["emilia_pipe"]["text"].strip()
+    mfa = json_data["mfa"]
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
+
+def decode_speechlabs(sample):
+    uttid = sample["__key__"]
+    mp3 = sample["mp3"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["emilia_pipe"]["text"].strip()
+    mfa = json_data["mfa"]
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
+
+def decode_ku_old(sample):
+    uttid = sample["__key__"]
+    mp3 = sample["mp3"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["text"].strip()
+    mfa = json_data["mfa"]
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
 ### end of decoding function list ###
 

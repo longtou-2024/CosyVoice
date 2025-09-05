@@ -184,7 +184,7 @@ class WebDataList(IterableDataset):
 
             elif name in ("mediazen_teen_laugh", "mediazen_adult_laugh"):
                 ds2.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
-            elif name in ("mediazen", "mediazen_emotion", "emilia_yodas_ko", "aihub_news", "skt_emotion_small", "mediazen_adult", "mediazen_teen", "saltlux_jeju", "saltlux_chungcheong", "saltlux_gyeongsang", "saltlux_jeolla", "saltlux_gangwon", "saltlux_expert"):
+            elif name in ("mediazen", "mediazen_emotion", "emilia_yodas_ko", "aihub_news", "skt_emotion_small", "mediazen_adult", "mediazen_teen", "saltlux_jeju", "saltlux_chungcheong", "saltlux_gyeongsang", "saltlux_jeolla", "saltlux_gangwon", "saltlux_expert", "solugate", "speechlabs", "ku_old"):
                 ds3.append(build_wds(name, mode=mode, cache_size=cache_size, from_mount=from_mount, from_prod=from_prod))
             else:
                 raise Exception(name)
@@ -194,7 +194,7 @@ class WebDataList(IterableDataset):
         else:
             ds1 = wds.RandomMix(ds1, probs=[436,988,204], longest=True)
             ds2 = wds.RandomMix(ds2, probs=[1,1], longest=True)
-            ds3 = wds.RandomMix(ds3, probs=[1055,110,207*3,107,14,20*3,10*3,6*3,17*3,29*3,20*3,12*3,13*3], longest=True)
+            ds3 = wds.RandomMix(ds3, probs=[1055,110,207*3,107,14,20*3,10*3,6*3,17*3,29*3,20*3,12*3,13*3,53*3,55*3,48*3], longest=True)
             dataset = wds.RandomMix([ds1, ds2, ds3], probs=[20,1,80], longest=True)
 
         self.dataset = dataset
