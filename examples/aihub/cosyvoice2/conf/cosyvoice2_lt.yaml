@@ -153,7 +153,8 @@ filter_lt: !name:cosyvoice.dataset.processor.filter_lt
 filter_mfa: !name:cosyvoice.dataset.processor.filter_mfa
     max_sil_dur: 1.5 # in seconds
 resample: !name:cosyvoice.dataset.processor.resample
-    resample_rate: 16000 # 16kHz for speech_tokenizer
+    resample_rate: 24000
+    #resample_rate: 16000 # 16kHz for speech_tokenizer
 truncate: !name:cosyvoice.dataset.processor.truncate
     truncate_length: 24480 # must be a multiplier of hop_size
 feat_extractor: !name:matcha.utils.audio.mel_spectrogram

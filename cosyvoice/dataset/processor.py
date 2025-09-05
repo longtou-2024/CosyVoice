@@ -372,8 +372,18 @@ def compute_fbank_lt(data,
         assert 'utt' in sample
         assert 'text_token' in sample
         waveform = sample['speech'] # [C,T]
+        # -> 16kHz resample
+        sample_rate = sample['sample_rate']
+        if sample_rate != 16000:
+            if sample_rate < 16000:
+                continue
+            speech_16k = torchaudio.transforms.Resample(
+                orig_freq=sample_rate, new_freq=16000)(waveform)
+        else:
+            speech_16k = waveform
+
         # feat_extractor := s3tokenizer.log_mel_spectrogram
-        feat = feat_extractor(waveform[0]).transpose(0, 1) # [T,C]
+        feat = feat_extractor(speech_16k[0]).transpose(0, 1) # [T,C]
         sample['speech_feat_lt'] = feat
         yield sample
 

@@ -209,11 +209,12 @@ class CausalMaskedDiffWithXvec(torch.nn.Module):
                 speech_token, speech_token_len = self.speech_tokenizer.quantize(speech_feat_lt, speech_feat_lt_len)
                 speech_token = speech_token.clone() # for backward compatbility
                 speech_token_len = speech_token_len.clone() # for backward compatbility
-            del speech_feat_lt
-            del speech_feat_lt_len
-            del batch["speech_feat_lt"]
-            del batch["speech_feat_lt_len"]
+            #del speech_feat_lt
+            #del speech_feat_lt_len
+            #del batch["speech_feat_lt"]
+            #del batch["speech_feat_lt_len"]
             # NOTE(longtou): speech_feat vs speech_token ; token_mel_ratio
+            #breakpoint()
             for b in range(speech_token.size(0)):
                 token_len = int(min(batch["speech_feat_len"][b] / self.token_mel_ratio, speech_token_len[b].item()))
                 #batch["speech_feat"][b] = batch["speech_feat"][b][:self.token_mel_ratio * token_len]
