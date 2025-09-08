@@ -65,7 +65,8 @@ def wrap_tag(tag, text):
         tagged.append(f"<{tag}>{word}</{tag}>")
     return " ".join(tagged)
 
-llm_path="/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt"
+#llm_path="/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt"
+llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250905_2/torch_ddp/epoch_1_step_30000.pt"
 cosyvoice = CosyVoice2('/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False, llm_path=llm_path)
 
 outdir = "outdir"
