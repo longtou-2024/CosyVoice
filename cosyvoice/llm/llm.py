@@ -300,7 +300,6 @@ class Qwen2LM(TransformerLM):
         # 5. vllm related
         self.stop_token_ids = [speech_token_size + i for i in range(3)]
         self.vllm_output_queue = {}
-        self.lock = threading.Lock()
 
         # NOTE(longtou): speech token for on the fly
         self.speech_tokenizer = None
