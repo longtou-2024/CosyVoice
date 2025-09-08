@@ -4,6 +4,7 @@ import io
 import json
 import random
 import functools
+import re
 
 import webdataset as wds
 import tarfile
@@ -73,19 +74,29 @@ def decode_literature(sample, **kwargs):
     mfa = json_data["mfa"]
 
     emotion = "무감정"
+    style = None
     # e.g. emotion) {'슬픔', '당황', '무감정', '불안', '상처', '기쁨', '분노'}
     emotion_style = json_data["emotion_style"]
     if len(emotion_style) > 0:
-        #emotion_set = set()
-        #style_set = set()
-        #for item in emotion_style:
-        #    emotion_set.add(item["emotion"])
-        #    style_set.add(item["style"])
-        emotion = emotion_style[0]["emotion"]
+        # get first emotion, style
+        emotion = emotion_style[0]["emotion"].strip()
+        style = emotion_style[0]["style"].strip()
 
-    tag = {"슬픔": "sad", "당황": "embarrassed", "무감정": "neutral", "불안": "anxious", "상처": "hurt", "기쁨": "happy", "분노": "angry"}[emotion]
+    #tag = {"슬픔": "sad", "당황": "embarrassed", "무감정": "neutral", "불안": "anxious", "상처": "hurt", "기쁨": "happy", "분노": "angry"}[emotion]
     #transcript = TAG_START + tag + TAG_END + transcript
-    tag = TAG_START + tag + TAG_END
+    if style is None or style == "":
+        tag = emotion
+    else:
+        if random.random() < 0.5:
+            if '(' not in style:
+                tag = style
+            else:
+                regex = r"\(([^)]+)\)"
+                m = re.search(regex, style)
+                tag = m.group(1)
+        else:
+            tag = emotion
+    #tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag, "mfa": mfa}
 
@@ -166,16 +177,27 @@ def decode_skt_emotion_large(sample):
 
     style_main_set = {'SURPRISE', 'JOY', 'NEUTRAL', 'ANXIOUS', 'DOUBT', 'ANGRY', 'FEAR', 'KIND', 'SAD', 'HURRY', 'SERIOUS', 'DRY', 'SHY', 'UNPLEASURE', 'HESITATE', 'TEASE'}
     style_main = json_data["style_main"]
-    #style_sub = json_data["style_sub"]
+    style_sub = json_data["style_sub"]
     # NOTE(longtou): fix typo
     fix_typo = {"SY": "SHY", "ESITATE": "HESITATE", "NEUTRA": "NEUTRAL", "URRY": "HURRY", "UNPEASURE": "UNPLEASURE"}
     if style_main in fix_typo:
         style_main = fix_typo[style_main]
     assert style_main in style_main_set
-    tag = style_main.lower()
+
+    en2ko = {'SURPRISE': '놀람', 'JOY': '기쁨', 'NEUTRAL': '무감정', 'ANXIOUS': '걱정', 'DOUBT': '의심', 'ANGRY': '화난', 'FEAR': '분노', 'KIND': '친절', 'SAD': '슬픔', 'HURRY': '급한', 'SERIOUS': '진지한', 'DRY': '건조한', 'SHY': '부끄러운', 'UNPLEASURE': '불쾌한', 'HESITATE': '망설이는', 'TEASE': '짜증내는'}
+    style_main = en2ko[style_main]
+
+    style_sub = style_sub.strip().replace('#', '')
+    if style_sub == '':
+        tag = style_main
+    else:
+        if random.random() < 0.5:
+            tag = style_main
+        else:
+            tag = style_sub
 
     #transcript = TAG_START + tag + TAG_END + transcript
-    tag = TAG_START + tag + TAG_END
+    #tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag, "mfa": mfa}
 
@@ -200,30 +222,34 @@ def decode_mediazen_emotion(sample):
     # speech_style: {'뉴스체', '구연체', '대화체', '중계체', '낭독체', 'N/A'}
     # character: {'N/A', '아동', '일반', '노년'}
     # character emotion: {'N/A', '밝은', '어두운', '중립'}
-    #if random.random() < PROB_INSTRUCTED:
-    #    # build instructed dataset if possible
-    #    spk_info = json_data["spk_info"]
-    #    emotion = spk_info["Emotion"]
-    #    #_ = spk_info["Sensitivity"]
-    #    speech_style = spk_info["SpeechStyle"]
-    #    character = spk_info["Character"]
-    #    character_emotion = spk_info["CharacterEmotion"]
-    #    prompt = None
-    #    if character in ('아동', '노년'):
-    #        prompt = character
-    #        if character_emotion in ('밝은', '어두운'):
-    #            prompt = character_emotion + ' ' + prompt
-    #    elif emotion in ('Happy', 'Sad', 'Anxious', 'Neutrality', 'Angry', 'Hurt', 'Embarrassed'):
-    #        prompt = emotion
-    #        if speech_style in ('뉴스체', '구연체', '대화체', '중계체', '낭독체'):
-    #            prompt = prompt + " " + speech_style
-    #    elif speech_style in ('뉴스체', '구연체', '대화체', '중계체', '낭독체'):
-    #        prompt = speech_style
+    spk_info = json_data["spk_info"]
+    gender = spk_info["Gender"]
+    spk_name = spk_info["SpeakerName"]
+    spk_id = f"{spk_name}_{gender}"
+    emotion = spk_info["Emotion"].strip()
+    sensitivity = spk_info["Sensitivity"].strip()
+    style = speech_style = spk_info["SpeechStyle"].strip()
+    character = spk_info["Character"].strip()
+    character_emotion = spk_info["CharacterEmotion"].strip()
 
-    #    if prompt is not None:
-    #        transcript = prompt + SPECIAL_TOKEN + transcript
+    en2ko = {'Happy': '행복', 'Sad': '슬픔', 'Anxious': '걱정', 'Neutrality': '무감정', 'Angry': '화난', 'Hurt': '상처', 'N/A': '무감정', 'Embarrassed': '당황'}
+    emotion = en2ko[emotion]
 
-    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
+    if character != 'N/A':
+        if character_emotion != 'N/A':
+            tag = f"{character} {character_emotion}"
+        else:
+            tag = character
+    else:
+        if sensitivity != 'N/A':
+            if random.random() < 0.5:
+                tag = sensitivity
+            else:
+                tag = emotion
+        else:
+            tag = emotion
+
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag, "mfa": mfa}
 
 def decode_commbooks(sample, **kwargs):
     uttid = sample["__key__"]
@@ -245,23 +271,37 @@ def decode_commbooks(sample, **kwargs):
     # emotion: {'기쁨', '무감정', '분노', '슬픔'}
     # intensity: {0, 1, 2, 3}
     # style: {'중계체', '대화체', '애니체', '낭독체', '친절체', '독백체', '구연체'}
-    # sub_style: {'', '중학생', '20대 청년', '일반설명', '아빠', '40대,아저씨', '할머니', ...
+    ## sub_style: {'', '중학생', '20대 청년', '일반설명', '아빠', '40대,아저씨', '할머니', ...
     json_style = json_data["style"]
-    emotion = json_style["emotion"]
+    emotion = json_style["emotion"].strip()
     intensity = json_style["intensity"]
-    style = json_style["style"]
-    sub_style = json_style["sub_style"]
-    #if int(intensity) >= 2:
-    #    emotion = this_emotion
+    style = json_style["style"].strip()
+    sub_style = json_style["sub_style"].strip()
 
-    if emotion == "무감정":
-        tag = style
+    if emotion != "무감정":
+        if intensity == 0:
+            emotion = "무감정"
+        elif intensity == 1:
+            emotion = emotion.strip()
+        elif intensity == 2:
+            emotion = f"강한 {emotion}"
+        elif intensity == 3:
+            emotion = f"매우 강한 {emotion}"
+        else:
+            raise Exception(f"{intensity}: {emotion}")
+
+    if random.random() < 0.5:
+        tag = emotion
     else:
-        tag = {"기쁨": "happy", "분노": "angry", "슬픔": "sad"}[emotion]
-        tag = f"{tag} {intensity}"
+        if random.random() < 0.5:
+            tag = style
+        else:
+            tag = f"{style} {emotion}"
 
+    #tag = {"기쁨": "happy", "분노": "angry", "슬픔": "sad"}[emotion]
+    #tag = f"{tag} {intensity}"
     #transcript = TAG_START + tag + TAG_END + transcript
-    tag = TAG_START + tag + TAG_END
+    #tag = TAG_START + tag + TAG_END
 
     return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": spk_id, "tag": tag, "mfa": mfa}
 

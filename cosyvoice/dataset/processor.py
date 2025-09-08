@@ -69,7 +69,7 @@ def cache_hit(sample, cache):
         sample2 = cache[spk_id][selected_tag].sample()
 
         sample["utt"] = sample2["utt"] + "@" + sample["utt"]
-        sample["text"] = sample2["text"] + sample['tag'] + sample["text"]
+        sample["text"] = sample2["text"] + "<|tag_start|>" + sample['tag'] + "<|tag_end|>" + sample["text"]
         sample["text_token"] = sample2["text_token"] + sample["tag_token"] + sample["text_token"]
 
         speech, sample_rate = sample["speech"], sample["sample_rate"]
@@ -88,7 +88,7 @@ def cache_enqueue(sample, cache):
         cache[spk_id][tag].enqueue(sample)
 
 def diet_cache(cache, max_n_spk):
-    # commbooks: 89, literature: 46, skt: 8,500
+    # commbooks: 89, literature: 46, skt: 8,500, mediazen_emotion: 50
     n_spk = len(cache)
     if n_spk > max_n_spk:
         spk_ids = list(cache.keys())
@@ -105,14 +105,14 @@ def diet_cache(cache, max_n_spk):
 
 def extend_sample(data, mode="train"):
     cache = Spk2Sample()
-    max_n_spk = 300
+    #max_n_spk = 300
     for sample in data:
         if sample["spk_id"] != "unkown":
             sample_origin = deepcopy(sample)
             sample = cache_hit(sample, cache)
             cache_enqueue(sample_origin, cache)
-            if len(cache) > max_n_spk:
-                diet_cache(cache, max_n_spk)
+            #if len(cache) > max_n_spk:
+            #    diet_cache(cache, max_n_spk)
         yield sample
 
 def filter_mfa(data, max_sil_dur, mode='train'):
@@ -421,7 +421,7 @@ def tokenize(data, get_tokenizer, allowed_special, mode='train'):
         assert 'text' in sample
         sample['text_token'] = tokenizer.encode(sample['text'], allowed_special=allowed_special)
         if "tag" in sample:
-            sample["tag_token"] = tokenizer.encode(sample['tag'], allowed_special=allowed_special)
+            sample["tag_token"] = tokenizer.encode("<|tag_start|>" + sample['tag'] + "<|tag_end|>", allowed_special=allowed_special)
         if mode == 'inference':
             sample['tts_text_token'] = tokenizer.encode(sample['tts_text'], allowed_special=allowed_special)
         yield sample
