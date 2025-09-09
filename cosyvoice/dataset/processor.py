@@ -460,7 +460,16 @@ def compute_embedding(data, normalize, mode='train'):
     model = get_campplus_model()
     for sample in data:
         speech = sample["speech"]
-        feat = kaldi.fbank(speech,
+        # -> 16kHz resample
+        sample_rate = sample['sample_rate']
+        if sample_rate != 16000:
+            if sample_rate < 16000:
+                continue
+            speech_16k = torchaudio.transforms.Resample(
+                orig_freq=sample_rate, new_freq=16000)(speech)
+        else:
+            speech_16k = speech
+        feat = kaldi.fbank(speech_16k,
                            num_mel_bins=80,
                            dither=0,
                            sample_frequency=16000)
@@ -726,6 +735,9 @@ def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
                                    padding_value=0)
         speech_feat_emb = [sample[i]['speech_feat_emb'] for i in order]
         speech_feat_emb_len = torch.tensor([i.size(0) for i in speech_feat_emb], dtype=torch.int32)
+        speech_feat_emb = pad_sequence(speech_feat_emb,
+                                   batch_first=True,
+                                   padding_value=0)
         ### 3s 300 frames
         #T_min = speech_feat_emb_len.min().item()
         #_speech_feat_emb = []
@@ -739,19 +751,16 @@ def padding_lt(data, use_spk_embedding=False, mode='train', gan=False):
         #        _speech_feat_emb.append(x[t_start:t_start+300])
         #speech_feat_emb = _speech_feat_emb
         ###
-        speech_feat_emb = pad_sequence(speech_feat_emb,
-                                   batch_first=True,
-                                   padding_value=0)
         ###NOTE(longtou): circle_pad
-        def circle_pad(wav, object_len):
-            wav_len = wav.shape[0]
-            n = int(np.ceil(object_len/wav_len))
-            wav = [wav for i in range(n)]
-            wav = torch.cat(wav, dim=0)
-            return wav[:object_len]
-        T = speech_feat_emb.size(1)
-        for b in range(speech_feat_emb.size(0)):
-            speech_feat_emb[b] = circle_pad(speech_feat_emb[b][:speech_feat_emb_len[b]], T)
+        #def circle_pad(wav, object_len):
+        #    wav_len = wav.shape[0]
+        #    n = int(np.ceil(object_len/wav_len))
+        #    wav = [wav for i in range(n)]
+        #    wav = torch.cat(wav, dim=0)
+        #    return wav[:object_len]
+        #T = speech_feat_emb.size(1)
+        #for b in range(speech_feat_emb.size(0)):
+        #    speech_feat_emb[b] = circle_pad(speech_feat_emb[b][:speech_feat_emb_len[b]], T)
 
         ###
         text = [sample[i]['text'] for i in order]

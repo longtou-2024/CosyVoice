@@ -181,8 +181,8 @@ parse_embedding: !name:cosyvoice.dataset.processor.parse_embedding
 get_campplus_session: !name:cosyvoice.tokenizer.tokenizer.get_campplus_session
     onnx_path: '/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B/campplus.onnx'
 #get_campplus_model: !name:cosyvoice.tokenizer.tokenizer.get_campplus_model
-#compute_embedding: !name:cosyvoice.dataset.processor.compute_embedding
-#    normalize: True
+compute_embedding: !name:cosyvoice.dataset.processor.compute_embedding
+    normalize: True
 shuffle: !name:cosyvoice.dataset.processor.shuffle
     shuffle_size: 1000
 sort: !name:cosyvoice.dataset.processor.sort
