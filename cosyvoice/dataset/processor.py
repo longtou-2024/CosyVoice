@@ -346,7 +346,17 @@ def compute_fbank(data,
 def compute_fbank_emb(data, mode='train'):
     for sample in data:
         speech = sample["speech"]
-        feat = kaldi.fbank(speech,
+        # -> 16kHz resample
+        sample_rate = sample['sample_rate']
+        if sample_rate != 16000:
+            if sample_rate < 16000:
+                continue
+            speech_16k = torchaudio.transforms.Resample(
+                orig_freq=sample_rate, new_freq=16000)(speech)
+        else:
+            speech_16k = speech
+
+        feat = kaldi.fbank(speech_16k,
                            num_mel_bins=80,
                            dither=0,
                            sample_frequency=16000)
