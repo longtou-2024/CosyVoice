@@ -14,12 +14,12 @@ from kfp import kubernetes
 from kfp.dsl import PipelineTask
 from kfp.kubernetes import common
 
-IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v15.20"
+IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v15.25"
 N_GPU = 2
 N_CPU = "10"
 MEM_SIZE = "200Gi"
 MOUNT_PATH = "/home/longtou.2024/mount"
-MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250906"
+MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250909_3"
 CONFIG = f"{MODEL_DIR}/cosyvoice2_lt.yaml"
 TB_DIR = f"{MODEL_DIR}/tensorboard"
 CKPT = f"{MODEL_DIR}/torch_ddp/epoch_2_step_7000.pt"
