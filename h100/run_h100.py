@@ -14,7 +14,7 @@ from kfp import kubernetes
 from kfp.dsl import PipelineTask
 from kfp.kubernetes import common
 
-IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v15.21"
+IMAGE_URL = "us-central1-docker.pkg.dev/prod-ai-project/tts/cosyvoice:v15.26"
 N_GPU = 4
 N_CPU = "30"
 MEM_SIZE = "300Gi"
@@ -22,13 +22,12 @@ MOUNT_PATH = "/home/longtou.2024/mount"
 MODEL_DIR = f"{MOUNT_PATH}/longtou/h100/exp/cosyvoice/20250908"
 CONFIG = f"{MODEL_DIR}/cosyvoice2_lt.yaml"
 TB_DIR = f"{MODEL_DIR}/tensorboard"
-CKPT = f"{MODEL_DIR}/torch_ddp/epoch_0_step_14000.pt"
-#--checkpoint {CKPT}
+CKPT = f"{MODEL_DIR}/torch_ddp/epoch_0_step_46000.pt"
 SHELL_COMMAND = f''' \
 export CUDA_VISIBLE_DEVICES="0,1,2,3" \
 && export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True \
 && . ../../../activate_python.sh \
-&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --from_mount true --from_prod true --train_data "gs://literature commbooks skt_emotion_large mediazen_teen_laugh mediazen_adult_laugh mediazen mediazen_emotion emilia_yodas_ko aihub_news skt_emotion_small mediazen_adult mediazen_teen saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon saltlux_expert solugate speechlabs ku_old"
+&& ./run.sh --stage 1 --stop_stage 1 --model_dir {MODEL_DIR} --tensorboard_dir {TB_DIR} --conf {CONFIG} --from_mount true --from_prod true --train_data "gs://literature commbooks skt_emotion_large mediazen_teen_laugh mediazen_adult_laugh mediazen mediazen_emotion emilia_yodas_ko aihub_news skt_emotion_small mediazen_adult mediazen_teen saltlux_jeju saltlux_chungcheong saltlux_gyeongsang saltlux_jeolla saltlux_gangwon saltlux_expert solugate speechlabs ku_old" --checkpoint {CKPT}
 '''
 
 def add_pod_annotation(

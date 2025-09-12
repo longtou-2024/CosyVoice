@@ -170,7 +170,7 @@ class CosyVoice2(CosyVoice):
         self.model.load(llm_path,
                         '{}/flow.pt'.format(model_dir),
                         '{}/hift.pt'.format(model_dir))
-                        #"/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250906/torch_ddp/epoch_0_step_2000.pt",
+                        #"/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250909_3/torch_ddp/epoch_0_step_20000.pt",
         if load_vllm:
             self.model.load_vllm('{}/vllm'.format(model_dir))
         if load_jit:
