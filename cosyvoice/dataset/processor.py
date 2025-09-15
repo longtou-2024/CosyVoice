@@ -25,7 +25,7 @@ from torch.nn.utils.rnn import pad_sequence
 import torch.nn.functional as F
 import pyworld as pw
 import torchaudio.compliance.kaldi as kaldi
-from cosyvoice.tokenizer.tokenizer import get_campplus_model
+#from cosyvoice.tokenizer.tokenizer import get_campplus_model
 
 
 AUDIO_FORMAT_SETS = {'flac', 'mp3', 'm4a', 'ogg', 'opus', 'wav', 'wma'}
@@ -456,32 +456,32 @@ def parse_embedding(data, normalize, mode='train'):
 #            sample['utt_embedding'] = F.normalize(sample['utt_embedding'], dim=0)
 #        yield sample
 
-def compute_embedding(data, normalize, mode='train'):
-    model = get_campplus_model()
-    for sample in data:
-        speech = sample["speech"]
-        # -> 16kHz resample
-        sample_rate = sample['sample_rate']
-        if sample_rate != 16000:
-            if sample_rate < 16000:
-                continue
-            speech_16k = torchaudio.transforms.Resample(
-                orig_freq=sample_rate, new_freq=16000)(speech)
-        else:
-            speech_16k = speech
-        feat = kaldi.fbank(speech_16k,
-                           num_mel_bins=80,
-                           dither=0,
-                           sample_frequency=16000)
-        feat = feat - feat.mean(dim=0, keepdim=True)
-        feat = feat.unsqueeze(0)
-        embedding = model(feat).squeeze(0).to(torch.float32)
-
-        #sample['utt_embedding'] = torch.tensor(embedding, dtype=torch.float32)
-        sample['utt_embedding'] = embedding
-        if normalize:
-            sample['utt_embedding'] = F.normalize(sample['utt_embedding'], dim=0)
-        yield sample
+#def compute_embedding(data, normalize, mode='train'):
+#    model = get_campplus_model()
+#    for sample in data:
+#        speech = sample["speech"]
+#        # -> 16kHz resample
+#        sample_rate = sample['sample_rate']
+#        if sample_rate != 16000:
+#            if sample_rate < 16000:
+#                continue
+#            speech_16k = torchaudio.transforms.Resample(
+#                orig_freq=sample_rate, new_freq=16000)(speech)
+#        else:
+#            speech_16k = speech
+#        feat = kaldi.fbank(speech_16k,
+#                           num_mel_bins=80,
+#                           dither=0,
+#                           sample_frequency=16000)
+#        feat = feat - feat.mean(dim=0, keepdim=True)
+#        feat = feat.unsqueeze(0)
+#        embedding = model(feat).squeeze(0).to(torch.float32)
+#
+#        #sample['utt_embedding'] = torch.tensor(embedding, dtype=torch.float32)
+#        sample['utt_embedding'] = embedding
+#        if normalize:
+#            sample['utt_embedding'] = F.normalize(sample['utt_embedding'], dim=0)
+#        yield sample
 
 def tokenize(data, get_tokenizer, allowed_special, mode='train'):
     """ Decode text to chars or BPE

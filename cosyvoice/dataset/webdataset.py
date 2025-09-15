@@ -37,6 +37,7 @@ name2url = {
     "emilia_zh": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/zh/shard-00{0000..1194}.tar",
     "emilia_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia/wds/ko/shard-00000{0..4}.tar",
     "emilia_yodas_ko": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia_yodas/wds_mfa/ko/shard-000{000..207}.tar",
+    "emilia_yodas_en": "gs://prod-ai-lab-speech-bucket/longtou/db/emilia_yodas/wds/en/shard-00{0000..1361}.tar",
     "whispering": "gs://prod-ai-lab-speech-bucket/longtou/db/whispering/emilia_pipe/shard-000000.tar",
     "mediazen_teen_laugh": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_teen/wds_laughter_tag/shard-000000.tar",
     "mediazen_adult_laugh": "gs://prod-ai-lab-speech-bucket/longtou/db/mediazen_adult/wds_laughter_tag/shard-000000.tar",
@@ -50,6 +51,8 @@ name2url = {
     "solugate": "gs://prod-ai-lab-speech-bucket/longtou/db/solugate/emilia_pipe_lite_mfa/shard-000{{000..028},{100..125}}.tar",
     "speechlabs": "gs://prod-ai-lab-speech-bucket/longtou/db/speechlabs/emilia_pipe_lite_mfa/shard-000{{000..028},{100..127}}.tar",
     "ku_old": "gs://prod-ai-lab-speech-bucket/longtou/db/ku_old/emilia_pipe_mfa/shard-00{{0000..0024},{1000..1024}}.tar",
+    "libritts_r": "gs://prod-ai-lab-speech-bucket/longtou/db/libritts_r/wds_v2/shard-0000{00..30}.tar",
+    "mls_en": "gs://prod-ai-lab-speech-bucket/longtou/db/mls/wds_v2/en/shard-00{0000..1717}.tar",
 }
 
 ### implement decoding function for each dataset ###
@@ -493,6 +496,14 @@ def decode_emilia_yodas_ko(sample):
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
 
+def decode_emilia_yodas_en(sample):
+    uttid = sample["__key__"]
+    mp3 = sample["mp3"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    transcript = json_data["text"].strip()
+
+    return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+
 def decode_whispering(sample):
     uttid = sample["__key__"]
     mp3 = sample["mp3"]
@@ -553,6 +564,25 @@ def decode_ku_old(sample):
     mfa = json_data["mfa"]
 
     return {"utt": uttid, "audio_data": mp3, "text": transcript, "spk_id": "unkown", "tag": "unkown", "mfa": mfa}
+
+def decode_libritts_r(sample):
+    uttid = sample["__key__"]
+    wav = sample["wav"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    gender = json_data["gender"]
+    spk_id = json_data["spk_id"]
+    transcript = json_data["transcript"].strip()
+
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
+
+def decode_mls_en(sample):
+    uttid = sample["__key__"]
+    wav = sample["wav"]
+    json_data = json.load(io.BytesIO(sample["json"]))
+    spk_id = json_data["spk_id"]
+    transcript = json_data["transcript"].strip()
+
+    return {"utt": uttid, "audio_data": wav, "text": transcript, "spk_id": "unkown", "tag": "unkown"}
 
 ### end of decoding function list ###
 
