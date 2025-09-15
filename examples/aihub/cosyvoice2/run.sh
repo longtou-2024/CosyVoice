@@ -5,7 +5,7 @@
 export OMP_NUM_THREADS=1
 stage=1
 stop_stage=5
-pretrained_model_dir=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B
+pretrained_model_dir=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/Qwen2.5-1.5B
 num_workers=2
 prefetch=100
 cache_size=0
@@ -20,7 +20,8 @@ train_engine=torch_ddp
 model_dir=`pwd`/exp/cosyvoice2/llm
 tensorboard_dir=`pwd`/tensorboard/cosyvoice2/llm
 deepspeed_config=./conf/ds_stage2.json
-checkpoint=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B/llm.pt # llm checkpoint for resume training
+checkpoint=
+#checkpoint=/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B/llm.pt # llm checkpoint for resume training
 
 . parse_options.sh
 
@@ -57,7 +58,7 @@ if [ ${stage} -le 1 ] && [ ${stop_stage} -ge 1 ]; then
     --config ${conf} \
     --train_data "${train_data}" \
     --cv_data "${cv_data}" \
-    --qwen_pretrain_path $pretrained_model_dir/CosyVoice-BlankEN \
+    --qwen_pretrain_path $pretrained_model_dir \
     --model llm \
     --model_dir ${model_dir} \
     --tensorboard_dir ${tensorboard_dir} \
