@@ -158,12 +158,15 @@ class CosyVoiceFrontEnd:
         model_input = {'text': tts_text_token, 'text_len': tts_text_token_len, 'llm_embedding': embedding, 'flow_embedding': embedding}
         return model_input
 
-    def frontend_zero_shot(self, tts_text, prompt_text, prompt_speech_16k, resample_rate, zero_shot_spk_id):
+    def frontend_zero_shot(self, tts_text, prompt_text, prompt_speech_16k, resample_rate, zero_shot_spk_id, prompt_speech_24k=None):
         tts_text_token, tts_text_token_len = self._extract_text_token(tts_text)
         if zero_shot_spk_id == '':
             prompt_text_token, prompt_text_token_len = self._extract_text_token(prompt_text)
-            prompt_speech_resample = torchaudio.transforms.Resample(orig_freq=16000, new_freq=resample_rate)(prompt_speech_16k)
-            speech_feat, speech_feat_len = self._extract_speech_feat(prompt_speech_resample)
+            if prompt_speech_24k is None:
+                prompt_speech_resample = torchaudio.transforms.Resample(orig_freq=16000, new_freq=resample_rate)(prompt_speech_16k)
+                speech_feat, speech_feat_len = self._extract_speech_feat(prompt_speech_resample)
+            else:
+                speech_feat, speech_feat_len = self._extract_speech_feat(prompt_speech_24k)
             speech_token, speech_token_len = self._extract_speech_token(prompt_speech_16k)
             if resample_rate == 24000:
                 # cosyvoice2, force speech_feat % speech_token = 2
