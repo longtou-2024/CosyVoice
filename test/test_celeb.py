@@ -153,7 +153,7 @@ def wrap_tag(tag, text):
     return " ".join(tagged)
 
 #llm_path="/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt"
-llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250908/torch_ddp/epoch_1_step_70000.pt"
+llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250915_2/torch_ddp/epoch_0_step_60000.pt"
 cosyvoice = CosyVoice2('/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False, llm_path=llm_path)
 
 outdir = "outdir"
@@ -173,7 +173,7 @@ for line in open("test/kast_emo/text", 'r').readlines():
 
 for d_idx, spk_id in enumerate(prompt_spk_sent):
     #if spk_id != "pororo": continue
-    if spk_id not in ("minsick", "oneyoung"): continue
+    #if spk_id not in ("minsick", "oneyoung"): continue
     prompt_sent = prompt_spk_sent[spk_id]
     prompt_speech_16k = prompt_spk_speech_16k[spk_id]
     for t_idx, item in enumerate(celect_script):

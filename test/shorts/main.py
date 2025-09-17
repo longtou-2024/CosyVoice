@@ -139,7 +139,7 @@ def prefix_tag(tag, text):
     return f"<|tag_start|>{tag}<|tag_end|>{text}"
 
 #llm_path="/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt"
-llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250912/torch_ddp/epoch_2_step_120000.pt"
+llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250915_2/torch_ddp/epoch_0_step_60000.pt"
 flow_path=None
 cosyvoice = CosyVoice2('/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False, llm_path=llm_path, flow_path=flow_path)
 
@@ -172,12 +172,12 @@ for json_path in Path("test/shorts/shorts_wavs_lt").glob("**/*.json"):
         raise Exception
     prompt_spk_sent[uttid] = transcript
 
-female_num = 0
+female_num = 5
 male_num = 0
 soldier_num = 3
 tts_speech = []
 tts_uttid = set()
-for x in script_5:
+for x in script_1:
 #for x in script_debug:
     if x['role'] == 'heroine':
         uttid = spk_roles['female'][female_num]

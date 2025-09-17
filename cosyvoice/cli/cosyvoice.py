@@ -148,11 +148,13 @@ class CosyVoice2(CosyVoice):
         self.fp16 = fp16
         if not os.path.exists(model_dir):
             model_dir = snapshot_download(model_dir)
-        hyper_yaml_path = '{}/cosyvoice2.yaml'.format(model_dir)
+        #hyper_yaml_path = '{}/cosyvoice2.yaml'.format(model_dir)
+        hyper_yaml_path = '{}/cosyvoice2_1.5b.yaml'.format(model_dir)
         if not os.path.exists(hyper_yaml_path):
             raise ValueError('{} not found!'.format(hyper_yaml_path))
         with open(hyper_yaml_path, 'r') as f:
-            configs = load_hyperpyyaml(f, overrides={'qwen_pretrain_path': os.path.join(model_dir, 'CosyVoice-BlankEN')})
+            #configs = load_hyperpyyaml(f, overrides={'qwen_pretrain_path': os.path.join(model_dir, 'CosyVoice-BlankEN')})
+            configs = load_hyperpyyaml(f, overrides={'qwen_pretrain_path': "/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/Qwen2.5-1.5B"})
         assert get_model_type(configs) == CosyVoice2Model, 'do not use {} for CosyVoice2 initialization!'.format(model_dir)
         self.frontend = CosyVoiceFrontEnd(configs['get_tokenizer'],
                                           configs['feat_extractor'],
