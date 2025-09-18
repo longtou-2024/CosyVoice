@@ -26,27 +26,50 @@ script_debug= [
     {'role': 'soldier', 'style': '', 'text': '잡아라!'},
 ]
 script_1 = [
-    {'role': 'heroine', 'style': '근엄하게', 'text': '긍지 높던 황금의 왕국, 로이몬드'},
-    {'role': 'heroine', 'style': '걱정', 'text': '어느 날... 왕의 과욕으로 인해 찬란했던 영광은 사라지고 한순간에 무너져내렸는데...'},
-    {'role': 'soldier', 'style': '큰소리로', 'text': '“잡아라!”'},
-    {'role': 'heroine', 'style': '다급하게', 'text': '적들의 맹렬한 추격 속 죽기살기로 도망치고 있는 나, 제르이네'},
-    {'role': 'heroine', 'style': '근엄하게', 'text': '나는 왕국의 여덟 번째 왕녀다'},
-    {'role': 'heroine', 'style': '속이타듯', 'text': '언젠가 왕국을 다시 일으키려면, 후계자인 언니들이 꼭 살아남아야 하는데...'},
-    {'role': 'heroine', 'style': '안심시키듯', 'text': '이를 위해선, 내가 미끼가 되어야겠지...'},
-    {'role': 'heroine', 'style': '비장한', 'text': '하지만 나는… 살고 싶어! 이렇게 허무하게 죽을 순 없어!'},
-    {'role': 'heroine', 'style': '다급하게', 'text': '그 순간...'},
-    {'role': 'soldier', 'style': '', 'text': '“왕녀님! 조심…!”'},
-    {'role': 'heroine', 'style': '충격받은', 'text': '나를 호위하던 기사는 눈앞에서 쓰러졌고'},
-    {'role': 'heroine', 'style': '충격받은', 'text': '날아온 화살은 내가 탄 말에 박히고 말았다'},
-    {'role': 'heroine', 'style': '절망한듯', 'text': '흙바닥에 내동댕이쳐지며 의식이 흐려졌는데...'},
-    {'role': 'heroine', 'style': '어리둥절한듯', 'text': '얼마나 지났을까, 정신을 차려보니... 따스한 햇살과... 감옥?!'},
-    {'role': 'heroine', 'style': '혼란스러운', 'text': '이상한데? 무슨 감옥이 밖에 있어?!'},
-    {'role': 'heroine', 'style': '당황한듯', 'text': '몸을 일으키려다 균형을 잃고 발을 헛디뎠는데...'},
-    {'role': 'heroine', 'style': '궁금한듯', 'text': '발밑에는 웬 막대기 하나가...?'},
-    {'role': 'heroine', 'style': '멍한', 'text': '잠이 덜 깼나 싶어 눈을 비비려했더니'},
-    {'role': 'heroine', 'style': '충격받은', 'text': '내 손 대신 퍼덕이는... 깃털 달린 날개?!'},
-    {'role': 'heroine', 'style': '충격받은', 'text': '믿을 수 없어...! 내가… 내가 새라니?!'},
+    {'role': 'heroine', 'style': '', 'text': '긍지 높던 황금의 왕국, 로이몬드'},
+    {'role': 'heroine', 'style': '', 'text': '어느 날... 왕의 과욕으로 인해 찬란했던 영광은 사라지고 한순간에 무너져내렸는데...'},
+    {'role': 'soldier', 'style': '매우 강한 분노', 'text': '“잡아라!”'},
+    {'role': 'heroine', 'style': '급한', 'text': '적들의 맹렬한 추격 속 죽기살기로 도망치고 있는 나, 제르이네'},
+    {'role': 'heroine', 'style': '', 'text': '나는 왕국의 여덟 번째 왕녀다'},
+    {'role': 'heroine', 'style': '', 'text': '언젠가 왕국을 다시 일으키려면, 후계자인 언니들이 꼭 살아남아야 하는데...'},
+    {'role': 'heroine', 'style': '불안', 'text': '이를 위해선, 내가 미끼가 되어야겠지...'},
+    {'role': 'heroine', 'style': '간절하게', 'text': '하지만 나는… 살고 싶어! 이렇게 허무하게 죽을 순 없어!'},
+    {'role': 'heroine', 'style': '급한', 'text': '그 순간...'},
+    {'role': 'soldier', 'style': '급한', 'text': '“왕녀님! 조심…!”'},
+    {'role': 'heroine', 'style': '급한', 'text': '나를 호위하던 기사는 눈앞에서 쓰러졌고'},
+    {'role': 'heroine', 'style': '급한', 'text': '날아온 화살은 내가 탄 말에 박히고 말았다'},
+    {'role': 'heroine', 'style': '급한', 'text': '흙바닥에 내동댕이쳐지며 의식이 흐려졌는데...'},
+    {'role': 'heroine', 'style': '당황', 'text': '얼마나 지났을까, 정신을 차려보니... 따스한 햇살과... 감옥?!'},
+    {'role': 'heroine', 'style': '당황', 'text': '이상한데? 무슨 감옥이 밖에 있어?!'},
+    {'role': 'heroine', 'style': '당황', 'text': '몸을 일으키려다 균형을 잃고 발을 헛디뎠는데...'},
+    {'role': 'heroine', 'style': '당황', 'text': '발밑에는 웬 막대기 하나가...?'},
+    {'role': 'heroine', 'style': '당황', 'text': '잠이 덜 깼나 싶어 눈을 비비려했더니'},
+    {'role': 'heroine', 'style': '당황', 'text': '내 손 대신 퍼덕이는... 깃털 달린 날개?!'},
+    {'role': 'heroine', 'style': '당황', 'text': '믿을 수 없어...! 내가… 내가 새라니?!'},
 ]
+
+#script_1 = [
+#    {'role': 'heroine', 'style': '대화체 근엄하게', 'text': '긍지 높던 황금의 왕국, 로이몬드'},
+#    {'role': 'heroine', 'style': '대화체 걱정', 'text': '어느 날... 왕의 과욕으로 인해 찬란했던 영광은 사라지고 한순간에 무너져내렸는데...'},
+#    {'role': 'soldier', 'style': '대화체 큰소리로', 'text': '“잡아라!”'},
+#    {'role': 'heroine', 'style': '대화체 다급하게', 'text': '적들의 맹렬한 추격 속 죽기살기로 도망치고 있는 나, 제르이네'},
+#    {'role': 'heroine', 'style': '대화체 근엄하게', 'text': '나는 왕국의 여덟 번째 왕녀다'},
+#    {'role': 'heroine', 'style': '대화체 속이타듯', 'text': '언젠가 왕국을 다시 일으키려면, 후계자인 언니들이 꼭 살아남아야 하는데...'},
+#    {'role': 'heroine', 'style': '대화체 안심시키듯', 'text': '이를 위해선, 내가 미끼가 되어야겠지...'},
+#    {'role': 'heroine', 'style': '대화체 비장한', 'text': '하지만 나는… 살고 싶어! 이렇게 허무하게 죽을 순 없어!'},
+#    {'role': 'heroine', 'style': '대화체 다급하게', 'text': '그 순간...'},
+#    {'role': 'soldier', 'style': '대화체 다급하게', 'text': '“왕녀님! 조심…!”'},
+#    {'role': 'heroine', 'style': '대화체 충격받은', 'text': '나를 호위하던 기사는 눈앞에서 쓰러졌고'},
+#    {'role': 'heroine', 'style': '대화체 충격받은', 'text': '날아온 화살은 내가 탄 말에 박히고 말았다'},
+#    {'role': 'heroine', 'style': '대화체 절망한듯', 'text': '흙바닥에 내동댕이쳐지며 의식이 흐려졌는데...'},
+#    {'role': 'heroine', 'style': '대화체 어리둥절한듯', 'text': '얼마나 지났을까, 정신을 차려보니... 따스한 햇살과... 감옥?!'},
+#    {'role': 'heroine', 'style': '대화체 혼란스러운', 'text': '이상한데? 무슨 감옥이 밖에 있어?!'},
+#    {'role': 'heroine', 'style': '대화체 당황한듯', 'text': '몸을 일으키려다 균형을 잃고 발을 헛디뎠는데...'},
+#    {'role': 'heroine', 'style': '대화체 궁금한듯', 'text': '발밑에는 웬 막대기 하나가...?'},
+#    {'role': 'heroine', 'style': '대화체 멍한', 'text': '잠이 덜 깼나 싶어 눈을 비비려했더니'},
+#    {'role': 'heroine', 'style': '대화체 충격받은', 'text': '내 손 대신 퍼덕이는... 깃털 달린 날개?!'},
+#    {'role': 'heroine', 'style': '대화체 충격받은', 'text': '믿을 수 없어...! 내가… 내가 새라니?!'},
+#]
 script_2 = [
     {'role': 'heroine', 'style': '절망한듯', 'text': '이거, 꿈이 아니잖아!, 내 삶을 돌려달라고!'},
     {'role': 'heroine', 'style': '혼란스러운', 'text': '현실을 부정하며 발버둥 치던 중, 한 병사가 다가와 나를 살피기 시작했다'},
@@ -139,7 +162,7 @@ def prefix_tag(tag, text):
     return f"<|tag_start|>{tag}<|tag_end|>{text}"
 
 #llm_path="/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt"
-llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250915_2/torch_ddp/epoch_0_step_60000.pt"
+llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250915_2/torch_ddp/epoch_1_step_120000.pt"
 flow_path=None
 cosyvoice = CosyVoice2('/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False, llm_path=llm_path, flow_path=flow_path)
 

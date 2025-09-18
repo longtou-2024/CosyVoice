@@ -57,43 +57,43 @@ celect_script = [
 
 celect_script = [
     {
-        "tag": "매우 강한 기쁨",
+        "tag": "기쁨",
         "text": '와~ 드디어 우리 게임 출시됐어! 오늘은 밤새 파티다!',
     },
     {
-        "tag": "매우 강한 슬픔",
+        "tag": "슬픔",
         "text": '그때 그렇게 말하지 말 걸... 아직도 마음에 남아.',
     },
     {
-        "tag": "매우 강한 걱정",
+        "tag": "걱정",
         "text": '혹시 답장 아직 안 온 거예요? 뭔가 문제가 있는 건 아닌지...',
     },
     {
-        "tag": "매우 강한 화난",
+        "tag": "화난",
         "text": '아니, 왜 자꾸 그 사람 얘기만 하는 거야?',
     },
     {
-        "tag": "매우 강한 무감정",
+        "tag": "무감정",
         "text": '그날 이후, 둘은 다시 연락하지 않았다.',
     },
     {
-        "tag": "매우 강한 당황",
+        "tag": "당황",
         "text": '아, 그 얘긴 그냥... 농담이었어요. 진짜예요...',
     },
     {
-        "tag": "매우 강한 슬픔",
+        "tag": "슬픔",
         "text": '주변엔 늘 사람들이 있는데... 왜 이렇게 외로울까.',
     },
     {
-        "tag": "매우 강한 화난",
+        "tag": "화난",
         "text": '그만 좀 해! 말했잖아, 난 그런 거 관심 없다고!',
     },
     {
-        "tag": "매우 강한 기쁨",
+        "tag": "기쁨",
         "text": '비 온 뒤에 무지개가 떴다. 마음 한편이 따뜻해졌다.',
     },
     {
-        "tag": "매우 강한 걱정",
+        "tag": "걱정",
         "text": '혹시... 내가 이상하게 보이진 않았죠? 다들 쳐다보는 것 같아서...',
     },
 ]
@@ -153,7 +153,7 @@ def wrap_tag(tag, text):
     return " ".join(tagged)
 
 #llm_path="/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt"
-llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250915_2/torch_ddp/epoch_0_step_60000.pt"
+llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250915_2/torch_ddp/epoch_1_step_120000.pt"
 cosyvoice = CosyVoice2('/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False, llm_path=llm_path)
 
 outdir = "outdir"
