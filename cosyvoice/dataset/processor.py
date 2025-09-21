@@ -28,7 +28,7 @@ import pyworld as pw
 AUDIO_FORMAT_SETS = {'flac', 'mp3', 'm4a', 'ogg', 'opus', 'wav', 'wma'}
 
 class RandomQueue:
-    def __init__(self, max_size=3):
+    def __init__(self, max_size=5):
         self._items = []
         self.max_size = max_size
 
@@ -111,6 +111,15 @@ def extend_sample(data, mode="train"):
             sample_origin = deepcopy(sample)
             sample = cache_hit(sample, cache)
             cache_enqueue(sample_origin, cache)
+            sample = cache_hit(sample, cache)
+            cache_enqueue(sample_origin, cache)
+            if random.random() < 0.5:
+                sample = cache_hit(sample, cache)
+                cache_enqueue(sample_origin, cache)
+            if random.random() < 0.5:
+                sample = cache_hit(sample, cache)
+                cache_enqueue(sample_origin, cache)
+
             #if len(cache) > max_n_spk:
             #    diet_cache(cache, max_n_spk)
         yield sample
