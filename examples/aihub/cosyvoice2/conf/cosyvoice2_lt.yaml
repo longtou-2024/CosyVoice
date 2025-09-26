@@ -131,6 +131,7 @@ hifigan: !new:cosyvoice.hifigan.hifigan.HiFiGan
 
 # processor functions
 extend_sample: !name:cosyvoice.dataset.processor.extend_sample
+    get_tokenizer: !ref <get_tokenizer>
 parquet_opener: !name:cosyvoice.dataset.processor.parquet_opener
 get_tokenizer: !name:cosyvoice.tokenizer.tokenizer.get_qwen_tokenizer
     token_path: !ref <qwen_pretrain_path>

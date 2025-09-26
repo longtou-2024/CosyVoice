@@ -16,6 +16,7 @@ import random
 from io import BytesIO
 from collections import defaultdict
 from copy import deepcopy
+from functools import partial
 
 import pyarrow.parquet as pq
 import torch
@@ -56,36 +57,60 @@ class RandomQueue:
     def __len__(self):
         return len(self._items)
 
-# nested defaultdict
+# nested defaultdict; dict[spk_id][tag]
 class Spk2Sample(defaultdict):
     def __init__(self, *args, **kwargs):
-        super().__init__(lambda: defaultdict(RandomQueue), *args, **kwargs)
+        super().__init__(lambda: defaultdict(partial(RandomQueue, max_size=3)), *args, **kwargs)
 
-def cache_hit(sample, cache):
+def cache_hit(sample, cache, tag_cache, get_tokenizer):
     spk_id = sample["spk_id"]
     if spk_id in cache:
+        tokenizer = get_tokenizer()
         tags = list(cache[spk_id].keys())
         selected_tag = random.choice(tags) # randomly sample from avalialbe tag
         sample2 = cache[spk_id][selected_tag].sample()
 
-        sample["utt"] = sample2["utt"] + "@" + sample["utt"]
-        sample["text"] = sample2["text"] + "<|tag_start|>" + sample['tag'] + "<|tag_end|>" + sample["text"]
-        sample["text_token"] = sample2["text_token"] + sample["tag_token"] + sample["text_token"]
+        if random.random() < 0.5 and sample['tag'] in tag_cache:
+            sample3 = tag_cache[sample['tag']].sample()
+            sample["utt"] = sample3["utt"] + "@" + sample2["utt"] + "@" + sample["utt"]
+            prosody_tag_token = tokenizer.encode("<|tag_start|>" + "prosody" + "<|tag_end|>", allowed_special='all')
+            timbre_tag_token = tokenizer.encode("<|tag_start|>" + "timbre" + "<|tag_end|>", allowed_special='all')
+            transfer_tag_token = tokenizer.encode("<|tag_start|>" + "transfer" + "<|tag_end|>", allowed_special='all')
+            sample["text"] = "<|tag_start|>" + "prosody" + "<|tag_end|>" + sample3["text"] + "<|tag_start|>" + "timbre" + "<|tag_end|>" + sample2["text"] + "<|tag_start|>" + "transfer" + "<|tag_end|>" + sample["text"]
+            sample["text_token"] = prosody_tag_token + sample3["text_token"] + timbre_tag_token + sample2["text_token"] + transfer_tag_token + sample["text_token"]
 
-        speech, sample_rate = sample["speech"], sample["sample_rate"]
-        speech2, sample_rate2 = sample2["speech"], sample2["sample_rate"]
-        assert sample_rate == sample_rate2, f"{sample_rate} != {sample_rate2}"
-        assert speech.shape[0] == speech2.shape[0], f"{speech.shape[0]} != {speech2.shape[0]}"
+            speech, sample_rate = sample["speech"], sample["sample_rate"]
+            speech2, sample_rate2 = sample2["speech"], sample2["sample_rate"]
+            speech3, sample_rate3 = sample3["speech"], sample3["sample_rate"]
+            assert sample_rate == sample_rate2, f"{sample_rate} != {sample_rate2}"
+            assert speech.shape[0] == speech2.shape[0], f"{speech.shape[0]} != {speech2.shape[0]}"
+            assert sample_rate == sample_rate3, f"{sample_rate} != {sample_rate3}"
+            assert speech.shape[0] == speech3.shape[0], f"{speech.shape[0]} != {speech3.shape[0]}"
 
-        sample["speech"] = torch.cat([speech2, speech], dim=1)
-        sample["sample_rate"] = sample_rate
+            sample["speech"] = torch.cat([speech3, speech2, speech], dim=1)
+            sample["sample_rate"] = sample_rate
+        else:
+            sample["utt"] = sample2["utt"] + "@" + sample["utt"]
+            sample["text"] = sample2["text"] + "<|tag_start|>" + sample['tag'] + "<|tag_end|>" + sample["text"]
+            tag_token = tokenizer.encode("<|tag_start|>" + sample["tag"] + "<|tag_end|>", allowed_special='all')
+            sample["text_token"] = sample2["text_token"] + tag_token + sample["text_token"]
+
+            speech, sample_rate = sample["speech"], sample["sample_rate"]
+            speech2, sample_rate2 = sample2["speech"], sample2["sample_rate"]
+            assert sample_rate == sample_rate2, f"{sample_rate} != {sample_rate2}"
+            assert speech.shape[0] == speech2.shape[0], f"{speech.shape[0]} != {speech2.shape[0]}"
+
+            sample["speech"] = torch.cat([speech2, speech], dim=1)
+            sample["sample_rate"] = sample_rate
+
     return sample
 
-def cache_enqueue(sample, cache):
+def cache_enqueue(sample, cache, tag_cache):
     spk_id = sample["spk_id"]
     tag = sample["tag"]
     if spk_id != "unkown" and tag != "unkown":
         cache[spk_id][tag].enqueue(sample)
+        tag_cache[tag].enqueue(sample)
 
 def diet_cache(cache, max_n_spk):
     # commbooks: 89, literature: 46, skt: 8,500, mediazen_emotion: 50
@@ -103,16 +128,14 @@ def diet_cache(cache, max_n_spk):
             for i in range(n_exceed):
                 del cache[spk_ids[i]]
 
-def extend_sample(data, mode="train"):
-    cache = Spk2Sample()
-    #max_n_spk = 300
+def extend_sample(data, get_tokenizer, mode="train"):
+    cache = Spk2Sample() # cache[spk_id][tag]
+    tag_cache = defaultdict(partial(RandomQueue, max_size=9)) # tag_cache[tag]
     for sample in data:
         if sample["spk_id"] != "unkown":
             sample_origin = deepcopy(sample)
-            sample = cache_hit(sample, cache)
-            cache_enqueue(sample_origin, cache)
-            #if len(cache) > max_n_spk:
-            #    diet_cache(cache, max_n_spk)
+            sample = cache_hit(sample, cache, tag_cache, get_tokenizer)
+            cache_enqueue(sample_origin, cache, tag_cache)
         yield sample
 
 def filter_mfa(data, max_sil_dur, mode='train'):
@@ -420,8 +443,8 @@ def tokenize(data, get_tokenizer, allowed_special, mode='train'):
     for sample in data:
         assert 'text' in sample
         sample['text_token'] = tokenizer.encode(sample['text'], allowed_special=allowed_special)
-        if "tag" in sample:
-            sample["tag_token"] = tokenizer.encode("<|tag_start|>" + sample['tag'] + "<|tag_end|>", allowed_special=allowed_special)
+        #if "tag" in sample:
+        #    sample["tag_token"] = tokenizer.encode("<|tag_start|>" + sample['tag'] + "<|tag_end|>", allowed_special=allowed_special)
         if mode == 'inference':
             sample['tts_text_token'] = tokenizer.encode(sample['tts_text'], allowed_special=allowed_special)
         yield sample
