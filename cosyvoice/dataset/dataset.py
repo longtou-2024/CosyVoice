@@ -192,7 +192,7 @@ class WebDataList(IterableDataset):
         else:
             ds1 = wds.RandomMix(ds1, probs=[46,104,24,110], longest=True)
             ds2 = wds.RandomMix(ds2, probs=[1055,207*3,107,14,20*3,10*3,6*3,17*3,29*3,20*3,12*3,13*3,53*3,55*3,48*3,1,1], longest=True)
-            dataset = wds.RandomMix([ds1, ds2], probs=[40,60], longest=True)
+            dataset = wds.RandomMix([ds1, ds2], probs=[60,40], longest=True)
 
         self.dataset = dataset
 

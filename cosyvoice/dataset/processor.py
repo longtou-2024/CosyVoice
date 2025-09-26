@@ -70,7 +70,7 @@ def cache_hit(sample, cache, tag_cache, get_tokenizer):
         selected_tag = random.choice(tags) # randomly sample from avalialbe tag
         sample2 = cache[spk_id][selected_tag].sample()
 
-        if random.random() < 0.5 and sample['tag'] in tag_cache:
+        if random.random() < 0.8 and sample['tag'] in tag_cache:
             sample3 = tag_cache[sample['tag']].sample()
             sample["utt"] = sample3["utt"] + "@" + sample2["utt"] + "@" + sample["utt"]
             prosody_tag_token = tokenizer.encode("<|tag_start|>" + "prosody" + "<|tag_end|>", allowed_special='all')
