@@ -93,6 +93,29 @@ script_2 = [
     {'role': 'hero', 'style': '냉정하게', 'text': '“짐승도 암살에 쓰나?”'},
 ]
 
+script_2_debug = [
+    {'role': 'heroine', 'style_text': [{'style': '절망한듯', 'text': '이거, 꿈이 아니잖아!, 내 삶을 돌려달라고!'},
+        {'style': '혼란스러운', 'text': '현실을 부정하며 발버둥 치던 중, 한 병사가 다가와 나를 살피기 시작했다'}]},
+    {'role': 'soldier', 'style_text': [{'style': '궁금한듯', 'text': '“흐음... 얘가 왜 이러지? 아픈가? 보고를 올려야 하나?”'}]},
+    {'role': 'heroine', 'style_text': [{'style': '안도하는', 'text': '보고...? 일단 나는 이 사람의 새는 아닌가 보군!'},
+        {'style': '단호하게', 'text': '이대로 잡혀있을 순 없지!'},
+        {'style': '조심스러운', 'text': '나는 죽은 척 연기하며 기회를 노렸고,'},
+        {'style': '용맹스럽게', 'text': '이내 발톱 맛을 보여주며 탈출했다'}]},
+    {'role': 'heroine', 'style_text': [{'style': '신난듯', 'text': '성공했어!, 내가 해냈다고!'},
+        {'style': '궁금한듯', 'text': '신나게 날아다니다 숲에 도착했는데...'},
+        {'style': '충격받은', 'text': '우리 왕국의 깃발과... 사람...?!'},
+        {'style': '걱정스러운', 'text': '쓰러진 아군 전령병을 발견했고,'}]},
+        {'role': 'heroine', 'style_text': [{'style': '비장한', 'text': '그의 품에는 왕국의 운명이 걸린 기밀문이 있었다'},
+        {'style': '다급하게', 'text': '게다가, 심장이 뛰잖아...?!, 이대로 두면 죽을 거야...!'},
+        {'style': '책임감있는듯', 'text': '나는 왕녀니까, 병사를 구하고 문서를 전달해야만 해!'},
+        {'style': '다급하게', 'text': '필사적으로 찾아 헤맨 끝에 마침내 아군진지를 발견했고,'}]},
+         {'role': 'heroine', 'style_text': [{'style': '다급하게', 'text': '나는 그곳을 향해 전속력으로 돌진했다'},
+        {'style': '당황한듯', 'text': '그런데 잠깐, 어... 어떻게 멈추는 거더라...?'},
+        {'style': '충격받은', 'text': '속도 조절에 실패한 나는 결국 한 남자에게 부딪히기 직전,'},
+        {'style': '놀란듯', 'text': '그의 손에 붙잡히고 말았는데...'}]},
+      {'role': 'hero', 'style_text': [{'style': '냉정하게', 'text': '“짐승도 암살에 쓰나?”'}]},
+]
+
 script_3 = [
     {'role': 'heroine', 'style': '당황한듯', 'text': '아니, 왜 하필 제일 높은 사람한테 돌진한 거냐고!'},
     {'role': 'heroine', 'style': '두려운듯', 'text': '하필 날 붙잡은 건 왕국의 세 군대를 통솔하는 냉혹한 총사령관, 발하일...'},
@@ -162,7 +185,7 @@ def prefix_tag(tag, text):
     return f"<|tag_start|>{tag}<|tag_end|>{text}"
 
 #llm_path="/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt"
-llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250922/torch_ddp/epoch_2_step_300000.pt"
+llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250922/torch_ddp/epoch_2_step_250000.pt"
 flow_path=None
 cosyvoice = CosyVoice2('/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False, llm_path=llm_path, flow_path=flow_path)
 
@@ -200,8 +223,7 @@ male_num = 0
 soldier_num = 3
 tts_speech = []
 tts_uttid = set()
-for x in script_2:
-#for x in script_debug:
+for x in script_2_debug:
     if x['role'] == 'heroine':
         uttid = spk_roles['female'][female_num]
     elif x['role'] == 'hero':
@@ -214,13 +236,15 @@ for x in script_2:
     prompt_speech_16k = prompt_spk_speech_16k[uttid]
     prompt_speech_24k = prompt_spk_speech_24k[uttid]
 
-    tag = x["style"]
-    this_text = x["text"]
-    #for i, j in enumerate(cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prompt_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-    if tag == '':
-        gen = cosyvoice.inference_zero_shot(f" {this_text}", prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
-    else:
-        gen = cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
+    this_tts_text = ""
+    for style_text in x["style_text"]:
+        tag = style_text["style"]
+        this_text = style_text["text"]
+        if tag == '':
+            this_tts_text += f" {this_text}"
+        else:
+            this_tts_text += f" {prefix_tag(tag, this_text)}"
+    gen = cosyvoice.inference_zero_shot(this_tts_text, prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
     ret = next(gen)
     tts_speech.append(ret['tts_speech'])
     tts_uttid.add(uttid)
