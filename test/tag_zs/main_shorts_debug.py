@@ -65,47 +65,48 @@ script_2 = [ # 503
 ]
 
 script_3 = [ # 403
-        {'role': 'heroine', 'style': '억울하다', 'text': '아니, 왜 하필 제일 높은 사람한테 돌진한 거냐고!', 'prompt_idx': 1}, # 1
-        {'role': 'heroine', 'style': '다급하게', 'text': '하필 날 붙잡은 건 왕국의 세 군대를 통솔하는 냉혹한 총사령관, 발하일...', 'prompt_idx': 1}, # 1
-        {'role': 'heroine', 'style': '다급하게', 'text': '그는 내가 아군새라는 말에도 자신을 공격하려 했다며', 'prompt_idx': 1}, # 1
-        {'role': 'heroine', 'style': '다급하게', 'text': '나를 적군의 스파이로 끝없이 의심했다', 'prompt_idx': 1}, # 1
-        {'role': 'heroine', 'style': '다급하게', 'text': '결국 난 그의 막사 앞에 꼼짝없이 묶이게 된 상황!', 'prompt_idx': 1}, # 1
-        {'role': 'hero', 'style': '경멸스럽다', 'text': '"우연이라기엔 지나치게 이상하다"', 'prompt_idx': 2}, # 2
-        {'role': 'hero', 'style': '거북한듯', 'text': '"어떻게 훈련도 받지 못한 새가 기밀문서를 들고 정확히 나에게 온 거지"', 'prompt_idx': 2}, # 2
-        {'role': 'heroine', 'style': '다급하게', 'text': '그는 심지어 기밀문이 조작됐을 가능성까지 파고들었는데...', 'prompt_idx': 1}, # 1
-        {'role': 'heroine', 'style': '짜증내듯', 'text': '말만 할 수 있다면 다 설명할 텐데! 답답해 미치겠네!', 'prompt_idx': 1},  # 1
-        {'role': 'heroine', 'style': '다급하게', 'text': '다급해진 나는, 최후의 수단을 쓰기로 결심했다', 'prompt_idx': 1}, # 1
-        {'role': 'heroine', 'style': '비장한', 'text': '말이 안 통하면 몸으로 보여주는 수밖에!', 'prompt_idx': 1}, # 1
-        {'role': 'heroine', 'style': '대화체', 'text': '빙글빙글, 파닥파닥! 이 정도면 완벽한 설명 아니야?', 'prompt_idx': 1}, # 1
-        {'role': 'heroine', 'style': '억울하다', 'text': '제발, 내 진짜 뜻을 좀 이해해 보라고!', 'prompt_idx': 2}, # 2
-        {'role': 'heroine', 'style': '다급하게', 'text': '그때, 부관이 내 간절한 몸짓을 알아챈 듯 달려갔다', 'prompt_idx': 2}, # 2
-        {'role': 'heroine', 'style': '발랄하게', 'text': '그래, 바로 그거야! 어서 보고해!', 'prompt_idx': 2}, # 2
-        {'role': 'heroine', 'style': '다급하게', 'text': '드디어 이 답답함이 풀리나 기대하던 그 순간,', 'prompt_idx': 1}, # 1
-        {'role': 'soldier', 'style': '강조하듯', 'text': '"저 새는 미쳤습니다. 확실히!"', 'prompt_idx': 2}, # 2
-        {'role': 'heroine', 'style': '대화체', 'text': '뭐라고오?', 'prompt_idx': 1}, # 1
+    #{'role': 'heroine', 'style': '억울하다', 'text': '아니, 왜 하필 제일 높은 사람한테 돌진한 거냐고!'}, # 1
+    #{'role': 'heroine', 'style': '다급하게', 'text': '하필 날 붙잡은 건 왕국의 세 군대를 통솔하는 냉혹한 총사령관, 발하일...'}, # 1
+    #{'role': 'heroine', 'style': '다급하게', 'text': '그는 내가 아군새라는 말에도 자신을 공격하려 했다며'}, # 1
+    #{'role': 'heroine', 'style': '다급하게', 'text': '나를 적군의 스파이로 끝없이 의심했다'}, # 1
+    #{'role': 'heroine', 'style': '다급하게', 'text': '결국 난 그의 막사 앞에 꼼짝없이 묶이게 된 상황!'}, # 1
+    #{'role': 'hero', 'style': '경멸스럽다', 'text': '"우연이라기엔 지나치게 이상하다"'}, # 2
+    #{'role': 'hero', 'style': '거북한듯', 'text': '"어떻게 훈련도 받지 못한 새가 기밀문서를 들고 정확히 나에게 온 거지"'}, # 2
+    #{'role': 'heroine', 'style': '다급하게', 'text': '그는 심지어 기밀문이 조작됐을 가능성까지 파고들었는데...'}, # 1
+    #{'role': 'heroine', 'style': '짜증내듯', 'text': '말만 할 수 있다면 다 설명할 텐데! 답답해 미치겠네!'},  # 1
+    #{'role': 'heroine', 'style': '다급하게', 'text': '다급해진 나는, 최후의 수단을 쓰기로 결심했다'}, # 1
+    #{'role': 'heroine', 'style': '비장한', 'text': '말이 안 통하면 몸으로 보여주는 수밖에!'}, # 1
+    #{'role': 'heroine', 'style': '대화체', 'text': '빙글빙글, 파닥파닥! 이 정도면 완벽한 설명 아니야?'}, # 1
+    #{'role': 'heroine', 'style': '억울하다', 'text': '제발, 내 진짜 뜻을 좀 이해해 보라고!'}, # 2
+    #{'role': 'heroine', 'style': '다급하게', 'text': '그때, 부관이 내 간절한 몸짓을 알아챈 듯 달려갔다'}, # 2
+    #{'role': 'heroine', 'style': '발랄하게', 'text': '그래, 바로 그거야! 어서 보고해!'}, # 2
+    #{'role': 'heroine', 'style': '다급하게', 'text': '드디어 이 답답함이 풀리나 기대하던 그 순간,'}, # 1
+    #{'role': 'soldier', 'style': '강조하듯', 'text': '"저 새는 미쳤습니다. 확실히!"'}, # 2
+    #{'role': 'heroine', 'style': '울부짖듯', 'text': '뭐라고오?'}, # 0
+    #{'role': 'heroine', 'style': '대화체', 'text': '뭐라고오?'}, # 1
 ]
 
 script_4 = [ # 203
-        {'role': 'heroine', 'style': '괴로운듯', 'text': '명색이 왕녀인데, 미치고 팔짝 뛰겠네!', 'prompt_idx': 0}, # 0
-        {'role': 'heroine', 'style': '다급하게', 'text': '다행히 내 필사적인 몸짓을 본 발하일이 명령을 내렸다', 'prompt_idx': 1}, # 1
-        {'role': 'hero', 'style': '날카롭게', 'text': '수색해, 확실히, 정상이 아닌 것 같긴 하군', 'prompt_idx': 2}, # 2
-        {'role': 'heroine', 'style': '억울한', 'text': '기껏 정보를 전해줬더니 미친 새 취급이라니!', 'prompt_idx': 0}, # 0
-        {'role': 'heroine', 'style': '걱정', 'text': '참자, 여기서 찍히면 굶어 죽을지도 몰라!', 'prompt_idx': 0}, # 0
-        {'role': 'heroine', 'style': '혐오스러운', 'text': '그런데... 식사랍시고 주는 게 쥐와 개구리 한 사발?!', 'prompt_idx': 2}, # 2
-        {'role': 'heroine', 'style': '큰소리로', 'text': '치워! 난 엄연히 인간이라고!', 'prompt_idx': 1}, # 1
-        {'role': 'heroine', 'style': '다급하게', 'text': '겨우 진정하고 발하일의 막사로 불려 갔는데...', 'prompt_idx': 2}, # 2
-        {'role': 'heroine', 'style': '울부짖듯', 'text': '또! 또 그 끔찍한 세트잖아!', 'prompt_idx': 0}, # 0
-        {'role': 'heroine', 'style': '다급하게', 'text': '나도 모르게 그만, 질색하며 밥그릇을 뻥 차버렸다', 'prompt_idx': 1}, # 1
-        {'role': 'heroine', 'style': '억울한', 'text': '나는 저걸 먹고 싶다고!', 'prompt_idx': 0}, # 0
-        {'role': 'heroine', 'style': '다급하게', 'text': '혼날 줄 알았는데, 내 손짓을 본 발하일이 무심하게 빵 조각을 던져주었다', 'prompt_idx': 1}, # 1
-        {'role': 'heroine', 'style': '다급하게', 'text': '냉큼 받아먹고 책상을 뒤적이던 그 순간,', 'prompt_idx': 2}, # 2
-        {'role': 'hero', 'style': '느긋한', 'text': '이걸 찾나?', 'prompt_idx': 1}, # 1
-        {'role': 'heroine', 'style': '다급하게', 'text': '그의 손에 들린 기밀문!', 'prompt_idx': 2}, # 2
-        {'role': 'heroine', 'style': '다급하게', 'text': '내용을 알아내기 위해 문서로 돌진했지만 그는 순식간에 숨겨버렸는데...', 'prompt_idx': 2}, # 2
-        {'role': 'heroine', 'style': '의심스럽다', 'text': '고작 고기로 나를 회유하겠다고?', 'prompt_idx': 2}, # 2
-        {'role': 'heroine', 'style': '황홀한듯', 'text': '절대 안 먹을 거야!, ...아, 너무 맛있다!', 'prompt_idx': 0}, # 0
-        {'role': 'heroine', 'style': '다급하게', 'text': '그런 나를 보더니 그가 하는 말이...,', 'prompt_idx': 0}, # 0
-        {'role': 'hero', 'style': '냉정하다', 'text': '집착하지 마라', 'prompt_idx': 2}, # 2
+    #{'role': 'heroine', 'style': '괴로운듯', 'text': '명색이 왕녀인데, 미치고 팔짝 뛰겠네!'}, # 0
+    #{'role': 'heroine', 'style': '다급하게', 'text': '다행히 내 필사적인 몸짓을 본 발하일이 명령을 내렸다'}, # 1
+    #{'role': 'hero', 'style': '날카롭게', 'text': '수색해, 확실히, 정상이 아닌 것 같긴 하군'}, # 2
+    #{'role': 'heroine', 'style': '억울한', 'text': '기껏 정보를 전해줬더니 미친 새 취급이라니!'}, # 0
+    #{'role': 'heroine', 'style': '걱정', 'text': '참자, 여기서 찍히면 굶어 죽을지도 몰라!'}, # 0
+    #{'role': 'heroine', 'style': '혐오스러운', 'text': '그런데... 식사랍시고 주는 게 쥐와 개구리 한 사발?!'}, # 2
+    #{'role': 'heroine', 'style': '큰소리로', 'text': '치워! 난 엄연히 인간이라고!'}, # 1
+    #{'role': 'heroine', 'style': '다급하게', 'text': '겨우 진정하고 발하일의 막사로 불려 갔는데...'}, # 2
+    #{'role': 'heroine', 'style': '울부짖듯', 'text': '또! 또 그 끔찍한 세트잖아!'}, # 0
+    #{'role': 'heroine', 'style': '다급하게', 'text': '나도 모르게 그만, 질색하며 밥그릇을 뻥 차버렸다'}, # 1
+    #{'role': 'heroine', 'style': '억울한', 'text': '나는 저걸 먹고 싶다고!'}, # 0
+    #{'role': 'heroine', 'style': '다급하게', 'text': '혼날 줄 알았는데, 내 손짓을 본 발하일이 무심하게 빵 조각을 던져주었다'}, # 1
+    #{'role': 'heroine', 'style': '다급하게', 'text': '냉큼 받아먹고 책상을 뒤적이던 그 순간,'}, # 2
+    #{'role': 'hero', 'style': '느긋한', 'text': '이걸 찾나?'}, # 1
+    #{'role': 'heroine', 'style': '다급하게', 'text': '그의 손에 들린 기밀문!'}, # 2
+    #{'role': 'heroine', 'style': '다급하게', 'text': '내용을 알아내기 위해 문서로 돌진했지만 그는 순식간에 숨겨버렸는데...'}, # 2
+    #{'role': 'heroine', 'style': '의심스럽다', 'text': '고작 고기로 나를 회유하겠다고?'}, # 2
+    #{'role': 'heroine', 'style': '황홀한듯', 'text': '절대 안 먹을 거야!, ...아, 너무 맛있다!'}, # 0
+    #{'role': 'heroine', 'style': '다급하게', 'text': '그런 나를 보더니 그가 하는 말이...,'}, # 0
+    #{'role': 'hero', 'style': '냉정하다', 'text': '집착하지 마라'}, # 2
 ]
 
 script_5 = [
@@ -169,9 +170,9 @@ female_num = 2
 male_num = 0
 soldier_num = 3
 #role = 'heroine'
-tts_speech = []
+#tts_speech = []
 tts_uttid = set()
-for line in script_4:
+for l_idx, line in enumerate(script_4):
     if line['role'] == 'heroine':
         uttid = spk_roles['female'][female_num]
     elif line['role'] == 'hero':
@@ -187,24 +188,18 @@ for line in script_4:
     tag = line['style']
     this_text = line['text']
 
-    prompt_idx = line.get("prompt_idx", 0)
-    #prompt_path = f"test/tag_zs/outdir/5817_G2A2E7_KSI_002783/{tag}/{prompt_idx}"
-    prompt_path = f"test/tag_zs/outdir/{uttid}/{tag}/{prompt_idx}"
-    with open(prompt_path + ".txt", 'r') as f:
-        lines = f.readlines()
-    prompt_sent = lines[0].strip()
-    prompt_speech_16k = load_wav(prompt_path + ".wav", 16000)
-    prompt_speech_24k = load_wav(prompt_path + ".wav", 24000)
+    tts_speech = []
+    for prompt_idx in range(3):
+        prompt_path = f"test/tag_zs/outdir/{uttid}/{tag}/{prompt_idx}"
+        with open(prompt_path + ".txt", 'r') as f:
+            lines = f.readlines()
+        prompt_sent = lines[0].strip()
+        prompt_speech_16k = load_wav(prompt_path + ".wav", 16000)
+        prompt_speech_24k = load_wav(prompt_path + ".wav", 24000)
 
-    # NOTE(longtou): concat sh_prompt + prompt
-    #prompt_sent = f"{sh_prompt_sent} {prompt_sent}"
-    #prompt_speech_16k = torch.cat([sh_prompt_speech_16k, prompt_speech_16k], dim=1)
-    #prompt_speech_24k = torch.cat([sh_prompt_speech_24k, prompt_speech_24k], dim=1)
-
-    #gen = cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
-    gen = cosyvoice.inference_zero_shot(f" {this_text}", prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
-    ret = next(gen)
-    tts_speech.append(ret['tts_speech'])
-tts_speech = torch.cat(tts_speech, dim=1)
-torchaudio.save(f"{outdir}/{female_num}{male_num}{soldier_num}.wav", tts_speech, cosyvoice.sample_rate)
+        gen = cosyvoice.inference_zero_shot(f" {this_text}", prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
+        ret = next(gen)
+        tts_speech.append(ret['tts_speech'])
+    tts_speech = torch.cat(tts_speech, dim=1)
+    torchaudio.save(f"{outdir}/{female_num}{male_num}{soldier_num}_{l_idx}.wav", tts_speech, cosyvoice.sample_rate)
 
