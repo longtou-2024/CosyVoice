@@ -29,6 +29,34 @@ from cosyvoice.utils.file_utils import logging
 from cosyvoice.utils.mask import make_pad_mask
 
 
+def set_seed(seed_value=1993):
+    """
+    Sets seeds for PyTorch, NumPy, and Python's random module,
+    and configures PyTorch to use deterministic algorithms.
+    """
+    import numpy as np
+    import os
+    # Set seed for Python's built-in random module
+    random.seed(seed_value)
+    
+    # Set seed for NumPy
+    np.random.seed(seed_value)
+    
+    # Set seed for PyTorch on CPU
+    torch.manual_seed(seed_value)
+    
+    # Set seed for PyTorch on CUDA (GPU)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed(seed_value)
+        torch.cuda.manual_seed_all(seed_value) # for multi-GPU setups
+        
+        # Configure CuDNN to use deterministic algorithms
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False # Disabling benchmark can lead to slower performance but more deterministic results
+    
+    # Set a fixed value for the hash seed (optional, but can help in some cases)
+    os.environ['PYTHONHASHSEED'] = str(seed_value)
+
 class TransformerLM(torch.nn.Module):
     def __init__(
             self,
@@ -413,6 +441,8 @@ class Qwen2LM(TransformerLM):
             min_token_text_ratio: float = 2,
             uuid: str = '',
     ) -> Generator[torch.Tensor, None, None]:
+        # NOTE(longtou): reproducibility
+        set_seed(1993)
         device = text.device
         text = torch.concat([prompt_text, text], dim=1)
         text_len += prompt_text_len

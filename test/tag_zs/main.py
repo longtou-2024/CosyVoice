@@ -187,10 +187,10 @@ for json_path in Path("test/shorts/shorts_wavs_lt").glob("**/*.json"):
         raise Exception
     prompt_spk_sent[uttid] = transcript
 
-female_num = 5
+female_num = 1
 male_num = 0
 soldier_num = 3
-role = 'heroine'
+role = 'soldier'
 tts_speech = []
 tts_uttid = set()
 for tag in tag_sent:
