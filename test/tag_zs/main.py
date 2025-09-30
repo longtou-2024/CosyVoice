@@ -8,6 +8,29 @@ from pathlib import Path
 import json, io
 import torch
 
+# parse tag_sent
+#tag_sent = dict()
+#with open("test/tag_zs/tag_sent.txt", 'r') as f:
+#    lines = iter(f.readlines())
+#from itertools import islice
+#tag_lines = list(islice(lines, 4))
+#while tag_lines:
+#    tag = tag_lines[0].strip()
+#    sent_list = [t.replace('-', '', 1).strip() for t in tag_lines[1:]]
+#    tag_sent[tag] = sent_list
+#    tag_lines = list(islice(lines, 4))
+# parse tag_sent2
+tag_sent = dict()
+with open("test/tag_zs/tag_sent2.txt", 'r') as f:
+    lines = iter(f.readlines())
+from itertools import islice
+tag_lines = list(islice(lines, 4))
+while tag_lines:
+    tag = tag_lines[0].replace('-', '', 1).strip()
+    sent_list = [t.strip() for t in tag_lines[1:]]
+    tag_sent[tag] = sent_list
+    tag_lines = list(islice(lines, 4))
+
 spk_roles = {
     "m_narrator": ["N0217-01-21-00", "5042_G1A2E7_KJB_004142", "5039_G1A2E7_KIM_000872", "1491_G1A2E7_JJW_001089"],
     "f_narrator": ["9035_G2A1E7_PHS_001420"],
@@ -18,13 +41,6 @@ spk_roles = {
     "female_child": ["A-NX-D-010-0051", "0033_G2A3E7S0C2_KMA_001625" ,"0033_G2A3E2S0C3_KMA_001680"],
 }
 
-
-script_debug= [
-    {'role': 'soldier', 'style': '큰소리로', 'text': '“잡아라!”'},
-    {'role': 'soldier', 'style': '큰소리로', 'text': '잡아라!'},
-    {'role': 'soldier', 'style': '악을쓰듯', 'text': '잡아라!'},
-    {'role': 'soldier', 'style': '', 'text': '잡아라!'},
-]
 script_1 = [
     {'role': 'heroine', 'style': '근엄하게', 'text': '긍지 높던 황금의 왕국, 로이몬드'},
     {'role': 'heroine', 'style': '걱정', 'text': '어느 날... 왕의 과욕으로 인해 찬란했던 영광은 사라지고 한순간에 무너져내렸는데...'},
@@ -138,7 +154,6 @@ script_5 = [
 def prefix_tag(tag, text):
     return f"<|tag_start|>{tag}<|tag_end|>{text}"
 
-#llm_path="/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt"
 llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250908/torch_ddp/epoch_1_step_70000.pt"
 flow_path=None
 cosyvoice = CosyVoice2('/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False, llm_path=llm_path, flow_path=flow_path)
@@ -175,34 +190,29 @@ for json_path in Path("test/shorts/shorts_wavs_lt").glob("**/*.json"):
 female_num = 5
 male_num = 0
 soldier_num = 3
+role = 'heroine'
 tts_speech = []
 tts_uttid = set()
-for x in script_2:
-#for x in script_debug:
-    if x['role'] == 'heroine':
+for tag in tag_sent:
+    if role == 'heroine':
         uttid = spk_roles['female'][female_num]
-    elif x['role'] == 'hero':
+    elif role == 'hero':
         uttid = spk_roles['male'][male_num]
-    elif x['role'] == 'soldier':
+    elif role == 'soldier':
         uttid = spk_roles['soldier'][soldier_num]
     else:
-        raise Exception(x['role'])
+        raise Exception(role)
     prompt_sent = prompt_spk_sent[uttid]
     prompt_speech_16k = prompt_spk_speech_16k[uttid]
     prompt_speech_24k = prompt_spk_speech_24k[uttid]
 
-    tag = x["style"]
-    this_text = x["text"]
-    #for i, j in enumerate(cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prompt_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-    #if tag == '':
-    #    gen = cosyvoice.inference_zero_shot(f" {this_text}", prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
-    #else:
-    #    gen = cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
-    gen = cosyvoice.inference_zero_shot(f" {this_text}", prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
-    ret = next(gen)
-    tts_speech.append(ret['tts_speech'])
-    tts_uttid.add(uttid)
-tts_speech = torch.cat(tts_speech, dim=1)
-wav_name = '@'.join(tts_uttid)
-torchaudio.save(f"{outdir}/{wav_name}.wav", tts_speech, cosyvoice.sample_rate)
+    outdir_tag = Path(f"{outdir}/{uttid}/{tag}")
+    outdir_tag.mkdir(parents=True, exist_ok=True)
+    for t_idx, this_text in enumerate(tag_sent[tag]):
+        gen = cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
+        ret = next(gen)
+        tts_speech = ret['tts_speech']
+        torchaudio.save(f"{outdir_tag}/{t_idx}.wav", tts_speech, cosyvoice.sample_rate)
+        with open(f"{outdir_tag}/{t_idx}.txt", 'w') as f:
+            f.write(f"{this_text}\n")
 

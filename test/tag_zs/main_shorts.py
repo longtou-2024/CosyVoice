@@ -8,6 +8,7 @@ from pathlib import Path
 import json, io
 import torch
 
+
 spk_roles = {
     "m_narrator": ["N0217-01-21-00", "5042_G1A2E7_KJB_004142", "5039_G1A2E7_KIM_000872", "1491_G1A2E7_JJW_001089"],
     "f_narrator": ["9035_G2A1E7_PHS_001420"],
@@ -18,13 +19,6 @@ spk_roles = {
     "female_child": ["A-NX-D-010-0051", "0033_G2A3E7S0C2_KMA_001625" ,"0033_G2A3E2S0C3_KMA_001680"],
 }
 
-
-script_debug= [
-    {'role': 'soldier', 'style': '큰소리로', 'text': '“잡아라!”'},
-    {'role': 'soldier', 'style': '큰소리로', 'text': '잡아라!'},
-    {'role': 'soldier', 'style': '악을쓰듯', 'text': '잡아라!'},
-    {'role': 'soldier', 'style': '', 'text': '잡아라!'},
-]
 script_1 = [
     {'role': 'heroine', 'style': '근엄하게', 'text': '긍지 높던 황금의 왕국, 로이몬드'},
     {'role': 'heroine', 'style': '걱정', 'text': '어느 날... 왕의 과욕으로 인해 찬란했던 영광은 사라지고 한순간에 무너져내렸는데...'},
@@ -35,7 +29,7 @@ script_1 = [
     {'role': 'heroine', 'style': '안심시키듯', 'text': '이를 위해선, 내가 미끼가 되어야겠지...'},
     {'role': 'heroine', 'style': '비장한', 'text': '하지만 나는… 살고 싶어! 이렇게 허무하게 죽을 순 없어!'},
     {'role': 'heroine', 'style': '다급하게', 'text': '그 순간...'},
-    {'role': 'soldier', 'style': '', 'text': '“왕녀님! 조심…!”'},
+    {'role': 'soldier', 'style': '다급하게', 'text': '“왕녀님! 조심…!”'},
     {'role': 'heroine', 'style': '충격받은', 'text': '나를 호위하던 기사는 눈앞에서 쓰러졌고'},
     {'role': 'heroine', 'style': '충격받은', 'text': '날아온 화살은 내가 탄 말에 박히고 말았다'},
     {'role': 'heroine', 'style': '절망한듯', 'text': '흙바닥에 내동댕이쳐지며 의식이 흐려졌는데...'},
@@ -51,22 +45,24 @@ script_2 = [
     {'role': 'heroine', 'style': '절망한듯', 'text': '이거, 꿈이 아니잖아!, 내 삶을 돌려달라고!'},
     {'role': 'heroine', 'style': '혼란스러운', 'text': '현실을 부정하며 발버둥 치던 중, 한 병사가 다가와 나를 살피기 시작했다'},
     {'role': 'soldier', 'style': '궁금한듯', 'text': '“흐음... 얘가 왜 이러지? 아픈가? 보고를 올려야 하나?”'},
-    {'role': 'heroine', 'style': '안도하는', 'text': '보고...? 일단 나는 이 사람의 새는 아닌가 보군!'},
-    {'role': 'heroine', 'style': '단호하게', 'text': '이대로 잡혀있을 순 없지!'},
-    {'role': 'heroine', 'style': '조심스러운', 'text': '나는 죽은 척 연기하며 기회를 노렸고,'},
-    {'role': 'heroine', 'style': '용맹스럽게', 'text': '이내 발톱 맛을 보여주며 탈출했다'},
-    {'role': 'heroine', 'style': '신난듯', 'text': '성공했어!, 내가 해냈다고!'},
-    {'role': 'heroine', 'style': '궁금한듯', 'text': '신나게 날아다니다 숲에 도착했는데...'},
-    {'role': 'heroine', 'style': '충격받은', 'text': '우리 왕국의 깃발과... 사람...?!'},
-    {'role': 'heroine', 'style': '걱정스러운', 'text': '쓰러진 아군 전령병을 발견했고,'},
-    {'role': 'heroine', 'style': '비장한', 'text': '그의 품에는 왕국의 운명이 걸린 기밀문이 있었다'},
-    {'role': 'heroine', 'style': '다급하게', 'text': '게다가, 심장이 뛰잖아...?!, 이대로 두면 죽을 거야...!'},
-    {'role': 'heroine', 'style': '책임감있는듯', 'text': '나는 왕녀니까, 병사를 구하고 문서를 전달해야만 해!'},
+    {'role': 'heroine', 'style': '떠보듯이', 'text': '보고...? 일단 나는 이 사람의 새는 아닌가 보군!'},
+    {'role': 'heroine', 'style': '비장한', 'text': '이대로 잡혀있을 순 없지!', 'prompt_idx': 2},
+    {'role': 'heroine', 'style': '비장한', 'text': '나는 죽은 척 연기하며 기회를 노렸고,', 'prompt_idx': 2},
+    {'role': 'heroine', 'style': '비장한', 'text': '이내 발톱 맛을 보여주며 탈출했다', 'prompt_idx': 2},
+    {'role': 'heroine', 'style': '흥분한듯', 'text': '성공했어!, 내가 해냈다고!'},
+    {'role': 'heroine', 'style': '구연체', 'text': '신나게 날아다니다 숲에 도착했는데...', 'prompt_idx': 1},
+    {'role': 'heroine', 'style': '충격받은', 'text': '우리 왕국의 깃발과... 사람...?', 'prompt_idx': 1},
+    #{'role': 'heroine', 'style': '충격받은', 'text': '우리 왕국의 깃발과... 사람...?!', 'prompt_idx': 1},
+    {'role': 'heroine', 'style': '다급하게', 'text': '쓰러진 아군 전령병을 발견했고,'},
+    {'role': 'heroine', 'style': '다급하게', 'text': '그의 품에는 왕국의 운명이 걸린 기밀문이 있었다'},
+    #{'role': 'heroine', 'style': '다급하게', 'text': '게다가, 심장이 뛰잖아...?!, 이대로 두면 죽을 거야...!'},
+    {'role': 'heroine', 'style': '다급하게', 'text': '게다가, 심장이 뛰잖아...?, 이대로 두면 죽을 거야...!'},
+    {'role': 'heroine', 'style': '비장한', 'text': '나는 왕녀니까, 병사를 구하고 문서를 전달해야만 해!', 'prompt_idx': 2},
     {'role': 'heroine', 'style': '다급하게', 'text': '필사적으로 찾아 헤맨 끝에 마침내 아군진지를 발견했고,'},
     {'role': 'heroine', 'style': '다급하게', 'text': '나는 그곳을 향해 전속력으로 돌진했다'},
-    {'role': 'heroine', 'style': '당황한듯', 'text': '그런데 잠깐, 어... 어떻게 멈추는 거더라...?'},
-    {'role': 'heroine', 'style': '충격받은', 'text': '속도 조절에 실패한 나는 결국 한 남자에게 부딪히기 직전,'},
-    {'role': 'heroine', 'style': '놀란듯', 'text': '그의 손에 붙잡히고 말았는데...'},
+    @{'role': 'heroine', 'style': '당황한듯', 'text': '그런데 잠깐, 어... 어떻게 멈추는 거더라...?'},
+    {'role': 'heroine', 'style': '다급하게', 'text': '속도 조절에 실패한 나는 결국 한 남자에게 부딪히기 직전,'},
+    {'role': 'heroine', 'style': '걱정', 'text': '그의 손에 붙잡히고 말았는데...', 'prompt_idx': 1},
     {'role': 'hero', 'style': '냉정하게', 'text': '“짐승도 암살에 쓰나?”'},
 ]
 
@@ -138,7 +134,6 @@ script_5 = [
 def prefix_tag(tag, text):
     return f"<|tag_start|>{tag}<|tag_end|>{text}"
 
-#llm_path="/home/longtou.2024/projects/CosyVoice/examples/aihub/cosyvoice2/exp/cosyvoice2/llm/torch_ddp/llm_avg.pt"
 llm_path="/home/longtou.2024/mount/longtou/h100/exp/cosyvoice/20250908/torch_ddp/epoch_1_step_70000.pt"
 flow_path=None
 cosyvoice = CosyVoice2('/home/longtou.2024/mount/longtou/saved/cosyvoice/pretrained_models/CosyVoice2-0.5B', load_jit=False, load_trt=False, load_vllm=False, fp16=False, llm_path=llm_path, flow_path=flow_path)
@@ -175,34 +170,37 @@ for json_path in Path("test/shorts/shorts_wavs_lt").glob("**/*.json"):
 female_num = 5
 male_num = 0
 soldier_num = 3
+role = 'heroine'
 tts_speech = []
 tts_uttid = set()
-for x in script_2:
-#for x in script_debug:
-    if x['role'] == 'heroine':
-        uttid = spk_roles['female'][female_num]
-    elif x['role'] == 'hero':
-        uttid = spk_roles['male'][male_num]
-    elif x['role'] == 'soldier':
-        uttid = spk_roles['soldier'][soldier_num]
-    else:
-        raise Exception(x['role'])
-    prompt_sent = prompt_spk_sent[uttid]
-    prompt_speech_16k = prompt_spk_speech_16k[uttid]
-    prompt_speech_24k = prompt_spk_speech_24k[uttid]
-
-    tag = x["style"]
-    this_text = x["text"]
-    #for i, j in enumerate(cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prompt_sent, prompt_speech_16k, stream=False, text_frontend=False)):
-    #if tag == '':
-    #    gen = cosyvoice.inference_zero_shot(f" {this_text}", prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
+for line in script_2:
+    #if role == 'heroine':
+    #    uttid = spk_roles['female'][female_num]
+    #elif role == 'hero':
+    #    uttid = spk_roles['male'][male_num]
+    #elif role == 'soldier':
+    #    uttid = spk_roles['soldier'][soldier_num]
     #else:
-    #    gen = cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
+    #    raise Exception(role)
+    #prompt_sent = prompt_spk_sent[uttid]
+    #prompt_speech_16k = prompt_spk_speech_16k[uttid]
+    #prompt_speech_24k = prompt_spk_speech_24k[uttid]
+
+    tag = line['style']
+    this_text = line['text']
+
+    prompt_idx = line.get("prompt_idx", 0)
+    prompt_path = f"test/tag_zs/outdir/5817_G2A2E7_KSI_002783/{tag}/{prompt_idx}"
+    with open(prompt_path + ".txt", 'r') as f:
+        lines = f.readlines()
+    prompt_sent = lines[0].strip()
+    prompt_speech_16k = load_wav(prompt_path + ".wav", 16000)
+    prompt_speech_24k = load_wav(prompt_path + ".wav", 24000)
+
+    #gen = cosyvoice.inference_zero_shot(prefix_tag(tag, this_text), prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
     gen = cosyvoice.inference_zero_shot(f" {this_text}", prompt_sent, prompt_speech_16k, stream=False, text_frontend=False, prompt_speech_24k=prompt_speech_24k)
     ret = next(gen)
     tts_speech.append(ret['tts_speech'])
-    tts_uttid.add(uttid)
 tts_speech = torch.cat(tts_speech, dim=1)
-wav_name = '@'.join(tts_uttid)
-torchaudio.save(f"{outdir}/{wav_name}.wav", tts_speech, cosyvoice.sample_rate)
+torchaudio.save(f"{outdir}/debug.wav", tts_speech, cosyvoice.sample_rate)
 
